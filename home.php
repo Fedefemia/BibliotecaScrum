@@ -4,5 +4,3 @@
 // Testiamo se il DB è arrivato dal router
 if(isset($pdo)) echo "<b style='color:green'>Database Connesso dal Router!</b>"; 
 ?>
-
-Prova 22
