@@ -44,7 +44,7 @@ Password Mysql:  PWBiblioteca2007
 ### Area personale
 - Pagina profilo di ogni utente
 - Gestione delle funzionalità della pagina in base alla sessione loggata
-- Funzini di gestione profilo e di modifica delle informazioni profilo
+- Funzioni di gestione profilo e di modifica delle informazioni profilo
 
 ### Tessera utente
 - Creazione pdf con la card
