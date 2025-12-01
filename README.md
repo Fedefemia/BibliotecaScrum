@@ -58,7 +58,7 @@ Password Mysql:  PWBiblioteca2007
 - Connessione al database
 
 
-#Calcolo Codice Fiscale
+# Calcolo Codice Fiscale
 
 Articolo 1)  Sistemi di codificazione.
 
