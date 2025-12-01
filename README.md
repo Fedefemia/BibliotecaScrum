@@ -58,6 +58,8 @@ Password Mysql:  PWBiblioteca2007
 - Connessione al database
 
 
+#Calcolo Codice Fiscale
+
 Articolo 1)  Sistemi di codificazione.
 
 Le persone fisiche, le persone giuridiche e le società, associazioni ed altre organizzazioni di persone o di beni prive di personalità giuridica sono iscritte all'anagrafe tributaria secondo appositi sistemi di codificazione.
