@@ -3,6 +3,6 @@ composer.json
 composer.lock
 .git
 .gitignore
-webook.php
+webhook.php
 /vendor
 
