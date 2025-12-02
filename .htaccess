@@ -1,0 +1,9 @@
+RewriteEngine On
+RewriteBase /BibliotecaScrum/
+
+# Se il file o la cartella esistono davvero, servili direttamente (es. immagini, css)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Tutto il resto mandalo a router.php, MA NON CAMBIARE L'URL NEL BROWSER
+RewriteRule ^(.*)$ router.php [QSA,L]
