@@ -19,7 +19,7 @@ try {
     <meta charset="UTF-8">
     <title>Test Database</title>
     <style>
-        body { font-family: sans-serif; padding: 20px; background: red; }
+        body { font-family: sans-serif; padding: 20px; }
         .container { background: white; padding: 20px; border-radius: 8px; max-width: 600px; margin: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         h1 { color: #333; }
         .log-box { background: #eee; padding: 10px; border-left: 5px solid green; margin-bottom: 20px; }
