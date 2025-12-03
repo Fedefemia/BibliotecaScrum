@@ -28,7 +28,7 @@ CREATE TABLE `visitatori` (
   `nome` varchar(50) NOT NULL,
   `data_visita` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=155 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=168 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -191,7 +191,20 @@ INSERT INTO `visitatori` VALUES
 (151,'Utente Web','2025-12-01 08:58:29'),
 (152,'Utente Web','2025-12-01 08:58:56'),
 (153,'Utente Web','2025-12-01 08:58:58'),
-(154,'Utente Web','2025-12-01 08:58:59');
+(154,'Utente Web','2025-12-01 08:58:59'),
+(155,'Utente Web','2025-12-02 13:59:28'),
+(156,'Utente Web','2025-12-02 14:44:37'),
+(157,'Utente Web','2025-12-02 14:46:44'),
+(158,'Utente Web','2025-12-02 17:32:57'),
+(159,'Utente Web','2025-12-02 17:33:53'),
+(160,'Utente Web','2025-12-02 17:35:50'),
+(161,'Utente Web','2025-12-02 17:36:46'),
+(162,'Utente Web','2025-12-02 17:36:52'),
+(163,'Utente Web','2025-12-02 17:37:25'),
+(164,'Utente Web','2025-12-02 17:46:45'),
+(165,'Utente Web','2025-12-02 17:48:19'),
+(166,'Utente Web','2025-12-02 17:48:54'),
+(167,'Utente Web','2025-12-02 17:49:01');
 /*!40000 ALTER TABLE `visitatori` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -204,4 +217,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-12-02  2:00:02
+-- Dump completed on 2025-12-03  2:00:02
