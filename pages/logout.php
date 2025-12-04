@@ -6,7 +6,7 @@ if (isset($_COOKIE['auth'])) {
     setcookie('auth', '', time() - 3600, '/', '', false, true);
 }
 if ($era_loggato) {
-    $_SESSION['status'] = 'success';
+    $_SESSION['status'] = 'Logout riuscito';
 }
 session_write_close();
 header("Location: ./login");

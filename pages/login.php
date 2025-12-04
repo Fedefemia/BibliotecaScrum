@@ -19,11 +19,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         session_regenerate_id(true);
         $_SESSION['logged'] = true;
         setcookie('auth', 'ok', time() + 604800, '/', '', false, true);
-        
+        $_SESSION['status'] = 'Login riuscito';
         header("Location: ./");
         exit;
     } else {
-        $status = 'error';
+        $status = 'Login non riuscito';
+        $_SESSION['status'] = 'Login non riuscito';
     }
 }
 ?>

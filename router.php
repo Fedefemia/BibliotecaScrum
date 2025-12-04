@@ -7,6 +7,7 @@ $whitelist = [
     '/confirm-email' => 'pages/confirmemail.php',
     '/signup' => 'pages/signup.php',
     '/logout' => 'pages/logout.php',
+    '/protected' => 'pages/protected.php',
 ];
 
 

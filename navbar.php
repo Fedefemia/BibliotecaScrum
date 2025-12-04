@@ -43,24 +43,8 @@ if (isset($_SESSION['nome_utente'])) {
 
     .msg-box {
         display: inline;
-        padding: 10px;
-        margin: 15px;
-        border-radius: 5px;
         font-family: sans-serif;
         font-weight: bold;
-        height: 80%;
-    }
-
-    .success {
-        background-color: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-
-    .error {
-        background-color: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
     }
 </style>
 
@@ -68,13 +52,9 @@ if (isset($_SESSION['nome_utente'])) {
     <a href="./">Home</a>
 
     <?php if ($display_status): ?>
-        <div class="msg-box <?php echo $display_status; ?>">
+        <div class="msg-box">
             <?php
-            if ($display_status === 'success') {
-                echo "Logout riuscito";
-            } elseif ($display_status === 'error') {
-                echo "Login non riuscito";
-            }
+                echo $display_status;
             ?>
         </div>
     <?php endif; ?>
