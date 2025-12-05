@@ -7,8 +7,8 @@
               content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <title><?php if(isset($title)){echo $title;} else echo "Biblioteca Scrum"?></title>
-        <link rel="stylesheet" href="/BibliotecaScrum/public/css/style_global.css">
-        <link rel="icon" href="/BibliotecaScrum/public/assets/icon.png">
+        <link rel="stylesheet" href="./public/css/style_global.css">
+        <link rel="icon" href="./public/assets/icon.png">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
