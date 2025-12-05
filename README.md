@@ -59,7 +59,9 @@ Password Mysql:  PWBiblioteca2007
 
 
 # Calcolo Codice Fiscale
-
+<details>
+  <summary>Visualizza le procedure</summary>
+  
 Articolo 1)  Sistemi di codificazione.
 
 Le persone fisiche, le persone giuridiche e le società, associazioni ed altre organizzazioni di persone o di beni prive di personalità giuridica sono iscritte all'anagrafe tributaria secondo appositi sistemi di codificazione.
@@ -165,3 +167,5 @@ Il carattere di controllo viene determinato nel modo seguente: si sommano i valo
 Articolo 10)  Numero di codice fiscale provvisorio.
 
 L'Amministrazione finanziaria può attribuire un numero di codice fiscale provvisorio. Il numero di codice fiscale provvisorio delle persone fisiche ha struttura e composizione uguali a quelle di cui al precedente art. 8. Le prime sette cifre rappresentano il numero di matricola del soggetto; le cifre dall'ottava alla decima identificano l'ufficio che attribuisce il numero di codice fiscale provvisorio e l'undicesima è il carattere di controllo, che viene determinato con le modalità di cui all'art. 9. Ha inoltre validità di numero di codice fiscale provvisorio il numero di codice fiscale attribuito a soggetti persone fisiche, avente struttura e composizione conformi agli articoli da 2 a 7 del presente decreto, in corrispondenza del quale siano errati uno o più dati anagrafici che concorrono alla formazione del numero di codice fiscale stesso. Si applicano in tal caso le disposizioni di cui agli articoli 5, secondo comma, e 19 del decreto del Presidente della Repubblica 2 novembre 1976, n. 784. Il numero di codice fiscale provvisorio dei soggetti diversi dalle persone fisiche ha struttura uguale a quella del numero di codice fiscale definitivo.
+
+</details>
