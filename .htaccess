@@ -5,6 +5,9 @@ RewriteBase /BibliotecaScrum/
 # Questo permette di caricare CSS, JS o immagini se sono lì dentro.
 RewriteRule ^pages/ - [L]
 
+# 1.5 ECCEZIONE PER GLI ASSET: Se la richiesta è dentro la cartella "public/", servila direttamente.
+RewriteRule ^public/ - [L]
+
 # 2. PROTEZIONE: Permetti l'esecuzione del router stesso (altrimenti va in loop).
 RewriteRule ^router\.php$ - [L]
 

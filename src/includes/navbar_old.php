@@ -49,7 +49,7 @@ if (isset($_SESSION['nome_utente'])) {
 </style>
 
 <nav>
-    <a href="./">Home</a>
+    <a href="../..">Home</a>
 
     <?php if ($display_status): ?>
         <div class="msg-box">
