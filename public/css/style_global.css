@@ -94,7 +94,7 @@ body {
     background-color: var(--color_accent_dark);
     color: var(--color_accent_ligth);
 
-    height: 32px;
+    height: 42px;
     margin-bottom: 1rem;
     padding: 10px;
     border-radius: 5px;
@@ -106,12 +106,20 @@ body {
     flex-direction: row;
 }
 
-.navbar_rigth {
+.navbar_left {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    align-content: center;
+    height: 36px;
+}
+
+.navbar_rigth, .navbar_rigth_rigth, .navbar_rigth_left {
     display: flex;
     justify-content: flex-end;
     align-items: center;
     align-content: center;
-    height: 32px;
+    height: 36px;
 }
 
 .navbar_rigth a {
@@ -121,19 +129,156 @@ body {
 .navbar_link {
     color: var(--color_accent_ligth);
 }
-
 .navbar_link:hover {
     color: var(--color_accent_ligth_low);
 }
-
 .navbar_link:active {
     color: var(--color_accent_medium);
 }
 
 .navbar_link_img {
     height: 100%;
+    opacity: 1;
+}
+.navbar_link_img:hover {
+    opacity: 0.8;
+}
+.navbar_link_img:active {
+    opacity: 0.6;
+}
+
+.navbar_logo {
+    height: 100%;
 }
 
 .navbar_icon {
     height: 100%;
+}
+
+.navbar_pfp {
+    border-radius: 50%;
+    border: solid 1px var(--color_accent_dark);
+    outline: solid 2px var(--color_accent_ligth);
+    outline-offset: 1px;
+}
+
+.search_container {
+    border: none;
+    padding: 0;
+    margin: 0 0 0 1rem;
+    display: flex;
+    align-items: center;
+    background-color: var(--color_background_ligth);
+    border-radius: 20px;
+    height: 36px;
+    width: 200px;
+}
+
+.search_icon_button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0 8px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.navbar_search_icon {
+    height: 20px;
+    width: 20px;
+    opacity: 0.6;
+}
+
+.navbar_search_input {
+    border: none;
+    background: none;
+    outline: none;
+    flex-grow: 1;
+    font-size: 14px;
+    color: var(--color_accent_dark);
+    padding-right: 8px;
+}
+
+
+.navbar_search_mobile_link {
+    display: none;
+}
+.navbar_search_icon_mobile {
+    height: 30px;
+}
+
+
+/* Mobile e Tablet */
+@media (max-width: 768px) {
+
+    body {
+        padding: 0;
+    }
+
+    /* 1. Struttura Principale: navbar */
+    .navbar {
+        height: auto;
+        flex-direction: column;
+        padding: 8px 10px;
+    }
+
+    .navbar_left {
+        width: 100%;
+        height: 36px;
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .navbar_logo {
+        margin: 0;
+    }
+
+    .search_container {
+        display: none;
+    }
+
+    .navbar_search_mobile_link {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        order: -1;
+    }
+
+    .navbar_rigth {
+        display: flex;
+        width: 100%;
+        height: auto;
+        justify-content: space-between;
+        border-top: 1px solid var(--color_accent_medium);
+        padding: 8px 8px 0 8px;
+    }
+
+    .navbar_rigth_rigth, .navbar_rigth_left {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        align-content: center;
+        height: 36px;
+    }
+
+    .navbar_rigth a {
+        margin: 0;
+        padding: 0 5px;
+        text-align: center;
+    }
+
+    .navbar_icon {
+        height: 30px;
+    }
+
+    .navbar_link {
+        font-size: 12px;
+    }
+
+    .navbar_pfp, .navbar_link_img {
+        height: 25px;
+    }
 }
