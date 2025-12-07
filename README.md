@@ -48,7 +48,7 @@ https://unexploratory-franchesca-lipochromic.ngrok-free.dev
 
 # Calcolo Codice Fiscale
 <details>
-  <summary>Visualizza le procedure</summary>
+  <summary>Visualizza la procedura</summary>
   
 Articolo 1)  Sistemi di codificazione.
 
