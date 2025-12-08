@@ -41,3 +41,13 @@ CALL sp_crea_utente_alfanumerico('TestUsername1', 'Cobra', 'Ivi', 'GRRRMN07S01A6
 OUTPUT: nuovo_id 000001
 
 **ATTENZIONE** la tabella utenti contiene un check per l'username di tipo CHECK (username NOT REGEXP '^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$'); per impedire login errati
+
+
+### Controllare utenti per login
+
+per gestire il login (o qualsiasi ricerca tramite password e username, codice fiscale o email):
+
+CALL CheckLoginUser('mario@email.it', 'passwordSegreta', @esito);
+
+SELECT @esito;
+
