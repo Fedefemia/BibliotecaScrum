@@ -39,3 +39,5 @@ utente giá inserito:
 CALL sp_crea_utente_alfanumerico('TestUsername1', 'Cobra', 'Ivi', 'GRRRMN07S01A655L', 'prova@mail.com', 'passwordhash1');
 
 OUTPUT: nuovo_id 000001
+
+**ATTENZIONE** la tabella utenti contiene un check per l'username di tipo CHECK (username NOT REGEXP '^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$'); per impedire login errati
