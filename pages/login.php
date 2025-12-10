@@ -67,16 +67,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <style>
+    <!--style>
         .error { color: red; background-color: #fdd; padding: 10px; border: 1px solid red; margin-bottom: 15px; }
         .container { padding: 20px; max-width: 400px; margin: auto; }
         input { display: block; width: 100%; margin-bottom: 10px; padding: 8px; }
         button { padding: 10px 20px; cursor: pointer; }
-    </style>
+    </style-->
 </head>
 <body>
 
-    <?php include 'navbar.php'; ?>
+    <?php include './src/includes/header.php'; ?>
+    <?php include './src/includes/navbar.php'; ?>
 
     <div class="container">
         <h2>Accedi</h2>
@@ -98,6 +99,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <br>
         <a href="./signup">Non hai un account? Registrati</a>
     </div>
+
+    <?php include './src/includes/footer.php'; ?>
 
 </body>
 </html>

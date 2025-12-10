@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="294b6b77-9b33-4725-90e1-f1f8aeffe634" name="Changes" comment="Sistemo il db config">
-      <change beforePath="$PROJECT_DIR$/.idea/BibliotecaScrum.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BibliotecaScrum.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/php.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/php.xml" afterDir="false" />
+    <list default="true" id="294b6b77-9b33-4725-90e1-f1f8aeffe634" name="Changes" comment="Sistemato la pagina si signup, con collegamenti corretti privi di GET">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pages/signup.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/signup.php" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/utility/codiceFiscaleMethods.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/utility/codiceFiscaleMethods.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,23 +50,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/xampp/htdocs/BibliotecaScrum&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.webide.settings.project.settings.php.composer&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "ignore.virus.scanning.warn.message": "true",
+    "last_opened_file_path": "C:/xampp/htdocs/BibliotecaScrum",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "editor.preferences.folding",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -89,6 +87,8 @@
       <updated>1765012614699</updated>
       <workItem from="1765012616591" duration="754000" />
       <workItem from="1765013415652" duration="2491000" />
+      <workItem from="1765368190370" duration="350000" />
+      <workItem from="1765368705527" duration="10001000" />
     </task>
     <task id="LOCAL-00001" summary="Sistemo il db config">
       <option name="closed" value="true" />
@@ -98,7 +98,31 @@
       <option name="project" value="LOCAL" />
       <updated>1765017824695</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="First implementation of signUp">
+      <option name="closed" value="true" />
+      <created>1765368315186</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1765368315186</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Sistemazione della route di sign up e funzioni del codice fiscale">
+      <option name="closed" value="true" />
+      <created>1765381929035</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1765381929036</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Sistemato la pagina si signup, con collegamenti corretti privi di GET">
+      <option name="closed" value="true" />
+      <created>1765387702339</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1765387702339</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -106,6 +130,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Sistemo il db config" />
-    <option name="LAST_COMMIT_MESSAGE" value="Sistemo il db config" />
+    <MESSAGE value="First implementation of signUp" />
+    <MESSAGE value="Sistemazione della route di sign up e funzioni del codice fiscale" />
+    <MESSAGE value="Sistemato la pagina si signup, con collegamenti corretti privi di GET" />
+    <option name="LAST_COMMIT_MESSAGE" value="Sistemato la pagina si signup, con collegamenti corretti privi di GET" />
   </component>
 </project>

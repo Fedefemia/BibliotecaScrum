@@ -6,124 +6,149 @@ require_once 'db_config.php';
 // Redirect se già loggato
 if (isset($_SESSION['logged']) && $_SESSION['logged'] === true) {
     header("Location: /");
-    exit;
+    exit();
 }
 
-// Verifica se la registrazione è con codice fiscale
-$registratiConCodice = isset($_GET['conCodiceFiscale']) && $_GET['conCodiceFiscale'] === 'true';
+$registratiConCodice = isset($_POST['conCodiceFiscale']) && $_POST['conCodiceFiscale'] == "true";
 $tipologia = $registratiConCodice ? " con Codice Fiscale" : "";
-$status = '';
+$error_msg = '';
 
 // LOGICA DI SIGNUP
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $daCodiceFiscale = isset($_POST['daCodiceFiscale']) && boolval($_POST['daCodiceFiscale']);
+    try{
+        if(isset($pdo)) {
+            $email = $_POST['email'] ?? '';
+            $username = $_POST['username'] ?? '';
+            $password = $_POST['password'] ?? '';
+            $nome = $_POST['nome'] ?? '';
+            $cognome = $_POST['cognome'] ?? '';
+            $daCodiceFiscale = isset($_POST['daCodiceFiscale']) ? boolval($_POST['daCodiceFiscale']) : false;
+            $follow_along = false;
 
-    if (!$daCodiceFiscale) {
-        $nome = $_POST['nome'] ?? '';
-        $cognome = $_POST['cognome'] ?? '';
-        $data_nascita = $_POST['data_nascita'] ?? '';
-        $comune_nascita = $_POST['comune_nascita'] ?? '';
-        $sesso = $_POST['sesso'] ?? '';
-
-        if ($nome === '' || $cognome === '' || $data_nascita === '' || $comune_nascita === '') {
-            $status = "Dati inseriti non validi";
+            if ($nome != '' && $cognome != '' && $email != '' && $username != '' && $password != '') {
+                if (!$daCodiceFiscale) {
+                    $data_nascita = $_POST['data_nascita'] ?? '';
+                    $comune_nascita = $_POST['comune_nascita'] ?? '';
+                    $sesso = $_POST['sesso'] ?? '';
+                    if ($data_nascita == '' || $comune_nascita == '') {
+                        $error_msg = "Dati inseriti non validi";
+                    }
+                    $codice_fiscale = generateCodiceFiscale($nome, $cognome, $data_nascita, $comune_nascita, $sesso);
+                } else {
+                    $codice_fiscale = $_POST['codice_fiscale'] ?? '';
+                    if (empty($datiDaCodice)) {
+                        $error_msg = "Codice Fiscale non valido";
+                    }
+                }
+                $follow_along = true;
+            }
+            // Inserimento Utente
+            if ($error_msg == '' && $follow_along) {
+                $insert_string = "CALL sp_crea_utente_alfanumerico(:username, :nome, :cognome, :codice_fiscale, :email, :password)";
+                $stmt = $pdo->prepare($insert_string);
+                $password_hash = hash("sha256", $password);
+                $stmt->bindParam(":nome", $nome);
+                $stmt->bindParam(":cognome", $cognome);
+                $stmt->bindParam(":username", $username);
+                $stmt->bindParam(":codice_fiscale", $codice_fiscale);
+                $stmt->bindParam(":email", $email);
+                $stmt->bindParam(":password", $password_hash);
+                $resu = $stmt->execute();
+                if ($resu) {
+                    header("Location: /login");
+                    exit();
+                } else {
+                    $status = "Errore nell'inserimento dell'utente";
+                }
+            }
         }
-    } else {
-        $codice_fiscale = $_POST['codice_fiscale'] ?? '';
-        $datiDaCodice = extractFromCodiceFiscale($codice_fiscale);
-
-        if (empty($datiDaCodice)) {
-            $status = "Codice Fiscale non definito";
-        } else {
-            $nome = $datiDaCodice['nome'] ?? '';
-            $cognome = $datiDaCodice['cognome'] ?? '';
-            $data_nascita = $datiDaCodice['data_nascita'] ?? '';
-            $comune_nascita = $datiDaCodice['comune_nascita'] ?? '';
-            $sesso = $datiDaCodice['sesso'] ?? '';
-            $codice_fiscale = $datiDaCodice['codice_fiscale'] ?? '';
+        else {
+            $error_msg = "Errore di connessione al Database.";
         }
-    }
-
-    // Inserimento nel database
-    if ($status === '') {
-        $insert_string = "INSERT INTO users (nome, cognome, comune_nascita, data_nascita, sesso, codice_fiscale, email, password) 
-                          VALUES (:nome, :cognome, :comune, :data, :sesso, :codice_fiscale, :email, :password)";
-        $stmt = $pdo->prepare($insert_string);
-        $stmt->bindParam(":nome", $nome);
-        $stmt->bindParam(":cognome", $cognome);
-        $stmt->bindParam(":comune", $comune_nascita);
-        $stmt->bindParam(":data", $data_nascita);
-        $stmt->bindParam(":sesso", $sesso);
-        $stmt->bindParam(":codice_fiscale", $codice_fiscale);
-        $stmt->bindParam(":email", $email);
-        $stmt->bindParam(":password", $password);
-        $result = $stmt->execute();
-
-        if ($result) {
-            header("Location: /login");
-            exit;
-        } else {
-            $status = "Errore nell'inserimento dell'utente";
-        }
+    } catch (PDOException $e) {
+        $error_msg = "Errore di sistema: " . $e->getMessage();
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Registrazione</title>
-</head>
-<body>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Registrazione</title>
+    </head>
+    <body>
 
-<?php include 'navbar.php'; ?>
+        <?php require_once './src/includes/header.php'; ?>
+        <?php require_once './src/includes/navbar.php'; ?>
 
-<div style="padding: 20px;">
-    <?php if ($status) echo "<p>$status</p>"; ?>
-    <h2>Registrati<?= $tipologia ?></h2>
-    <form method="post">
-        <label for="nome">Nome:</label>
-        <input required type="text" id="nome" name="nome">
-        <label for="cognome">Cognome:</label>
-        <input required type="text" id="cognome" name="cognome">
+        <div class="container">
 
-        <?php if ($registratiConCodice) { ?>
-            <label for="codice_fiscale">Codice Fiscale:</label>
-            <input required type="text" id="codice_fiscale" name="codice_fiscale">
-        <?php } else { ?>
-            <label for="comune_nascita">Comune di Nascita:</label>
-            <input required type="text" id="comune_nascita" name="comune_nascita">
-            <label for="data_nascita">Data di Nascita:</label>
-            <input required type="date" id="data_nascita" name="data_nascita">
-            <label for="sesso">Sesso:</label>
-            <select required name="sesso" id="sesso">
-                <option value="">--Seleziona--</option>
-                <option value="M">Maschio</option>
-                <option value="F">Femmina</option>
-                <option value="PND">Preferisco non dirlo</option>
-            </select>
-        <?php } ?>
+            <?php if (!empty($error_msg)): ?>
+                <div class="error"><?php echo htmlspecialchars($error_msg); ?></div>
+            <?php endif; ?>
 
-        <label for="email">Email:</label>
-        <input required type="email" id="email" name="email">
-        <label for="password">Password:</label>
-        <input required type="password" id="password" name="password">
+            <h2>Registrati<?php echo $tipologia ?></h2>
+            <form method="post">
 
-        <input type="submit" value="Registrami">
-    </form>
+                <label for="username">Username:</label>
+                <input placeholder="Username" required type="text" id="username" name="username">
 
-    <?php if ($registratiConCodice) { ?>
-        <a href='/signup/?conCodiceFiscale=false'>Non hai il codice fiscale?</a>
-    <?php } else { ?>
-        <a href='/signup/?conCodiceFiscale=true'>Hai il codice fiscale?</a>
-    <?php } ?>
-</div>
+                <label for="nome">Nome:</label>
+                <input placeholder="Nome" required type="text" id="nome" name="nome">
 
-</body>
+                <label for="cognome">Cognome:</label>
+                <input placeholder="Cognome" required type="text" id="cognome" name="cognome">
+
+                <?php if ($registratiConCodice) { ?>
+                    <label for="codice_fiscale">Codice Fiscale:</label>
+                    <input placeholder="Codice Fiscale" required type="text" id="codice_fiscale" name="codice_fiscale">
+                <?php } else { ?>
+                    <label for="comune_nascita">Comune di Nascita:</label>
+                    <input placeholder="Comune di Nascita" required type="text" id="comune_nascita" name="comune_nascita">
+                    <label for="data_nascita">Data di Nascita:</label>
+                    <input placeholder="Data di Nascita" required type="date" id="data_nascita" name="data_nascita">
+                    <label for="sesso">Sesso:</label>
+                    <select required name="sesso" id="sesso">
+                        <option value="">--Sesso--</option>
+                        <optgroup label="Preferenze">
+                            <option value="M">Maschio</option>
+                            <option value="F">Femmina</option>
+                        </optgroup>
+                    </select>
+
+                <?php } ?>
+                <label for="email">Email:</label>
+                <input placeholder="Email" required type="email" id="email" name="email">
+                <label for="password">Password:</label>
+                <input required type="password" id="password" name="password">
+                <input placeholder="Password" type="submit" value="Registrami">
+            </form>
+            <?php if ($registratiConCodice) { ?>
+                <a href="#" onclick='redirectConCodice(false)'>Non hai il codice fiscale?</a>
+            <?php } else { ?>
+                <a href="#" onclick='redirectConCodice(true)'>Hai il codice fiscale?</a>
+            <?php } ?>
+
+        </div>
+
+        <?php require_once "./src/includes/footer.php" ?>
+
+        <script>
+            const redirectConCodice = (conCodice) => {
+                const virtual_form = document.createElement("form");
+                virtual_form.style.display = "none"
+                virtual_form.method = "POST";
+                virtual_form.action = "./signup"
+                const decision = document.createElement("input");
+                decision.name = "conCodiceFiscale";
+                decision.type = "hidden";
+                decision.value = conCodice;
+                virtual_form.appendChild(decision)
+                document.body.appendChild(virtual_form);
+                virtual_form.submit();
+            }
+        </script>
+    </body>
 </html>
