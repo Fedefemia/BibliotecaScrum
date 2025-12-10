@@ -1,6 +1,6 @@
 # Biblioteca Scrum
 
-[Wiki di sviluppo](wiki.md)
+[Wiki di sviluppo](Wiki.md)
 
 ## Link Sito
 https://unexploratory-franchesca-lipochromic.ngrok-free.dev
