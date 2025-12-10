@@ -1,7 +1,7 @@
 <?php
+session_start();
 require_once "utility/codiceFiscaleMethods.php";
 require_once 'db_config.php';
-session_start();
 
 // Redirect se già loggato
 if (isset($_SESSION['logged']) && $_SESSION['logged'] === true) {
