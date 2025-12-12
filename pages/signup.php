@@ -21,7 +21,7 @@ if (!$cfIncluded) {
     // Non blocco l'esecuzione: segnalo errore più avanti se serve
 }
 
-require_once __DIR__ . '/mail.php'; // il file che definisce getMailer()
+require_once __DIR__ . 'phpmailer.php'; // il file che definisce getMailer()
 
 // modalità manuale se ?mode=manuale
 $registratiConCodice = isset($_GET['mode']) && $_GET['mode'] === 'manuale';
