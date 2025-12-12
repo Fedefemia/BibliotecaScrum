@@ -2,7 +2,9 @@
 session_start();
 require_once 'db_config.php';
 
-// Includo la tua libreria CF: prova più possibili path
+// ======================
+// INCLUSIONE LIBRERIA CF
+// ======================
 $cfIncluded = false;
 $possible = [
     __DIR__ . '/src/includes/codicefiscalemethods.php',
@@ -17,11 +19,8 @@ foreach ($possible as $p) {
         break;
     }
 }
-if (!$cfIncluded) {
-    // Non blocco l'esecuzione: segnalo errore più avanti se serve
-}
 
-require_once './phpmailer.php'; // il file che definisce getMailer()
+require_once './phpmailer.php';
 
 // modalità manuale se ?mode=manuale
 $registratiConCodice = isset($_GET['mode']) && $_GET['mode'] === 'manuale';
@@ -31,10 +30,15 @@ $error_msg = "";
 $success_msg = "";
 
 // Funzione ID casuale per la tua tabella
-function genID($l=6) { return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"),0,$l); }
+function genID($l=6) { 
+    return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"),0,$l); 
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Recupero dati dal form
+
+    // ======================
+    // RACCOLTA DATI INPUT
+    // ======================
     $nome     = trim($_POST['nome'] ?? '');
     $cognome  = trim($_POST['cognome'] ?? '');
     $username = trim($_POST['username'] ?? '');
@@ -43,14 +47,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $data     = $_POST['data_nascita'] ?? '';
     $sesso    = $_POST['sesso'] ?? '';
-    $codice_comune   = trim($_POST['codice_comune'] ?? ''); // nome coerente con PHP
+    $codice_comune = trim($_POST['codice_comune'] ?? '');
     $cf_input = trim($_POST['codice_fiscale'] ?? '');
 
     if (!isset($pdo)) {
         $error_msg = "Errore connessione database.";
     } else {
         try {
-            // validazioni minime
+
+            // ======================
+            // VALIDAZIONI
+            // ======================
             if (!$username || !$nome || !$cognome || !$email || !$password) {
                 throw new Exception("Compila tutti i campi obbligatori.");
             }
@@ -62,37 +69,64 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Username o email già in uso.");
             }
 
-            // genera CF finale
+            // ======================
+            // CODICE FISCALE
+            // ======================
             if (!empty($cf_input)) {
                 $cf_finale = strtoupper($cf_input);
             } else {
-                if (!$cfIncluded) throw new Exception("Libreria Codice Fiscale non trovata sul server.");
+
+                if (!$cfIncluded) {
+                    throw new Exception("Libreria Codice Fiscale non trovata sul server.");
+                }
+
+                // FIX codice catastale
+                $codice_comune = strtoupper(trim($codice_comune));
+                if (strlen($codice_comune) !== 4) {
+                    throw new Exception("Il codice catastale deve avere 4 caratteri.");
+                }
+
                 if ($nome && $cognome && $data && $sesso && $codice_comune) {
-                    // generateCodiceFiscale deve esistere nel file incluso
                     $cf_finale = generateCodiceFiscale($nome, $cognome, $data, $sesso, $codice_comune);
+                    if (!$cf_finale) {
+                        throw new Exception("Errore nel calcolo del codice fiscale.");
+                    }
                 } else {
-                    throw new Exception("Compila tutti i campi (Data, Sesso, Codice Comune) per calcolare il CF.");
+                    throw new Exception("Compila correttamente Data, Sesso e Codice Comune per calcolare il CF.");
                 }
             }
 
-            // crea utente
+            // ======================
+            // CREAZIONE UTENTE
+            // ======================
             $id = genID();
-            // uso password_hash (più sicuro). Se vuoi SHA256: $hash = hash('sha256', $password);
             $hash = password_hash($password, PASSWORD_DEFAULT);
 
             $stmt = $pdo->prepare("INSERT INTO utenti 
                 (codice_alfanumerico, username, nome, cognome, email, codice_fiscale, password_hash, email_confermata, data_creazione) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, 0, NOW())");
-            $stmt->execute([$id, $username, $nome, $cognome, $email, $cf_finale, $hash]);
 
-            // genero token email e lo salvo in tokenemail
+            $stmt->execute([
+                $id, $username, $nome, $cognome, $email, $cf_finale, $hash
+            ]);
+
+            // ======================
+            // TOKEN EMAIL
+            // ======================
+            // NOTA IMPORTANTE:
+            // La tua tabella tokenemail NON ha il campo scade_il
+            // Quindi la tua INSERT precedente falliva.
+            // ======================
+
             $token = bin2hex(random_bytes(32));
-            $scade = (new DateTime("now", new DateTimeZone("UTC")))->modify('+24 hours')->format('Y-m-d H:i:s');
 
-            $ins = $pdo->prepare("INSERT INTO tokenemail (token, codice_alfanumerico, scade_il) VALUES (?, ?, ?)");
-            $ins->execute([$token, $id, $scade]);
+            $ins = $pdo->prepare("INSERT INTO tokenemail (token, codice_alfanumerico) 
+                                  VALUES (?, ?)");
+            $ins->execute([$token, $id]);
 
-            // invio mail di verifica
+            // ======================
+            // INVIO EMAIL
+            // ======================
             $baseUrl = 'https://unexploratory-franchesca-lipochromic.ngrok-free.dev/verifica';
             $verifyLink = $baseUrl . '?token=' . urlencode($token);
 
@@ -101,19 +135,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $mail->isHTML(true);
             $mail->Subject = 'Conferma la tua email';
             $mail->Body    = "<p>Ciao " . htmlspecialchars($nome) . ",</p>
-                              <p>clicca il link per confermare la tua email:</p>
-                              <p><a href=\"" . htmlspecialchars($verifyLink) . "\">Conferma email</a></p>
-                              <p>Il link scade in 24 ore.</p>";
+                              <p>Clicca questo link per confermare la tua email:</p>
+                              <p><a href=\"" . htmlspecialchars($verifyLink) . "\">Conferma email</a></p>";
 
             $mail->send();
 
             $success_msg = "Registrazione riuscita! Ti abbiamo inviato una mail di conferma.";
 
-        } catch (PDOException $e) {
-            // se errore duplicate da DB o altro, mostrane il messaggio per debug (rimuovi in produzione)
-            $error_msg = "Errore Database: " . $e->getMessage();
         } catch (Exception $e) {
             $error_msg = "Errore: " . $e->getMessage();
+        } catch (PDOException $e) {
+            $error_msg = "Errore Database: " . $e->getMessage();
         }
     }
 }
@@ -152,8 +184,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php } else { ?>
         <label for="codice_comune">Codice/Comune di Nascita (codice catastale):</label>
         <input placeholder="Codice Comune" required type="text" id="codice_comune" name="codice_comune">
+
         <label for="data_nascita">Data di Nascita:</label>
         <input placeholder="Data di Nascita" required type="date" id="data_nascita" name="data_nascita">
+
         <label for="sesso">Sesso:</label>
         <select required name="sesso" id="sesso">
             <option value="">--Sesso--</option>
@@ -166,8 +200,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     <label for="email">Email:</label>
     <input placeholder="Email" required type="email" id="email" name="email">
+
     <label for="password">Password:</label>
     <input required type="password" id="password" name="password">
+
     <input type="submit" value="Registrami">
 </form>
 
