@@ -11,6 +11,7 @@ $whitelist = [
     '/contatti' => 'pages/contatti.php',
     './privacy' => 'pages/privacy.php',
     './terms' => 'pages/terms.php',
+    './verifica' => 'pages/verifica.php',
 ];
 
 
