@@ -2,23 +2,7 @@
 session_start();
 require_once 'db_config.php';
 
-// ======================
-// INCLUSIONE LIBRERIA CF
-// ======================
-$cfIncluded = false;
-$possible = [
-    __DIR__ . '/src/includes/codicefiscalemethods.php',
-    __DIR__ . '/src/includes/codiceFiscaleMethods.php',
-    __DIR__ . '/../src/includes/codicefiscalemethods.php',
-    __DIR__ . '/../src/includes/codiceFiscaleMethods.php',
-];
-foreach ($possible as $p) {
-    if (file_exists($p)) {
-        require_once $p;
-        $cfIncluded = true;
-        break;
-    }
-}
+require_once './src/includes/codiceFiscaleMethods.php';
 
 require_once './phpmailer.php';
 
@@ -27,10 +11,6 @@ $tipologia = $registratiConCodice ? 'manuale' : 'automatico';
 
 $error_msg = "";
 $success_msg = "";
-
-function genID($l = 6) {
-    return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"), 0, $l);
-}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nome          = trim($_POST['nome'] ?? '');
@@ -51,10 +31,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Compila tutti i campi obbligatori.");
             }
 
+            // controllo duplicati
             $chk = $pdo->prepare("SELECT 1 FROM utenti WHERE username = ? OR email = ? LIMIT 1");
             $chk->execute([$username, $email]);
             if ($chk->fetch()) throw new Exception("Username o email già in uso.");
 
+            // CODICE FISCALE
             if (!empty($cf_input)) {
                 $cf_finale = $cf_input;
             } else {
@@ -68,18 +50,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            $id = genID();
-            $hash = password_hash($password, PASSWORD_DEFAULT);
+            $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-            $stmt = $pdo->prepare("INSERT INTO utenti 
-                (codice_alfanumerico, username, nome, cognome, email, codice_fiscale, password_hash, email_confermata, data_creazione) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, 0, NOW())");
-            $stmt->execute([$id, $username, $nome, $cognome, $email, $cf_finale, $hash]);
+            // ======================
+            // INSERIMENTO TRAMITE PROCEDURA
+            // ======================
+            $stmt = $pdo->prepare("CALL sp_crea_utente_alfanumerico(?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$username, $nome, $cognome, $cf_finale, $email, $password_hash]);
 
+            // recupero id generato
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$row || !isset($row['nuovo_id'])) {
+                throw new Exception("Errore nella creazione dell'utente.");
+            }
+            $nuovo_id = $row['nuovo_id'];
+
+            // ======================
+            // TOKEN EMAIL
+            // ======================
             $token = bin2hex(random_bytes(32));
             $ins = $pdo->prepare("INSERT INTO tokenemail (token, codice_alfanumerico) VALUES (?, ?)");
-            $ins->execute([$token, $id]);
+            $ins->execute([$token, $nuovo_id]);
 
+            // ======================
+            // INVIO EMAIL
+            // ======================
             $baseUrl = 'https://unexploratory-franchesca-lipochromic.ngrok-free.dev/verifica';
             $verifyLink = $baseUrl . '?token=' . urlencode($token);
 
