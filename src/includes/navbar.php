@@ -51,7 +51,7 @@ if (isset($_SESSION['nome_utente'])) {
 
             <?php
             if (isset($_SESSION['logged']) && $_SESSION['logged'] === true){?>
-                    <a href="#" class="navbar_link_img instrument-sans-semibold" id="navbar_pfp">
+                    <a href="./profilo" class="navbar_link_img instrument-sans-semibold" id="navbar_pfp">
                         <img src="./public/assets/base_pfp.png" alt="pfp" class="navbar_icon navbar_pfp">
                     </a>
             <?php    } else { ?>
