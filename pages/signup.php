@@ -1,67 +1,89 @@
 <?php
 session_start();
 require_once 'db_config.php'; 
-
-// 1. INCLUDO IL TUO FILE CON LA LOGICA DEL CODICE FISCALE
-// Assicurati che il percorso sia giusto rispetto a dove si trova signup.php
+// Includo la TUA libreria (controlla che il percorso sia giusto)
 require_once __DIR__ . '/../src/includes/codiceFiscaleMethods.php'; 
 
+// --- 1. GESTIONE VARIABILI PER L'HTML (FIX WARNING) ---
+// Logica: se nell'URL c'è ?con_codice=1 allora mostriamo il campo CF, altrimenti il calcolatore
+$registratiConCodice = isset($_GET['con_codice']); 
+$tipologia = $registratiConCodice ? 'manuale' : 'automatico'; // Serve al tuo HTML
 $error_msg = "";
 $success_msg = "";
 
-// Funzione per generare ID univoco (per la tabella utenti)
+// Funzione ID (necessaria per la tua tabella)
 function genID($l=6) { return substr(str_shuffle("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"),0,$l); }
 
+// --- 2. GESTIONE REGISTRAZIONE ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    // 2. PRENDO I DATI DAL TUO FORM HTML
-    // Verifica che i 'name' nel tuo HTML siano questi:
-    $nome        = $_POST['nome'] ?? '';
-    $cognome     = $_POST['cognome'] ?? '';
-    $dataNascita = $_POST['data_nascita'] ?? ''; // Deve essere formato YYYY-MM-DD
-    $sesso       = $_POST['sesso'] ?? '';        // M o F
-    $codiceComune= $_POST['codice_comune'] ?? ''; // Es. H501
+    // Dati comuni
+    $nome     = $_POST['nome'] ?? '';
+    $cognome  = $_POST['cognome'] ?? '';
+    $username = $_POST['username'] ?? '';
+    $email    = $_POST['email'] ?? '';
+    $pass     = $_POST['password'] ?? '';
     
-    $username    = $_POST['username'] ?? '';
-    $email       = $_POST['email'] ?? '';
-    $password    = $_POST['password'] ?? '';
+    // Dati per calcolo CF
+    $dataNascita  = $_POST['data_nascita'] ?? '';
+    $sesso        = $_POST['sesso'] ?? '';
+    $codiceComune = $_POST['codice_comune'] ?? ''; // Verifica il name nel tuo HTML
+    
+    // CF inserito a mano (se presente)
+    $cf_manuale   = $_POST['codice_fiscale'] ?? '';
 
     if (isset($pdo)) {
         try {
-            // 3. USO LA TUA FUNZIONE PER CALCOLARE IL CF
-            // Richiama la funzione definita in codiceFiscaleMethods.php
-            $cf_generato = generateCodiceFiscale($nome, $cognome, $dataNascita, $sesso, $codiceComune);
+            $cf_finale = "";
 
-            // 4. PREPARO I DATI PER IL LOGIN (SHA256) E L'ID
-            $id_utente = genID();
-            $pass_hash = hash('sha256', $password); // Compatibile col tuo Login
+            // LOGICA DI SCELTA: CALCOLATO O MANUALE?
+            if (!empty($cf_manuale)) {
+                // Se l'utente ha scritto il CF a mano, usiamo quello
+                $cf_finale = strtoupper($cf_manuale);
+            } else {
+                // Altrimenti usiamo la TUA funzione
+                // Assicurati che i campi data/sesso/comune non siano vuoti
+                if(!empty($dataNascita) && !empty($sesso) && !empty($codiceComune)) {
+                    $cf_finale = generateCodiceFiscale($nome, $cognome, $dataNascita, $sesso, $codiceComune);
+                } else {
+                    throw new Exception("Mancano i dati per calcolare il Codice Fiscale.");
+                }
+            }
 
-            // 5. INSERIMENTO NEL DATABASE
+            // Controllo lunghezza CF
+            if (strlen($cf_finale) !== 16) {
+                throw new Exception("Il Codice Fiscale generato o inserito non è valido (lunghezza errata).");
+            }
+
+            // Preparazione dati DB
+            $id = genID();
+            $pass_hash = hash('sha256', $pass); // SHA256 per compatibilità col tuo login
+
             $sql = "INSERT INTO utenti 
                     (codice_alfanumerico, username, nome, cognome, email, codice_fiscale, password_hash, email_confermata, data_creazione) 
                     VALUES (:id, :user, :nome, :cogn, :email, :cf, :pass, 0, NOW())";
             
             $stmt = $pdo->prepare($sql);
             $stmt->execute([
-                ':id'    => $id_utente,
+                ':id'    => $id,
                 ':user'  => $username,
                 ':nome'  => $nome,
                 ':cogn'  => $cognome,
                 ':email' => $email,
-                ':cf'    => $cf_generato, // Inseriamo quello calcolato dalla tua funzione
+                ':cf'    => $cf_finale,
                 ':pass'  => $pass_hash
             ]);
 
-            $success_msg = "Registrato con successo! CF: " . $cf_generato;
-            // header("Location: /login"); exit; // Scommenta per redirect
+            $success_msg = "Registrato! CF: " . $cf_finale;
+            // header("Location: /login"); exit; 
 
-        } catch (PDOException $e) {
-            $error_msg = "Errore Database: " . $e->getMessage();
+        } catch (Exception $e) { // Cattura sia PDOException che Exception generiche
+            $error_msg = "Errore: " . $e->getMessage();
         } catch (TypeError $e) {
-            $error_msg = "Errore nei dati per il calcolo CF: " . $e->getMessage();
+            $error_msg = "Errore dati funzione CF: " . $e->getMessage();
         }
     } else {
-        $error_msg = "Errore di connessione al database.";
+        $error_msg = "Errore connessione DB.";
     }
 }
 ?>
