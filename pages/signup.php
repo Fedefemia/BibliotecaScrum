@@ -1,9 +1,7 @@
 <?php
 session_start();
 require_once 'db_config.php';
-
 require_once './src/includes/codiceFiscaleMethods.php';
-
 require_once './phpmailer.php';
 
 $registratiConCodice = isset($_GET['mode']) && $_GET['mode'] === 'manuale';
@@ -31,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Compila tutti i campi obbligatori.");
             }
 
-            // controllo duplicati
+            // Controllo duplicati
             $chk = $pdo->prepare("SELECT 1 FROM utenti WHERE username = ? OR email = ? LIMIT 1");
             $chk->execute([$username, $email]);
             if ($chk->fetch()) throw new Exception("Username o email già in uso.");
@@ -40,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (!empty($cf_input)) {
                 $cf_finale = $cf_input;
             } else {
-                if (!$cfIncluded) throw new Exception("Libreria Codice Fiscale non trovata sul server.");
                 if (strlen($codice_comune) !== 4) throw new Exception("Il codice catastale deve avere 4 caratteri.");
                 if ($nome && $cognome && $data && $sesso && $codice_comune) {
                     $cf_finale = generateCodiceFiscale($nome, $cognome, $data, $sesso, $codice_comune);
@@ -53,17 +50,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
             // ======================
-            // INSERIMENTO TRAMITE PROCEDURA
+            // CREAZIONE UTENTE TRAMITE PROCEDURA
             // ======================
             $stmt = $pdo->prepare("CALL sp_crea_utente_alfanumerico(?, ?, ?, ?, ?, ?)");
             $stmt->execute([$username, $nome, $cognome, $cf_finale, $email, $password_hash]);
 
-            // recupero id generato
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-            if (!$row || !isset($row['nuovo_id'])) {
-                throw new Exception("Errore nella creazione dell'utente.");
-            }
-            $nuovo_id = $row['nuovo_id'];
+            // Recupero id generato
+            $nuovo_id = null;
+            do {
+                $res = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($res && isset($res['nuovo_id'])) $nuovo_id = $res['nuovo_id'];
+            } while ($stmt->nextRowset());
+            $stmt->closeCursor();
+
+            if (!$nuovo_id) throw new Exception("Errore nella creazione dell'utente.");
 
             // ======================
             // TOKEN EMAIL
@@ -167,6 +167,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <?php include './src/includes/footer.php'; ?>
-
 </body>
 </html>
