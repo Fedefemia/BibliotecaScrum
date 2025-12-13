@@ -11,12 +11,7 @@ $whitelist = [
     '/contatti' => 'pages/contatti.php',
     './privacy' => 'pages/privacy.php',
     './terms' => 'pages/terms.php',
-    '/dashboard' => 'pages/admin/dashboard.php',
-    '/dashboard-biblioteche' => 'pages/admin/D_biblioteche.php',
-    '/dashboard-libri' => 'pages/admin/D_libri.php',
-    '/dashboard-utenti' => 'pages/admin/D_utenti.php',
-
-
+    '/dashboard' => 'pages/dashboard.php',
 ];
 
 
