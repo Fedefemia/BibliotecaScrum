@@ -1,38 +1,54 @@
 <?php
+session_start();
 include 'security.php';
-if(session_status() == PHP_SESSION_NONE) session_start();
 
+$codice_utente = $_SESSION['codice_utente'] ?? null;
 $imgprofilo = "./public/assets/base_pfp.png";
 $username = "Test";
 $nome = "Test";
 $cf = "Test12344";
 $cognome = "Test";
 $email = "Test";
-$error_msg = '';
 
 
-$recuperoDati = "SELECT * FROM utenti WHERE username = :codice OR email = :codice OR codice_fiscale = :codice";
+$recuperoDati = "SELECT * FROM utenti WHERE codice_alfanumerico = ?";
 try {
     if(isset($pdo)) {
         $stmt = $pdo->prepare($recuperoDati);
-        $stmt->bindParam(":codice", $_SESSION['username']);
-        $resu = $stmt->fetch();
-        if($resu) {
-            $username = $resu["username"];
-            $nome = $resu["nome"];
-            $cognome = $resu["cognome"];
-            $email = $resu["email"];
-            $recuperoPrestiti = "SELECT l.isbn, c.copertina FROM prestiti p JOIN copie c ON p.ic_copia = c.id_copia JOIN libri l ON c.isbn = l.isbn WHERE p.codice_alfanumerico = :codice_alfanumerico AND p.data_restituzione IS NULL;";
-            $newStmt = $pdo->prepare($recuperoDati);
-            $newStmt->bindParam(":codice", $_SESSION['username']);
+        $stmt->execute([$codice_utente]);
+        $utente = $stmt->fetch();
+        if($utente) {
+            $username = $utente["username"];
+            $nome = $utente["nome"];
+            $cognome = $utente["cognome"];
+            $email = $utente["email"];
+            //Recupero Prestiti
+            $recuperoPrestiti = "SELECT l.isbn as isbn as copertina FROM prestiti p JOIN copie c ON p.ic_copia = c.id_copia JOIN libri l ON c.isbn = l.isbn WHERE p.codice_alfanumerico = :codice";
+            $newStmt = $pdo->prepare($recuperoPrestiti);
+            $newStmt->bindParam(":codice", $utente['codice_alfanumerico']);
             $resuPrestiti = $newStmt->fetchAll();
             if($resuPrestiti) {
                 $prestiti = $resuPrestiti;
             }
+            //Recupero Prenotazioni
+            $recuperoPrenotazioni = "SELECT l.isbn as isbn FROM prenotazioni p JOIN libri l ON p.isbn = l.isbn JOIN copie c ON l.isbn = c.isbn  WHERE p.codice_alfanumerico = :codice";
+            $newStmt = $pdo->prepare($recuperoPrenotazioni);
+            $newStmt->bindParam(":codice", $utente['codice_alfanumerico']);
+            $resuPrenotazioni = $newStmt->fetchAll();
+            if($resuPrenotazioni) {
+                $prenotazioni = $resuPrenotazioni;
+            }
+            //Recupero Letture
+            $recuperoletture = $recuperoPrestiti . " AND p.data_restituzione < NOW();";
+            $newStmt = $pdo->prepare($recuperoletture);
+            $newStmt->bindParam(":codice", $utente['codice_alfanumerico']);
+            $resuletture = $newStmt->fetchAll();
+            if($resuletture) {
+                $letture = $resuletture;
+            }
         }
     } else {
         $error_msg = "Errore di connessione al Database.";
-        die();
     }
 } catch (PDOException $e) {
     $error_msg = "Errore di sistema: " . $e->getMessage();
@@ -41,68 +57,85 @@ try {
 
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profilo</title>
-</head>
-    <body>
+<?php include './src/includes/header.php'; ?>
+<?php include './src/includes/navbar.php'; ?>
 
-        <?php include './src/includes/header.php'; ?>
-        <?php include './src/includes/navbar.php'; ?>
+<?php if (!empty($error_msg)): ?>
+    <div class="error"><?php echo htmlspecialchars($error_msg); ?></div>
+<?php endif; ?>
 
-        <?php if (!empty($error_msg)): ?>
-            <div class="error"><?php echo htmlspecialchars($error_msg); ?></div>
-        <?php endif; ?>
+<div class="container" style="display:flex; flex-direction: row"> <!--deve essere orizzontale-->
 
-        <div class="container"> <!--deve essere orizzontale-->
-
-            <div class="container"> <!--deve essere verticale-->
-                <div style="display: contents">
-                    <img width="100" height="100"  onclick="document.getElementById("profilo_selector").click()" src="<?= $imgprofilo ?>" alt="Profilo_img">
-                    <input id="profilo_selector" style="display: none" type="file">
-                </div>
-                <div class="container">
-                    <label for="userEdit">Username :</label> <input id="userEdit" disabled type="text" value="<?= $username ?>">
-                    <h6>Nome : <?= $nome ?></h6>
-                    <h6>Cognome : <?= $cognome ?></h6>
-                    <h6>Codice Fiscale : <?= $cf ?></h6>
-                    <h6>Email : <?= $email ?></h6>
-                </div>
-            </div>
-
-            <div class="container"> <!--deve essere verticale-->
-                <div class="container">
-                    <title>Badges</title>
-                    <div class="container"> <!--dove mostrare badge-->
-
-                    </div>
-                </div>
-                <div class="container">
-                    <h1>Prestiti</h1>
-                    <div class="container"> <!--dove mostrare libri in prestito-->
-                        <?php foreach($prestiti as $libro) { ?>
-                                <img src="<?= $libro["copertina"] ?>" alt="<?= $libro["isbn"] ?>">
-                        <?php } ?>
-                    </div>
-                </div>
-                <div class="container">
-                    <title>Prenotazioni</title>
-                    <div class="container"> <!--dove mostrare la grafica dei libri prenotati-->
-
-                    </div>
-                </div>
-                <div class="container">
-                    <title>Letture</title>
-                    <div class="container"> <!--dove mostrare la grafica dei libri letti-->
-
-                    </div>
-                </div>
-            </div>
-
+    <div class="container" style="flex-direction: column"> <!--deve essere verticale-->
+        <div style="display: contents">
+            <img width="100" height="100"  onclick="document.getElementById("profilo_selector").click()" src="<?= $imgprofilo ?>" alt="Profilo_img">
+            <input id="profilo_selector" style="display: none" type="file">
         </div>
+        <div class="container">
+            <label for="userEdit">Username :</label> <input id="userEdit" disabled type="text" value="<?= $username ?>">
+            <h6>Nome : <?= $nome ?></h6>
+            <h6>Cognome : <?= $cognome ?></h6>
+            <h6>Codice Fiscale : <?= $cf ?></h6>
+            <h6>Email : <?= $email ?></h6>
+        </div>
+    </div>
 
-    </body>
-</html>
+    <div class="container" style="display:flex; flex-direction: column; width: 100%"> <!--deve essere verticale-->
+        <div class="container">
+            <h1>Badges</h1>
+            <div class="container"> <!--dove mostrare badge-->
+
+            </div>
+        </div>
+        <div class="container" style="display:flex; flex-direction: column; width: 100%">
+            <h1>Prestiti</h1>
+            <div class="container"> <!--dove mostrare libri in prestito-->
+                <?php if(!empty($prestiti)) foreach($prestiti as $libro) { ?>
+                    <div class="card cover-only" data-isbn="<?= $libro['isbn'] ?>">
+                        <img src="src/assets/placeholder.jpg" alt="Libro">
+                    </div>
+                <?php } else { ?>
+                        <div>Nessun prestito attivo</div>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="container" style="display:flex; flex-direction: column; width: 100%">
+            <h1>Prenotazioni</h1>
+            <div class="container"> <!--dove mostrare la grafica dei libri prenotati-->
+                <?php if(!empty($prenotazioni)) foreach($prenotazioni as $libro) { ?>
+                    <div class="card cover-only" data-isbn="<?= $libro['isbn'] ?>">
+                        <img src="src/assets/placeholder.jpg" alt="Libro">
+                    </div>
+                <?php } else { ?>
+                    <div>Nessuna prenotazione attiva</div>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="container">
+            <h1>Letture</h1>
+            <div class="container"> <!--dove mostrare la grafica dei libri letti-->
+                <div class="container"> <!--dove mostrare la grafica dei libri prenotati-->
+                    <?php if(!empty($letti)) foreach($letti as $libro) { ?>
+                        <div class="card cover-only" data-isbn="<?= $libro['isbn'] ?>">
+                            <img src="src/assets/placeholder.jpg" alt="Libro">
+                        </div>
+                    <?php } else { ?>
+                        <div>Non hai ancora letto niente</div>
+                    <?php } ?>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // Aggiorna tutte le copertine
+    document.querySelectorAll('.card.cover-only').forEach(async card => {
+        const isbn = card.dataset.isbn;
+        const coverUrl = await fetchCover(isbn);
+        card.querySelector('img').src = coverUrl;
+    });
+</script>
+
+<?php include './src/includes/footer.php'; ?>

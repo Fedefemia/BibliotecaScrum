@@ -4,9 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="294b6b77-9b33-4725-90e1-f1f8aeffe634" name="Changes" comment="Sistemato la pagina si signup, con collegamenti corretti privi di GET">
+    <list default="true" id="294b6b77-9b33-4725-90e1-f1f8aeffe634" name="Changes" comment="Bozza">
+      <change afterPath="$PROJECT_DIR$/src/includes/fetchCovers.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/signup.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/signup.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/index.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/profilo.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/profilo.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/router.php" beforeDir="false" afterPath="$PROJECT_DIR$/router.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -18,6 +21,13 @@
     <execution>
       <phar pharPath="C:\xampp\htdocs\BibliotecaScrum\composer.phar" />
     </execution>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="JavaScript File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -40,6 +50,7 @@
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-php80" />
       <path value="$PROJECT_DIR$/vendor/symfony/polyfill-ctype" />
       <path value="$PROJECT_DIR$/vendor/graham-campbell/result-type" />
+      <path value="$PROJECT_DIR$/vendor/phpmailer/phpmailer" />
     </include_path>
   </component>
   <component name="ProjectColorInfo">{
@@ -52,6 +63,7 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
     "RunOnceActivity.git.unshallow": "true",
@@ -89,6 +101,8 @@
       <workItem from="1765013415652" duration="2491000" />
       <workItem from="1765368190370" duration="350000" />
       <workItem from="1765368705527" duration="10001000" />
+      <workItem from="1765617888395" duration="48000" />
+      <workItem from="1765618611158" duration="4167000" />
     </task>
     <task id="LOCAL-00001" summary="Sistemo il db config">
       <option name="closed" value="true" />
@@ -122,7 +136,15 @@
       <option name="project" value="LOCAL" />
       <updated>1765387702339</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Bozza">
+      <option name="closed" value="true" />
+      <created>1765617926044</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1765617926044</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -133,6 +155,7 @@
     <MESSAGE value="First implementation of signUp" />
     <MESSAGE value="Sistemazione della route di sign up e funzioni del codice fiscale" />
     <MESSAGE value="Sistemato la pagina si signup, con collegamenti corretti privi di GET" />
-    <option name="LAST_COMMIT_MESSAGE" value="Sistemato la pagina si signup, con collegamenti corretti privi di GET" />
+    <MESSAGE value="Bozza" />
+    <option name="LAST_COMMIT_MESSAGE" value="Bozza" />
   </component>
 </project>
