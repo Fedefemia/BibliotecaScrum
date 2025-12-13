@@ -17,8 +17,8 @@ $whitelist = [
     '/terms'     => 'pages/terms.php',
     '/libro_info' => 'pages/libro_info.php',
     '/verifica' => 'pages/verifica.php',
+  '/dashboard' => 'pages/dashboard.php',
     '/blank' => 'pages/blankpage.php',
-];
 
 
 

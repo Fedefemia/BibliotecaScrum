@@ -41,7 +41,7 @@ if (isset($_SESSION['nome_utente'])) {
     </div>
     <div class="navbar_rigth">
         <div class="navbar_rigth_rigth">
-            <a href="#" class="navbar_link instrument-sans-semibold">Dashboard</a>
+            <a href="./dashboard" class="navbar_link instrument-sans-semibold">Dashboard</a>
         </div>
 
         <div class="navbar_rigth_left">

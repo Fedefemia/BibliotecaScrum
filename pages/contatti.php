@@ -1,4 +1,5 @@
 <?php
+
 // 1. IMPORTANTE: Avviamo la sessione per vedere se l'utente è loggato
 session_start();
 
@@ -27,13 +28,21 @@ if (isset($pdo)) {
     $messaggio_db = "Connessione al Database non riuscita (controlla db_config.php).";
     $class_messaggio = "error";
 }
-?>
 
+
+// Carica biblioteche
+$lista_biblioteche = [];
+try {
+    $stmt = $pdo->query("SELECT nome, indirizzo, lat, lon, orari FROM biblioteche");
+    //PDO::FETCH_ASSOC serve così PHP restituisce solo l’array associativo
+    $lista_biblioteche = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (PDOException $e) {
+    $messaggio_db = "Errore biblioteche: " . $e->getMessage();
+}
+?>
 
 <?php require_once './src/includes/header.php'; ?>
 <?php require_once './src/includes/navbar.php'; ?>
-
-<!-- INIZIO DEL BODY -->
 
 <!DOCTYPE html>
 <html lang="it">
@@ -41,16 +50,36 @@ if (isset($pdo)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contatti - Rete Biblioteche Vicentine</title>
+
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        .leaflet-control-resetmap {
+            background: white;
+            padding: 6px 10px;
+            border-radius: 4px;
+            border: 1px solid #888;
+            cursor: pointer;
+            font-size: 13px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            margin-top: 5px;
+        }
+        .leaflet-control-resetmap:hover {
+            background: #f0f0f0;
+        }
+    </style>
 </head>
+
 <body>
+
 <header>
     <h1>Contatti</h1>
     <p>Rete Biblioteche Vicentine</p>
 </header>
 
 <main>
+
     <div>
         <h2>Informazioni di Contatto</h2>
         <p><strong>Telefono:</strong> +39 0444 908 111</p>
@@ -59,93 +88,80 @@ if (isset($pdo)) {
 
     <div>
         <h2>Mappa delle Biblioteche della Provincia</h2>
-        <p><em>Clicca su un marker per visualizzare i dettagli e gli orari di apertura della biblioteca.</em></p>
-        <div id="map" style="height: 600px; width: 80%; margin: auto;"></div>
+        <p><em>Clicca su un marker per vedere informazioni e orari.</em></p>
+
+        <div id="map" style="height: 600px; width: 90%; margin:auto;"></div>
     </div>
+
 </main>
 
 <script>
-    // Inizializza la mappa centrata sulla provincia di Vicenza
-    const map = L.map('map').setView([45.5470, 11.5396], 10);
+    // Biblioteche dal DB
+    const biblioteche = <?php echo json_encode($lista_biblioteche, JSON_UNESCAPED_UNICODE); ?>;
 
-    // Aggiungi tile layer di OpenStreetMap
+    // Limiti del Veneto
+    const boundsVeneto = L.latLngBounds([44.7, 10.5], [46.8, 13.2]);
+
+    // Inizializza mappa
+    const map = L.map('map', {
+        center: [45.5470, 11.5396],
+        zoom: 10,
+        minZoom: 9,
+        maxZoom: 19,
+        maxBounds: boundsVeneto,
+        maxBoundsViscosity: 1.0
+    });
+
+    // Tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
+        attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Orari standard per tutte le biblioteche
+    // Pulsante "Riaccentra mappa"
+    const ResetControl = L.Control.extend({
+        options: { position: 'topleft' },
+        onAdd: function () {
+            const container = L.DomUtil.create('div', 'leaflet-control-resetmap');
+            container.innerHTML = "Riaccentra mappa";
+            container.onclick = () => map.setView([45.5470, 11.5396], 10);
+            L.DomEvent.disableClickPropagation(container);
+            return container;
+        }
+    });
+    map.addControl(new ResetControl());
+
+    // Orari standard
     const orariStandard = `
-            <strong>Orari di apertura:</strong><br>
-            Lunedì: 14:00 - 19:00<br>
-            Martedì: 9:00 - 13:00, 14:00 - 19:00<br>
-            Mercoledì: 9:00 - 13:00, 14:00 - 19:00<br>
-            Giovedì: 9:00 - 13:00, 14:00 - 19:00<br>
-            Venerdì: 9:00 - 13:00, 14:00 - 19:00<br>
-            Sabato: 9:00 - 13:00<br>
-            Domenica: Chiuso
-        `;
+        <strong>Orari di apertura:</strong><br>
+        Lunedì: 14:00 - 19:00<br>
+        Martedì: 9:00 - 13:00, 14:00 - 19:00<br>
+        Mercoledì: 9:00 - 13:00, 14:00 - 19:00<br>
+        Giovedì: 9:00 - 13:00, 14:00 - 19:00<br>
+        Venerdì: 9:00 - 13:00, 14:00 - 19:00<br>
+        Sabato: 9:00 - 13:00<br>
+        Domenica: Chiuso
+    `;
 
-    // Array esteso di biblioteche con coordinate
-    const biblioteche = [
-        // Vicenza città
-        { nome: "Biblioteca Bertoliana - Palazzo San Giacomo", indirizzo: "Contrà Riale, 5, Vicenza", lat: 45.5470, lon: 11.5396 },
-        { nome: "Biblioteca Palazzo Costantini", indirizzo: "Contrà Riale, 13, Vicenza", lat: 45.5475, lon: 11.5398 },
-        { nome: "Biblioteca Anconetta", indirizzo: "Via Dall'Acqua, 16, Vicenza", lat: 45.5580, lon: 11.5450 },
-        { nome: "Biblioteca Laghetto", indirizzo: "Via Lago di Pusiano, 3, Vicenza", lat: 45.5320, lon: 11.5250 },
-        { nome: "Biblioteca Riviera Berica", indirizzo: "Via Riviera Berica, 631, Vicenza", lat: 45.5200, lon: 11.5650 },
-        { nome: "Biblioteca Villa Tacchi", indirizzo: "Viale della Pace, 89, Vicenza", lat: 45.5620, lon: 11.5280 },
-        { nome: "Biblioteca Villaggio del Sole", indirizzo: "Via Colombo, 41/A, Vicenza", lat: 45.5580, lon: 11.5600 },
-
-        // Altri comuni principali
-        { nome: "Biblioteca Asiago", indirizzo: "Piazza Carli, Asiago", lat: 45.8733, lon: 11.5092 },
-        { nome: "Biblioteca Arzignano", indirizzo: "Via Spagnolo, 2, Arzignano", lat: 45.5176, lon: 11.3366 },
-        { nome: "Biblioteca Bassano del Grappa", indirizzo: "Via Roma, 130, Bassano del Grappa", lat: 45.7664, lon: 11.7340 },
-        { nome: "Biblioteca Breganze", indirizzo: "Piazza Mazzini, Breganze", lat: 45.7083, lon: 11.5667 },
-        { nome: "Biblioteca Brendola", indirizzo: "Piazza Marconi, Brendola", lat: 45.4833, lon: 11.4167 },
-        { nome: "Biblioteca Caldogno", indirizzo: "Piazza Dante, Caldogno", lat: 45.5917, lon: 11.5167 },
-        { nome: "Biblioteca Cassola", indirizzo: "Piazza Martiri, Cassola", lat: 45.7333, lon: 11.8000 },
-        { nome: "Biblioteca Chiampo", indirizzo: "Piazza Zanini, Chiampo", lat: 45.5500, lon: 11.2833 },
-        { nome: "Biblioteca Cornedo Vicentino", indirizzo: "Via Garibaldi, Cornedo Vicentino", lat: 45.6167, lon: 11.3333 },
-        { nome: "Biblioteca Creazzo", indirizzo: "Piazza Mazzini, Creazzo", lat: 45.5333, lon: 11.4833 },
-        { nome: "Biblioteca Dueville", indirizzo: "Piazza Monza, Dueville", lat: 45.6167, lon: 11.5500 },
-        { nome: "Biblioteca Lonigo", indirizzo: "Corso Padova, 50, Lonigo", lat: 45.3881, lon: 11.3867 },
-        { nome: "Biblioteca Malo", indirizzo: "Piazza Zanini, Malo", lat: 45.6667, lon: 11.4000 },
-        { nome: "Biblioteca Marostica", indirizzo: "Piazza Castello, Marostica", lat: 45.7500, lon: 11.6500 },
-        { nome: "Biblioteca Montecchio Maggiore", indirizzo: "Piazza Marconi, 1, Montecchio Maggiore", lat: 45.5097, lon: 11.4093 },
-        { nome: "Biblioteca Mussolente", indirizzo: "Piazza Marconi, Mussolente", lat: 45.7833, lon: 11.7833 },
-        { nome: "Biblioteca Nove", indirizzo: "Piazza De Fabris, Nove", lat: 45.7333, lon: 11.7000 },
-        { nome: "Biblioteca Romano d'Ezzelino", indirizzo: "Via Cavin, Romano d'Ezzelino", lat: 45.7833, lon: 11.7667 },
-        { nome: "Biblioteca Rosà", indirizzo: "Via Schiavonetti, Rosà", lat: 45.7167, lon: 11.7667 },
-        { nome: "Biblioteca Sandrigo", indirizzo: "Piazza Zanellato, Sandrigo", lat: 45.6667, lon: 11.6000 },
-        { nome: "Biblioteca Santorso", indirizzo: "Piazza Zanchi, Santorso", lat: 45.7500, lon: 11.3833 },
-        { nome: "Biblioteca Schio", indirizzo: "Piazza Rossi, 23, Schio", lat: 45.7137, lon: 11.3556 },
-        { nome: "Biblioteca Thiene", indirizzo: "Corso Garibaldi, 55, Thiene", lat: 45.7068, lon: 11.4797 },
-        { nome: "Biblioteca Valdagno", indirizzo: "Via Luigi Marzotto, 17, Valdagno", lat: 45.6461, lon: 11.2987 },
-        { nome: "Biblioteca Zanè", indirizzo: "Piazza Lioy, Zanè", lat: 45.7167, lon: 11.4667 }
-    ];
-
-    // Aggiungi marker per ogni biblioteca
+    // Marker dal database
     biblioteche.forEach(bib => {
         const marker = L.marker([bib.lat, bib.lon]).addTo(map);
 
-        // Popup con informazioni e orari
-        const popupContent = `
-                <div style="min-width: 250px;">
-                    <strong style="font-size: 14px;">${bib.nome}</strong><br>
-                    <span style="font-size: 12px; color: #666;">${bib.indirizzo}</span><br><br>
-                    <div style="font-size: 12px; line-height: 1.6;">
-                        ${orariStandard}
-                    </div>
+        const popup = `
+            <div style="min-width: 250px;">
+                <strong style="font-size: 14px;">${bib.nome}</strong><br>
+                <span style="font-size: 12px; color: #666;">${bib.indirizzo}</span><br><br>
+                <div style="font-size: 12px; line-height: 1.6;">
+                    <!--se il campo orari è messo a nul allora prende gli orari standard -->
+                    ${bib.orari ? bib.orari : orariStandard}
                 </div>
-            `;
+            </div>
+        `;
 
-        marker.bindPopup(popupContent);
+        marker.bindPopup(popup);
     });
 </script>
+
 </body>
 </html>
-
-<!-- FINE DEL BODY -->
 
 <?php require_once './src/includes/footer.php'; ?>
