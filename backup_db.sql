@@ -31,7 +31,7 @@ CREATE TABLE `accessi_falliti` (
   KEY `codice_alfanumerico` (`codice_alfanumerico`),
   KEY `idx_accessi_dataora` (`dataora`),
   CONSTRAINT `accessi_falliti_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -132,10 +132,7 @@ DROP TABLE IF EXISTS `categorie`;
 CREATE TABLE `categorie` (
   `id_categoria` int(11) NOT NULL,
   `categoria` varchar(100) DEFAULT NULL,
-  `isbn` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`id_categoria`),
-  KEY `isbn` (`isbn`),
-  CONSTRAINT `categorie_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`)
+  PRIMARY KEY (`id_categoria`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -529,6 +526,36 @@ LOCK TABLES `ruoli` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `tokenemail`
+--
+
+DROP TABLE IF EXISTS `tokenemail`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tokenemail` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `codice_alfanumerico` varchar(64) NOT NULL,
+  `token` char(64) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `token` (`token`),
+  KEY `codice_alfanumerico` (`codice_alfanumerico`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tokenemail`
+--
+
+LOCK TABLES `tokenemail` WRITE;
+/*!40000 ALTER TABLE `tokenemail` DISABLE KEYS */;
+INSERT INTO `tokenemail` VALUES
+(2,'1lgwMu','ccf2c3064a437ff1032a8fd08588a70c459cd06c4fc042d33a7990b27bfaa41e','2025-12-12 19:25:57'),
+(3,'000001','002144977e21d59f82688024eb8859d2ff081a7fc8633d352ad9899d0af0042f','2025-12-12 19:38:44');
+/*!40000 ALTER TABLE `tokenemail` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `utente_badge`
 --
 
@@ -590,7 +617,8 @@ CREATE TABLE `utenti` (
 LOCK TABLES `utenti` WRITE;
 /*!40000 ALTER TABLE `utenti` DISABLE KEYS */;
 INSERT INTO `utenti` VALUES
-('000001','TestUsername1','Cobra','Ivi','GRRRMN07S01A655L','prova@mail.com','c0934c19bfe8216c60ef23168c040168caa17037fa4c06c5a3c1100e0c9d0663',0,0,0,0,0,'2025-12-08');
+('000001','TestUsername1','Cobra','Ivi','VIICBR12T12H501U','prova@gmail.com','$2y$10$vmp6ONFoxulRwKcM/G.Yaewrc/0lSxawThsu45WooudOAzIvhXG1q',0,0,0,0,0,'2025-12-12'),
+('000002','Fede','Federico','Femia','FMEFRC00T12H501M','federico.femia121007@gmail.com','$2y$10$.GKBzGj/nzUhryJkCMV.RONUWBvYJ5dkT1ZEZUjB8IUYhs6rm1lm.',0,0,0,0,1,'2025-12-12');
 /*!40000 ALTER TABLE `utenti` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -751,4 +779,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-12-12  2:00:03
+-- Dump completed on 2025-12-13  2:00:03
