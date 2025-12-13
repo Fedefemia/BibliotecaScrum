@@ -5,8 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="294b6b77-9b33-4725-90e1-f1f8aeffe634" name="Changes" comment="Sistemato la pagina si signup, con collegamenti corretti privi di GET">
-      <change afterPath="$PROJECT_DIR$/pages/contatti.php" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pages/libro_info.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/BibliotecaScrum.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/BibliotecaScrum.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/phpspec.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/phpspec.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backup_db.sql" beforeDir="false" afterPath="$PROJECT_DIR$/backup_db.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/index.php" beforeDir="false" afterPath="$PROJECT_DIR$/pages/index.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/router.php" beforeDir="false" afterPath="$PROJECT_DIR$/router.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -33,13 +38,6 @@
   <component name="GitHubPullRequestSearchHistory">{
   &quot;lastFilter&quot;: {}
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/FabioGiuriato/BibliotecaScrum.git",
-    "accountId": "290a1e93-5dcf-4def-964e-9433d68d86c5"
-  }
-}]]></component>
-  <component name="PhpWorkspaceProjectConfiguration" interpreter_name="$PROJECT_DIR$/../../php/php.exe">
     <include_path>
       <path value="$PROJECT_DIR$/vendor/composer" />
       <path value="$PROJECT_DIR$/vendor/vlucas/phpdotenv" />
@@ -68,7 +66,7 @@
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/xampp/htdocs/BibliotecaScrum&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/xampp/htdocs/bibliotecaScrum&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
@@ -81,8 +79,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-PS-252.27397.112" />
-        <option value="bundled-php-predefined-a98d8de5180a-b35feea871ed-com.jetbrains.php.sharedIndexes-PS-252.27397.112" />
+        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-PS-252.26830.95" />
+        <option value="bundled-php-predefined-a98d8de5180a-9b563d34894c-com.jetbrains.php.sharedIndexes-PS-252.26830.95" />
       </set>
     </attachedChunks>
   </component>
@@ -100,7 +98,15 @@
       <workItem from="1765013415652" duration="2491000" />
       <workItem from="1765368190370" duration="350000" />
       <workItem from="1765368705527" duration="10001000" />
-      <workItem from="1765533895935" duration="2520000" />
+      <workItem from="1765532544278" duration="48000" />
+      <workItem from="1765532611543" duration="109000" />
+      <workItem from="1765532750565" duration="360000" />
+      <workItem from="1765533115232" duration="926000" />
+      <workItem from="1765534091096" duration="86000" />
+      <workItem from="1765534185182" duration="3405000" />
+      <workItem from="1765554218241" duration="145000" />
+      <workItem from="1765554376979" duration="39000" />
+      <workItem from="1765554426391" duration="22943000" />
     </task>
     <task id="LOCAL-00001" summary="Sistemo il db config">
       <option name="closed" value="true" />
