@@ -67,6 +67,8 @@ require './src/includes/navbar.php';
     width: 120px;
     height: 180px;
     overflow: hidden;
+    display: block; /* Aggiunto per garantire il comportamento corretto del tag <a> */
+    cursor: pointer;
 }
 
 .card.cover-only img {
@@ -80,47 +82,43 @@ require './src/includes/navbar.php';
 <div class="page_contents">
     <h1>Home</h1>
 
-    <!-- MESSAGGI -->
     <?php if ($messaggio_db): ?>
         <pre class="message"><?= htmlspecialchars($messaggio_db) ?></pre>
     <?php endif; ?>
 
-    <!-- PRESTITI ATTIVI -->
     <?php if ($prestiti_attivi): ?>
         <div class="section">
             <h2>I tuoi prestiti attivi</h2>
             <div class="grid">
                 <?php foreach ($prestiti_attivi as $libro): ?>
-                    <div class="card cover-only" data-isbn="<?= $libro['isbn'] ?>">
+                    <a href="./libro?isbn=<?= $libro['isbn'] ?>" class="card cover-only" data-isbn="<?= $libro['isbn'] ?>">
                         <img src="src/assets/placeholder.jpg" alt="Libro">
-                    </div>
+                    </a>
                 <?php endforeach; ?>
             </div>
         </div>
     <?php endif; ?>
 
-    <!-- POPOLARI -->
     <div class="section">
         <h2>Libri Popolari</h2>
         <div class="grid">
             <?php foreach ($popolari as $libro): ?>
-                <div class="card cover-only" data-isbn="<?= $libro['isbn'] ?>">
+                <a href="./libro?isbn=<?= $libro['isbn'] ?>" class="card cover-only" data-isbn="<?= $libro['isbn'] ?>">
                     <img src="src/assets/placeholder.jpg" alt="Libro">
-                </div>
+                </a>
             <?php endforeach; ?>
         </div>
     </div>
 
-    <!-- CATEGORIE POPOLARI -->
     <?php foreach ($categoriePopolari as $catName => $libriCat): ?>
         <div class="section">
             <h2><?= htmlspecialchars($catName) ?></h2>
             <div class="grid">
                 <?php if ($libriCat): ?>
                     <?php foreach ($libriCat as $libro): ?>
-                        <div class="card cover-only" data-isbn="<?= $libro['isbn'] ?>">
+                        <a href="./libro?isbn=<?= $libro['isbn'] ?>" class="card cover-only" data-isbn="<?= $libro['isbn'] ?>">
                             <img src="src/assets/placeholder.jpg" alt="Libro">
-                        </div>
+                        </a>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <div>Nessun libro</div>

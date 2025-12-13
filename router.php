@@ -15,11 +15,10 @@ $whitelist = [
     '/contatti' => 'pages/contatti.php',
     '/privacy'   => 'pages/privacy.php',
     '/terms'     => 'pages/terms.php',
-    '/libro_info' => 'pages/libro_info.php',
+    '/libro' => 'pages/libro.php',
     '/verifica' => 'pages/verifica.php',
     '/dashboard' => 'pages/dashboard.php',
     '/blank' => 'pages/blankpage.php',
-
 ];
 
 // LOGICA ROUTER
