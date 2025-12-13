@@ -1,754 +1,778 @@
-/*M!999999\- enable the sandbox mode */ 
--- MariaDB dump 10.19  Distrib 10.11.13-MariaDB, for debian-linux-gnu (x86_64)
+-- phpMyAdmin SQL Dump
+-- version 5.2.1
+-- https://www.phpmyadmin.net/
 --
--- Host: localhost    Database: database_sito
--- ------------------------------------------------------
--- Server version	10.11.13-MariaDB-0ubuntu0.24.04.1
+-- Host: 127.0.0.1
+-- Creato il: Dic 12, 2025 alle 22:08
+-- Versione del server: 10.4.32-MariaDB
+-- Versione PHP: 8.2.12
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `accessi_falliti`
+-- Database: `bibliotecascrum_db`
 --
 
-DROP TABLE IF EXISTS `accessi_falliti`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `accessi_falliti` (
-  `id_accessi` int(11) NOT NULL AUTO_INCREMENT,
-  `codice_alfanumerico` varchar(6) NOT NULL,
-  `dataora` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id_accessi`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  KEY `idx_accessi_dataora` (`dataora`),
-  CONSTRAINT `accessi_falliti_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `accessi_falliti`
---
-
-LOCK TABLES `accessi_falliti` WRITE;
-/*!40000 ALTER TABLE `accessi_falliti` DISABLE KEYS */;
-/*!40000 ALTER TABLE `accessi_falliti` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `autore_libro`
---
-
-DROP TABLE IF EXISTS `autore_libro`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `autore_libro` (
-  `id_autore` int(11) NOT NULL,
-  `isbn` bigint(20) NOT NULL,
-  PRIMARY KEY (`id_autore`,`isbn`),
-  KEY `isbn` (`isbn`),
-  CONSTRAINT `autore_libro_ibfk_1` FOREIGN KEY (`id_autore`) REFERENCES `autori` (`id_autore`),
-  CONSTRAINT `autore_libro_ibfk_2` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `autore_libro`
---
-
-LOCK TABLES `autore_libro` WRITE;
-/*!40000 ALTER TABLE `autore_libro` DISABLE KEYS */;
-/*!40000 ALTER TABLE `autore_libro` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `autori`
---
-
-DROP TABLE IF EXISTS `autori`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `autori` (
-  `id_autore` int(11) NOT NULL AUTO_INCREMENT,
-  `nome` varchar(100) NOT NULL,
-  `cognome` varchar(100) NOT NULL,
-  PRIMARY KEY (`id_autore`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `autori`
---
-
-LOCK TABLES `autori` WRITE;
-/*!40000 ALTER TABLE `autori` DISABLE KEYS */;
-/*!40000 ALTER TABLE `autori` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `badge`
---
-
-DROP TABLE IF EXISTS `badge`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `badge` (
-  `id_badge` int(11) NOT NULL AUTO_INCREMENT,
-  `nome` varchar(255) NOT NULL,
-  `icona` varchar(255) NOT NULL,
-  `descrizione` text DEFAULT NULL,
-  `tipo` varchar(100) DEFAULT NULL,
-  `target_numerico` smallint(6) NOT NULL,
-  `data_fine` date DEFAULT NULL,
-  `root` smallint(6) DEFAULT NULL,
-  PRIMARY KEY (`id_badge`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `badge`
---
-
-LOCK TABLES `badge` WRITE;
-/*!40000 ALTER TABLE `badge` DISABLE KEYS */;
-/*!40000 ALTER TABLE `badge` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `categorie`
---
-
-DROP TABLE IF EXISTS `categorie`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `categorie` (
-  `id_categoria` int(11) NOT NULL,
-  `categoria` varchar(100) DEFAULT NULL,
-  `isbn` bigint(20) DEFAULT NULL,
-  PRIMARY KEY (`id_categoria`),
-  KEY `isbn` (`isbn`),
-  CONSTRAINT `categorie_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `categorie`
---
-
-LOCK TABLES `categorie` WRITE;
-/*!40000 ALTER TABLE `categorie` DISABLE KEYS */;
-/*!40000 ALTER TABLE `categorie` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `consensi`
---
-
-DROP TABLE IF EXISTS `consensi`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `consensi` (
-  `id_consenso` int(11) NOT NULL AUTO_INCREMENT,
-  `codice_alfanumerico` varchar(6) NOT NULL,
-  `tipo_consenso` varchar(50) DEFAULT NULL,
-  `data_consenso` date DEFAULT NULL,
-  `indirizzo_ip` varchar(45) DEFAULT NULL,
-  PRIMARY KEY (`id_consenso`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  CONSTRAINT `consensi_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `consensi`
---
-
-LOCK TABLES `consensi` WRITE;
-/*!40000 ALTER TABLE `consensi` DISABLE KEYS */;
-/*!40000 ALTER TABLE `consensi` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `copie`
---
-
-DROP TABLE IF EXISTS `copie`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `copie` (
-  `id_copia` int(11) NOT NULL AUTO_INCREMENT,
-  `isbn` bigint(20) DEFAULT NULL,
-  `ean` varchar(50) NOT NULL,
-  `condizione` smallint(6) NOT NULL,
-  `disponibile` tinyint(1) NOT NULL,
-  `anno_pubblicazione` year(4) DEFAULT NULL,
-  `conferma_anno_pubblicazione` tinyint(1) DEFAULT 1,
-  `editore` varchar(100) NOT NULL,
-  `copertina` varchar(255) NOT NULL,
-  `taf_rfid` varchar(100) DEFAULT NULL,
-  PRIMARY KEY (`id_copia`),
-  KEY `isbn` (`isbn`),
-  CONSTRAINT `copie_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `copie`
---
-
-LOCK TABLES `copie` WRITE;
-/*!40000 ALTER TABLE `copie` DISABLE KEYS */;
-/*!40000 ALTER TABLE `copie` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `libri`
---
-
-DROP TABLE IF EXISTS `libri`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `libri` (
-  `isbn` bigint(20) NOT NULL,
-  `titolo` varchar(255) NOT NULL,
-  `descrizione` text DEFAULT NULL,
-  PRIMARY KEY (`isbn`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `libri`
---
-
-LOCK TABLES `libri` WRITE;
-/*!40000 ALTER TABLE `libri` DISABLE KEYS */;
-/*!40000 ALTER TABLE `libri` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `libri_consigliati`
---
-
-DROP TABLE IF EXISTS `libri_consigliati`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `libri_consigliati` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `isbn` bigint(20) NOT NULL,
-  `codice_alfanumerico` varchar(6) DEFAULT NULL,
-  `n_consigli` int(11) DEFAULT 0,
-  PRIMARY KEY (`id`),
-  KEY `isbn` (`isbn`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  CONSTRAINT `libri_consigliati_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`),
-  CONSTRAINT `libri_consigliati_ibfk_2` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `libri_consigliati`
---
-
-LOCK TABLES `libri_consigliati` WRITE;
-/*!40000 ALTER TABLE `libri_consigliati` DISABLE KEYS */;
-/*!40000 ALTER TABLE `libri_consigliati` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `libro_categoria`
---
-
-DROP TABLE IF EXISTS `libro_categoria`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `libro_categoria` (
-  `isbn` bigint(20) NOT NULL,
-  `id_categoria` int(11) NOT NULL,
-  PRIMARY KEY (`isbn`,`id_categoria`),
-  KEY `id_categoria` (`id_categoria`),
-  CONSTRAINT `libro_categoria_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`),
-  CONSTRAINT `libro_categoria_ibfk_2` FOREIGN KEY (`id_categoria`) REFERENCES `categorie` (`id_categoria`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `libro_categoria`
---
-
-LOCK TABLES `libro_categoria` WRITE;
-/*!40000 ALTER TABLE `libro_categoria` DISABLE KEYS */;
-/*!40000 ALTER TABLE `libro_categoria` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `log_monitoraggi`
---
-
-DROP TABLE IF EXISTS `log_monitoraggi`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `log_monitoraggi` (
-  `id_log` int(11) NOT NULL AUTO_INCREMENT,
-  `codice_alfanumerico` varchar(6) NOT NULL,
-  `tipo_evento` varchar(50) NOT NULL,
-  `descrizione` text DEFAULT NULL,
-  `indirizzo_ip` varchar(45) DEFAULT NULL,
-  `dataora_evento` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id_log`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  CONSTRAINT `log_monitoraggi_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `log_monitoraggi`
---
-
-LOCK TABLES `log_monitoraggi` WRITE;
-/*!40000 ALTER TABLE `log_monitoraggi` DISABLE KEYS */;
-/*!40000 ALTER TABLE `log_monitoraggi` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `multe`
---
-
-DROP TABLE IF EXISTS `multe`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `multe` (
-  `id_multa` int(11) NOT NULL AUTO_INCREMENT,
-  `id_prestito` int(11) NOT NULL,
-  `codice_alfanumerico` varchar(6) NOT NULL,
-  `importo` decimal(10,2) NOT NULL,
-  `causale` text NOT NULL,
-  `data_creata` date DEFAULT current_timestamp(),
-  PRIMARY KEY (`id_multa`),
-  KEY `id_prestito` (`id_prestito`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  CONSTRAINT `multe_ibfk_1` FOREIGN KEY (`id_prestito`) REFERENCES `prestiti` (`id_prestito`),
-  CONSTRAINT `multe_ibfk_2` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `multe`
---
-
-LOCK TABLES `multe` WRITE;
-/*!40000 ALTER TABLE `multe` DISABLE KEYS */;
-/*!40000 ALTER TABLE `multe` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `notifiche`
---
-
-DROP TABLE IF EXISTS `notifiche`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `notifiche` (
-  `id_notifica` int(11) NOT NULL AUTO_INCREMENT,
-  `codice_alfanumerico` varchar(6) NOT NULL,
-  `titolo` varchar(255) NOT NULL,
-  `messaggio` text NOT NULL,
-  `tipo` varchar(50) NOT NULL,
-  `dataora_invio` datetime DEFAULT current_timestamp(),
-  PRIMARY KEY (`id_notifica`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  CONSTRAINT `notifiche_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `notifiche`
---
-
-LOCK TABLES `notifiche` WRITE;
-/*!40000 ALTER TABLE `notifiche` DISABLE KEYS */;
-/*!40000 ALTER TABLE `notifiche` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `pagamenti`
---
-
-DROP TABLE IF EXISTS `pagamenti`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `pagamenti` (
-  `id_pagamento` int(11) NOT NULL AUTO_INCREMENT,
-  `codice_alfanumerico` varchar(6) NOT NULL,
-  `data_apertura` date DEFAULT NULL,
-  `data_chiusura` date DEFAULT NULL,
-  `importo` decimal(10,2) NOT NULL,
-  `causale` text NOT NULL,
-  PRIMARY KEY (`id_pagamento`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  CONSTRAINT `pagamenti_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `pagamenti`
---
-
-LOCK TABLES `pagamenti` WRITE;
-/*!40000 ALTER TABLE `pagamenti` DISABLE KEYS */;
-/*!40000 ALTER TABLE `pagamenti` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `prenotazioni`
---
-
-DROP TABLE IF EXISTS `prenotazioni`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `prenotazioni` (
-  `id_prenotazione` int(11) NOT NULL AUTO_INCREMENT,
-  `codice_alfanumerico` varchar(6) NOT NULL,
-  `isbn` bigint(20) DEFAULT NULL,
-  `data_prenotazione` date DEFAULT NULL,
-  `data_assegnazione` date DEFAULT NULL,
-  PRIMARY KEY (`id_prenotazione`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  KEY `isbn` (`isbn`),
-  CONSTRAINT `prenotazioni_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`),
-  CONSTRAINT `prenotazioni_ibfk_2` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `prenotazioni`
---
-
-LOCK TABLES `prenotazioni` WRITE;
-/*!40000 ALTER TABLE `prenotazioni` DISABLE KEYS */;
-/*!40000 ALTER TABLE `prenotazioni` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `prestiti`
---
-
-DROP TABLE IF EXISTS `prestiti`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `prestiti` (
-  `id_prestito` int(11) NOT NULL AUTO_INCREMENT,
-  `codice_alfanumerico` varchar(6) NOT NULL,
-  `id_copia` int(11) DEFAULT NULL,
-  `data_prestito` date DEFAULT NULL,
-  `data_scadenza` date DEFAULT NULL,
-  `data_restituzione` date DEFAULT NULL,
-  `num_rinnovi` int(11) DEFAULT 0,
-  PRIMARY KEY (`id_prestito`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  KEY `id_copia` (`id_copia`),
-  CONSTRAINT `prestiti_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`),
-  CONSTRAINT `prestiti_ibfk_2` FOREIGN KEY (`id_copia`) REFERENCES `copie` (`id_copia`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `prestiti`
---
-
-LOCK TABLES `prestiti` WRITE;
-/*!40000 ALTER TABLE `prestiti` DISABLE KEYS */;
-/*!40000 ALTER TABLE `prestiti` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `recensioni`
---
-
-DROP TABLE IF EXISTS `recensioni`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `recensioni` (
-  `id_recensione` int(11) NOT NULL AUTO_INCREMENT,
-  `isbn` bigint(20) DEFAULT NULL,
-  `codice_alfanumerico` varchar(6) NOT NULL,
-  `voto` smallint(6) NOT NULL,
-  `commento` text NOT NULL,
-  `data_commento` date DEFAULT current_timestamp(),
-  `like_count` int(11) DEFAULT 0,
-  `dislike_count` int(11) DEFAULT 0,
-  PRIMARY KEY (`id_recensione`),
-  KEY `isbn` (`isbn`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  CONSTRAINT `recensioni_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`),
-  CONSTRAINT `recensioni_ibfk_2` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `recensioni`
---
-
-LOCK TABLES `recensioni` WRITE;
-/*!40000 ALTER TABLE `recensioni` DISABLE KEYS */;
-/*!40000 ALTER TABLE `recensioni` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `ruoli`
---
-
-DROP TABLE IF EXISTS `ruoli`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ruoli` (
-  `codice_alfanumerico` varchar(6) DEFAULT NULL,
-  `studente` tinyint(1) DEFAULT 0,
-  `docente` tinyint(1) DEFAULT 0,
-  `bibliotecario` tinyint(1) DEFAULT 0,
-  `amministratore` tinyint(1) DEFAULT 0,
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  CONSTRAINT `ruoli_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `ruoli`
---
-
-LOCK TABLES `ruoli` WRITE;
-/*!40000 ALTER TABLE `ruoli` DISABLE KEYS */;
-/*!40000 ALTER TABLE `ruoli` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `utente_badge`
---
-
-DROP TABLE IF EXISTS `utente_badge`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `utente_badge` (
-  `id_ub` int(11) NOT NULL AUTO_INCREMENT,
-  `id_badge` int(11) DEFAULT NULL,
-  `codice_alfanumerico` varchar(6) NOT NULL,
-  `livello` smallint(6) NOT NULL DEFAULT 0,
-  PRIMARY KEY (`id_ub`),
-  KEY `id_badge` (`id_badge`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  CONSTRAINT `utente_badge_ibfk_1` FOREIGN KEY (`id_badge`) REFERENCES `badge` (`id_badge`),
-  CONSTRAINT `utente_badge_ibfk_2` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `utente_badge`
---
-
-LOCK TABLES `utente_badge` WRITE;
-/*!40000 ALTER TABLE `utente_badge` DISABLE KEYS */;
-/*!40000 ALTER TABLE `utente_badge` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `utenti`
---
-
-DROP TABLE IF EXISTS `utenti`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `utenti` (
-  `codice_alfanumerico` varchar(6) NOT NULL,
-  `username` varchar(50) DEFAULT NULL,
-  `nome` varchar(50) NOT NULL,
-  `cognome` varchar(100) NOT NULL,
-  `codice_fiscale` char(16) NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `password_hash` varchar(255) NOT NULL,
-  `livello_privato` tinyint(3) unsigned DEFAULT 0,
-  `login_bloccato` tinyint(1) DEFAULT 0,
-  `account_bloccato` tinyint(1) DEFAULT 0,
-  `affidabile` tinyint(1) DEFAULT 0,
-  `email_confermata` tinyint(1) DEFAULT 0,
-  `data_creazione` date DEFAULT current_timestamp(),
-  PRIMARY KEY (`codice_alfanumerico`),
-  CONSTRAINT `chk_no_cf_username` CHECK (!(`username` regexp '^[A-Z]{6}[0-9]{2}[A-Z][0-9]{2}[A-Z][0-9]{3}[A-Z]$'))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `utenti`
---
-
-LOCK TABLES `utenti` WRITE;
-/*!40000 ALTER TABLE `utenti` DISABLE KEYS */;
-INSERT INTO `utenti` VALUES
-('000001','TestUsername1','Cobra','Ivi','GRRRMN07S01A655L','prova@mail.com','c0934c19bfe8216c60ef23168c040168caa17037fa4c06c5a3c1100e0c9d0663',0,0,0,0,0,'2025-12-08');
-/*!40000 ALTER TABLE `utenti` ENABLE KEYS */;
-UNLOCK TABLES;
-
+DELIMITER $$
 --
--- Dumping routines for database 'database_sito'
+-- Procedure
 --
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `CheckLoginUser` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb3 */ ;
-/*!50003 SET character_set_results = utf8mb3 */ ;
-/*!50003 SET collation_connection  = utf8mb3_general_ci */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `CheckLoginUser`(
-    IN p_input_login VARCHAR(255),  
-    IN p_password_input VARCHAR(255), 
-    OUT p_result VARCHAR(50)
-)
-BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `CheckLoginUser` (IN `p_input_login` VARCHAR(255), IN `p_password_input` VARCHAR(255), OUT `p_result` VARCHAR(50))   BEGIN
     DECLARE v_codice VARCHAR(6);
     DECLARE v_stored_pass VARCHAR(255);
     DECLARE v_login_bloccato BOOLEAN;
     DECLARE v_failed_attempts INT;
 
-    
-    
-    
-    
-    
-    DELETE FROM accessi_falliti 
-    WHERE dataora < (NOW() - INTERVAL 15 MINUTE);
 
-    
-    SELECT codice_alfanumerico, password_hash, login_bloccato
-    INTO v_codice, v_stored_pass, v_login_bloccato
-    FROM utenti
-    WHERE email = p_input_login 
-       OR username = p_input_login 
-       OR codice_fiscale = p_input_login
+
+
+
+
+DELETE FROM accessi_falliti
+WHERE dataora < (NOW() - INTERVAL 15 MINUTE);
+
+
+SELECT codice_alfanumerico, password_hash, login_bloccato
+INTO v_codice, v_stored_pass, v_login_bloccato
+FROM utenti
+WHERE email = p_input_login
+   OR username = p_input_login
+   OR codice_fiscale = p_input_login
     LIMIT 1;
 
-    
-    IF v_codice IS NULL THEN
+
+IF v_codice IS NULL THEN
         SET p_result = 'utente_non_trovato';
-    ELSE
-        
+ELSE
+
         IF v_login_bloccato = 1 THEN
             SET p_result = 'blocked:1';
-        ELSE
-            
-            
-            SELECT COUNT(*)
-            INTO v_failed_attempts
-            FROM accessi_falliti
-            WHERE codice_alfanumerico = v_codice;
+ELSE
 
-            IF v_failed_attempts >= 3 THEN
+
+SELECT COUNT(*)
+INTO v_failed_attempts
+FROM accessi_falliti
+WHERE codice_alfanumerico = v_codice;
+
+IF v_failed_attempts >= 3 THEN
                 SET p_result = 'blocked:2';
-            ELSE
-                
-                IF p_password_input = v_stored_pass THEN
-                    
-                    
-                    DELETE FROM accessi_falliti WHERE codice_alfanumerico = v_codice;
-                    
-                    SET p_result = v_codice;
-                ELSE
-                    
-                    SET p_result = 'password_sbagliata';
-                    
-                    
-                    INSERT INTO accessi_falliti (codice_alfanumerico, dataora) 
-                    VALUES (v_codice, NOW());
-                END IF;
-            END IF;
-        END IF;
-    END IF;
+ELSE
 
-END ;;
-DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
-/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
-/*!50003 DROP PROCEDURE IF EXISTS `sp_crea_utente_alfanumerico` */;
-/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
-/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
-/*!50003 SET @saved_col_connection = @@collation_connection */ ;
-/*!50003 SET character_set_client  = utf8mb3 */ ;
-/*!50003 SET character_set_results = utf8mb3 */ ;
-/*!50003 SET collation_connection  = utf8mb3_general_ci */ ;
-DELIMITER ;;
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_crea_utente_alfanumerico`(
-    IN p_username VARCHAR(50),
-    IN p_nome VARCHAR(50),
-    IN p_cognome VARCHAR(100),
-    IN p_codice_fiscale CHAR(16),
-    IN p_email VARCHAR(255),
-    IN p_password_hash VARCHAR(255)
-)
-BEGIN
-    
+                IF p_password_input = v_stored_pass THEN
+
+
+DELETE FROM accessi_falliti WHERE codice_alfanumerico = v_codice;
+
+SET p_result = v_codice;
+ELSE
+
+                    SET p_result = 'password_sbagliata';
+
+
+INSERT INTO accessi_falliti (codice_alfanumerico, dataora)
+VALUES (v_codice, NOW());
+END IF;
+END IF;
+END IF;
+END IF;
+
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_crea_utente_alfanumerico` (IN `p_username` VARCHAR(50), IN `p_nome` VARCHAR(50), IN `p_cognome` VARCHAR(100), IN `p_codice_fiscale` CHAR(16), IN `p_email` VARCHAR(255), IN `p_password_hash` VARCHAR(255))   BEGIN
+
     DECLARE v_ultimo_codice VARCHAR(6);
     DECLARE v_nuovo_valore_decimale BIGINT;
     DECLARE v_nuovo_codice VARCHAR(6);
 
-    
-    
-    SELECT MAX(codice_alfanumerico) 
-    INTO v_ultimo_codice 
-    FROM utenti;
 
-    
-    IF v_ultimo_codice IS NULL THEN
-        
+
+SELECT MAX(codice_alfanumerico)
+INTO v_ultimo_codice
+FROM utenti;
+
+
+IF v_ultimo_codice IS NULL THEN
+
         SET v_nuovo_codice = '000001';
-    ELSE
-        
-        
+ELSE
+
+
         SET v_nuovo_valore_decimale = CONV(v_ultimo_codice, 36, 10) + 1;
-        
-        
-        
-        
+
+
+
+
         SET v_nuovo_codice = LPAD(UPPER(CONV(v_nuovo_valore_decimale, 10, 36)), 6, '0');
-    END IF;
+END IF;
 
-    
-    INSERT INTO utenti (
-        codice_alfanumerico, username, nome, cognome, 
-        codice_fiscale, email, password_hash
-    ) VALUES (
-        v_nuovo_codice, p_username, p_nome, p_cognome, 
-        p_codice_fiscale, p_email, p_password_hash
-    );
-    
-    
-    SELECT v_nuovo_codice as nuovo_id;
 
-END ;;
+INSERT INTO utenti (
+    codice_alfanumerico, username, nome, cognome,
+    codice_fiscale, email, password_hash
+) VALUES (
+             v_nuovo_codice, p_username, p_nome, p_cognome,
+             p_codice_fiscale, p_email, p_password_hash
+         );
+
+
+SELECT v_nuovo_codice as nuovo_id;
+
+END$$
+
 DELIMITER ;
-/*!50003 SET sql_mode              = @saved_sql_mode */ ;
-/*!50003 SET character_set_client  = @saved_cs_client */ ;
-/*!50003 SET character_set_results = @saved_cs_results */ ;
-/*!50003 SET collation_connection  = @saved_col_connection */ ;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `accessi_falliti`
+--
+
+CREATE TABLE `accessi_falliti` (
+                                   `id_accessi` int(11) NOT NULL,
+                                   `codice_alfanumerico` varchar(6) NOT NULL,
+                                   `dataora` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `autore_libro`
+--
+
+CREATE TABLE `autore_libro` (
+                                `id_autore` int(11) NOT NULL,
+                                `isbn` bigint(20) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `autori`
+--
+
+CREATE TABLE `autori` (
+                          `id_autore` int(11) NOT NULL,
+                          `nome` varchar(100) NOT NULL,
+                          `cognome` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `badge`
+--
+
+CREATE TABLE `badge` (
+                         `id_badge` int(11) NOT NULL,
+                         `nome` varchar(255) NOT NULL,
+                         `icona` varchar(255) NOT NULL,
+                         `descrizione` text DEFAULT NULL,
+                         `tipo` varchar(100) DEFAULT NULL,
+                         `target_numerico` smallint(6) NOT NULL,
+                         `data_fine` date DEFAULT NULL,
+                         `root` smallint(6) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `categorie`
+--
+
+CREATE TABLE `categorie` (
+                             `id_categoria` int(11) NOT NULL,
+                             `categoria` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `consensi`
+--
+
+CREATE TABLE `consensi` (
+                            `id_consenso` int(11) NOT NULL,
+                            `codice_alfanumerico` varchar(6) NOT NULL,
+                            `tipo_consenso` varchar(50) DEFAULT NULL,
+                            `data_consenso` date DEFAULT NULL,
+                            `indirizzo_ip` varchar(45) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `copie`
+--
+
+CREATE TABLE `copie` (
+                         `id_copia` int(11) NOT NULL,
+                         `isbn` bigint(20) DEFAULT NULL,
+                         `ean` varchar(50) NOT NULL,
+                         `condizione` smallint(6) NOT NULL,
+                         `disponibile` tinyint(1) NOT NULL,
+                         `anno_pubblicazione` year(4) DEFAULT NULL,
+                         `conferma_anno_pubblicazione` tinyint(1) DEFAULT 1,
+                         `editore` varchar(100) NOT NULL,
+                         `copertina` varchar(255) NOT NULL,
+                         `taf_rfid` varchar(100) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `libri`
+--
+
+CREATE TABLE `libri` (
+                         `isbn` bigint(20) NOT NULL,
+                         `titolo` varchar(255) NOT NULL,
+                         `descrizione` text DEFAULT NULL,
+                         `data` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `libri_consigliati`
+--
+
+CREATE TABLE `libri_consigliati` (
+                                     `id` bigint(20) NOT NULL,
+                                     `isbn` bigint(20) NOT NULL,
+                                     `codice_alfanumerico` varchar(6) DEFAULT NULL,
+                                     `n_consigli` int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `libro_categoria`
+--
+
+CREATE TABLE `libro_categoria` (
+                                   `isbn` bigint(20) NOT NULL,
+                                   `id_categoria` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `log_monitoraggi`
+--
+
+CREATE TABLE `log_monitoraggi` (
+                                   `id_log` int(11) NOT NULL,
+                                   `codice_alfanumerico` varchar(6) NOT NULL,
+                                   `tipo_evento` varchar(50) NOT NULL,
+                                   `descrizione` text DEFAULT NULL,
+                                   `indirizzo_ip` varchar(45) DEFAULT NULL,
+                                   `dataora_evento` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `multe`
+--
+
+CREATE TABLE `multe` (
+                         `id_multa` int(11) NOT NULL,
+                         `id_prestito` int(11) NOT NULL,
+                         `codice_alfanumerico` varchar(6) NOT NULL,
+                         `importo` decimal(10,2) NOT NULL,
+                         `causale` text NOT NULL,
+                         `data_creata` date DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `notifiche`
+--
+
+CREATE TABLE `notifiche` (
+                             `id_notifica` int(11) NOT NULL,
+                             `codice_alfanumerico` varchar(6) NOT NULL,
+                             `titolo` varchar(255) NOT NULL,
+                             `messaggio` text NOT NULL,
+                             `tipo` varchar(50) NOT NULL,
+                             `dataora_invio` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `pagamenti`
+--
+
+CREATE TABLE `pagamenti` (
+                             `id_pagamento` int(11) NOT NULL,
+                             `codice_alfanumerico` varchar(6) NOT NULL,
+                             `data_apertura` date DEFAULT NULL,
+                             `data_chiusura` date DEFAULT NULL,
+                             `importo` decimal(10,2) NOT NULL,
+                             `causale` text NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `prenotazioni`
+--
+
+CREATE TABLE `prenotazioni` (
+                                `id_prenotazione` int(11) NOT NULL,
+                                `codice_alfanumerico` varchar(6) NOT NULL,
+                                `isbn` bigint(20) DEFAULT NULL,
+                                `data_prenotazione` date DEFAULT NULL,
+                                `data_assegnazione` date DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `prestiti`
+--
+
+CREATE TABLE `prestiti` (
+                            `id_prestito` int(11) NOT NULL,
+                            `codice_alfanumerico` varchar(6) NOT NULL,
+                            `id_copia` int(11) DEFAULT NULL,
+                            `data_prestito` date DEFAULT NULL,
+                            `data_scadenza` date DEFAULT NULL,
+                            `data_restituzione` date DEFAULT NULL,
+                            `num_rinnovi` int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `recensioni`
+--
+
+CREATE TABLE `recensioni` (
+                              `id_recensione` int(11) NOT NULL,
+                              `isbn` bigint(20) DEFAULT NULL,
+                              `codice_alfanumerico` varchar(6) NOT NULL,
+                              `voto` smallint(6) NOT NULL,
+                              `commento` text NOT NULL,
+                              `data_commento` date DEFAULT current_timestamp(),
+                              `like_count` int(11) DEFAULT 0,
+                              `dislike_count` int(11) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `ruoli`
+--
+
+CREATE TABLE `ruoli` (
+                         `codice_alfanumerico` varchar(6) DEFAULT NULL,
+                         `studente` tinyint(1) DEFAULT 0,
+                         `docente` tinyint(1) DEFAULT 0,
+                         `bibliotecario` tinyint(1) DEFAULT 0,
+                         `amministratore` tinyint(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `utente_badge`
+--
+
+CREATE TABLE `utente_badge` (
+                                `id_ub` int(11) NOT NULL,
+                                `id_badge` int(11) DEFAULT NULL,
+                                `codice_alfanumerico` varchar(6) NOT NULL,
+                                `livello` smallint(6) NOT NULL DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Struttura della tabella `utenti`
+--
+
+CREATE TABLE `utenti` (
+                          `codice_alfanumerico` varchar(6) NOT NULL,
+                          `username` varchar(50) DEFAULT NULL,
+                          `nome` varchar(50) NOT NULL,
+                          `cognome` varchar(100) NOT NULL,
+                          `codice_fiscale` char(16) NOT NULL,
+                          `email` varchar(255) NOT NULL,
+                          `password_hash` varchar(255) NOT NULL,
+                          `livello_privato` tinyint(3) UNSIGNED DEFAULT 0,
+                          `login_bloccato` tinyint(1) DEFAULT 0,
+                          `account_bloccato` tinyint(1) DEFAULT 0,
+                          `affidabile` tinyint(1) DEFAULT 0,
+                          `email_confermata` tinyint(1) DEFAULT 0,
+                          `data_creazione` date DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dump dei dati per la tabella `utenti`
+--
+
+INSERT INTO `utenti` (`codice_alfanumerico`, `username`, `nome`, `cognome`, `codice_fiscale`, `email`, `password_hash`, `livello_privato`, `login_bloccato`, `account_bloccato`, `affidabile`, `email_confermata`, `data_creazione`) VALUES
+    ('000001', 'TestUsername1', 'Cobra', 'Ivi', 'GRRRMN07S01A655L', 'prova@mail.com', 'c0934c19bfe8216c60ef23168c040168caa17037fa4c06c5a3c1100e0c9d0663', 0, 0, 0, 0, 0, '2025-12-08');
+
+--
+-- Indici per le tabelle scaricate
+--
+
+--
+-- Indici per le tabelle `accessi_falliti`
+--
+ALTER TABLE `accessi_falliti`
+    ADD PRIMARY KEY (`id_accessi`),
+  ADD KEY `codice_alfanumerico` (`codice_alfanumerico`),
+  ADD KEY `idx_accessi_dataora` (`dataora`);
+
+--
+-- Indici per le tabelle `autore_libro`
+--
+ALTER TABLE `autore_libro`
+    ADD PRIMARY KEY (`id_autore`,`isbn`),
+  ADD KEY `autore_libro_ibfk_2` (`isbn`);
+
+--
+-- Indici per le tabelle `autori`
+--
+ALTER TABLE `autori`
+    ADD PRIMARY KEY (`id_autore`),
+  ADD UNIQUE KEY `nome` (`nome`),
+  ADD UNIQUE KEY `cognome` (`cognome`);
+
+--
+-- Indici per le tabelle `badge`
+--
+ALTER TABLE `badge`
+    ADD PRIMARY KEY (`id_badge`);
+
+--
+-- Indici per le tabelle `categorie`
+--
+ALTER TABLE `categorie`
+    ADD PRIMARY KEY (`id_categoria`),
+  ADD UNIQUE KEY `categoria` (`categoria`);
+
+--
+-- Indici per le tabelle `consensi`
+--
+ALTER TABLE `consensi`
+    ADD PRIMARY KEY (`id_consenso`),
+  ADD KEY `codice_alfanumerico` (`codice_alfanumerico`);
+
+--
+-- Indici per le tabelle `copie`
+--
+ALTER TABLE `copie`
+    ADD PRIMARY KEY (`id_copia`),
+  ADD UNIQUE KEY `editore` (`editore`),
+  ADD UNIQUE KEY `anno_pubblicazione` (`anno_pubblicazione`),
+  ADD KEY `isbn` (`isbn`);
+
+--
+-- Indici per le tabelle `libri`
+--
+ALTER TABLE `libri`
+    ADD PRIMARY KEY (`isbn`);
+
+--
+-- Indici per le tabelle `libri_consigliati`
+--
+ALTER TABLE `libri_consigliati`
+    ADD PRIMARY KEY (`id`),
+  ADD KEY `isbn` (`isbn`),
+  ADD KEY `codice_alfanumerico` (`codice_alfanumerico`);
+
+--
+-- Indici per le tabelle `libro_categoria`
+--
+ALTER TABLE `libro_categoria`
+    ADD PRIMARY KEY (`isbn`,`id_categoria`),
+  ADD KEY `id_categoria` (`id_categoria`);
+
+--
+-- Indici per le tabelle `log_monitoraggi`
+--
+ALTER TABLE `log_monitoraggi`
+    ADD PRIMARY KEY (`id_log`),
+  ADD KEY `codice_alfanumerico` (`codice_alfanumerico`);
+
+--
+-- Indici per le tabelle `multe`
+--
+ALTER TABLE `multe`
+    ADD PRIMARY KEY (`id_multa`),
+  ADD KEY `id_prestito` (`id_prestito`),
+  ADD KEY `codice_alfanumerico` (`codice_alfanumerico`);
+
+--
+-- Indici per le tabelle `notifiche`
+--
+ALTER TABLE `notifiche`
+    ADD PRIMARY KEY (`id_notifica`),
+  ADD KEY `codice_alfanumerico` (`codice_alfanumerico`);
+
+--
+-- Indici per le tabelle `pagamenti`
+--
+ALTER TABLE `pagamenti`
+    ADD PRIMARY KEY (`id_pagamento`),
+  ADD KEY `codice_alfanumerico` (`codice_alfanumerico`);
+
+--
+-- Indici per le tabelle `prenotazioni`
+--
+ALTER TABLE `prenotazioni`
+    ADD PRIMARY KEY (`id_prenotazione`),
+  ADD KEY `codice_alfanumerico` (`codice_alfanumerico`),
+  ADD KEY `isbn` (`isbn`);
+
+--
+-- Indici per le tabelle `prestiti`
+--
+ALTER TABLE `prestiti`
+    ADD PRIMARY KEY (`id_prestito`),
+  ADD KEY `codice_alfanumerico` (`codice_alfanumerico`),
+  ADD KEY `id_copia` (`id_copia`);
+
+--
+-- Indici per le tabelle `recensioni`
+--
+ALTER TABLE `recensioni`
+    ADD PRIMARY KEY (`id_recensione`),
+  ADD KEY `isbn` (`isbn`),
+  ADD KEY `codice_alfanumerico` (`codice_alfanumerico`);
+
+--
+-- Indici per le tabelle `ruoli`
+--
+ALTER TABLE `ruoli`
+    ADD KEY `codice_alfanumerico` (`codice_alfanumerico`);
+
+--
+-- Indici per le tabelle `utente_badge`
+--
+ALTER TABLE `utente_badge`
+    ADD PRIMARY KEY (`id_ub`),
+  ADD KEY `id_badge` (`id_badge`),
+  ADD KEY `codice_alfanumerico` (`codice_alfanumerico`);
+
+--
+-- Indici per le tabelle `utenti`
+--
+ALTER TABLE `utenti`
+    ADD PRIMARY KEY (`codice_alfanumerico`);
+
+--
+-- AUTO_INCREMENT per le tabelle scaricate
+--
+
+--
+-- AUTO_INCREMENT per la tabella `accessi_falliti`
+--
+ALTER TABLE `accessi_falliti`
+    MODIFY `id_accessi` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `autori`
+--
+ALTER TABLE `autori`
+    MODIFY `id_autore` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `badge`
+--
+ALTER TABLE `badge`
+    MODIFY `id_badge` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `categorie`
+--
+ALTER TABLE `categorie`
+    MODIFY `id_categoria` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `consensi`
+--
+ALTER TABLE `consensi`
+    MODIFY `id_consenso` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `copie`
+--
+ALTER TABLE `copie`
+    MODIFY `id_copia` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `libri_consigliati`
+--
+ALTER TABLE `libri_consigliati`
+    MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `log_monitoraggi`
+--
+ALTER TABLE `log_monitoraggi`
+    MODIFY `id_log` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `multe`
+--
+ALTER TABLE `multe`
+    MODIFY `id_multa` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `notifiche`
+--
+ALTER TABLE `notifiche`
+    MODIFY `id_notifica` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `pagamenti`
+--
+ALTER TABLE `pagamenti`
+    MODIFY `id_pagamento` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `prenotazioni`
+--
+ALTER TABLE `prenotazioni`
+    MODIFY `id_prenotazione` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `prestiti`
+--
+ALTER TABLE `prestiti`
+    MODIFY `id_prestito` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `recensioni`
+--
+ALTER TABLE `recensioni`
+    MODIFY `id_recensione` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT per la tabella `utente_badge`
+--
+ALTER TABLE `utente_badge`
+    MODIFY `id_ub` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- Limiti per le tabelle scaricate
+--
+
+--
+-- Limiti per la tabella `accessi_falliti`
+--
+ALTER TABLE `accessi_falliti`
+    ADD CONSTRAINT `accessi_falliti_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`);
+
+--
+-- Limiti per la tabella `autore_libro`
+--
+ALTER TABLE `autore_libro`
+    ADD CONSTRAINT `autore_libro_ibfk_1` FOREIGN KEY (`id_autore`) REFERENCES `autori` (`id_autore`),
+  ADD CONSTRAINT `autore_libro_ibfk_2` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`);
+
+--
+-- Limiti per la tabella `consensi`
+--
+ALTER TABLE `consensi`
+    ADD CONSTRAINT `consensi_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`);
+
+--
+-- Limiti per la tabella `copie`
+--
+ALTER TABLE `copie`
+    ADD CONSTRAINT `copie_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`);
+
+--
+-- Limiti per la tabella `libri_consigliati`
+--
+ALTER TABLE `libri_consigliati`
+    ADD CONSTRAINT `libri_consigliati_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`),
+  ADD CONSTRAINT `libri_consigliati_ibfk_2` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`);
+
+--
+-- Limiti per la tabella `libro_categoria`
+--
+ALTER TABLE `libro_categoria`
+    ADD CONSTRAINT `libro_categoria_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`),
+  ADD CONSTRAINT `libro_categoria_ibfk_2` FOREIGN KEY (`id_categoria`) REFERENCES `categorie` (`id_categoria`);
+
+--
+-- Limiti per la tabella `log_monitoraggi`
+--
+ALTER TABLE `log_monitoraggi`
+    ADD CONSTRAINT `log_monitoraggi_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`);
+
+--
+-- Limiti per la tabella `multe`
+--
+ALTER TABLE `multe`
+    ADD CONSTRAINT `multe_ibfk_1` FOREIGN KEY (`id_prestito`) REFERENCES `prestiti` (`id_prestito`),
+  ADD CONSTRAINT `multe_ibfk_2` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`);
+
+--
+-- Limiti per la tabella `notifiche`
+--
+ALTER TABLE `notifiche`
+    ADD CONSTRAINT `notifiche_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`);
+
+--
+-- Limiti per la tabella `pagamenti`
+--
+ALTER TABLE `pagamenti`
+    ADD CONSTRAINT `pagamenti_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`);
+
+--
+-- Limiti per la tabella `prenotazioni`
+--
+ALTER TABLE `prenotazioni`
+    ADD CONSTRAINT `prenotazioni_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`),
+  ADD CONSTRAINT `prenotazioni_ibfk_2` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`);
+
+--
+-- Limiti per la tabella `prestiti`
+--
+ALTER TABLE `prestiti`
+    ADD CONSTRAINT `prestiti_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`),
+  ADD CONSTRAINT `prestiti_ibfk_2` FOREIGN KEY (`id_copia`) REFERENCES `copie` (`id_copia`);
+
+--
+-- Limiti per la tabella `recensioni`
+--
+ALTER TABLE `recensioni`
+    ADD CONSTRAINT `recensioni_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`),
+  ADD CONSTRAINT `recensioni_ibfk_2` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`);
+
+--
+-- Limiti per la tabella `ruoli`
+--
+ALTER TABLE `ruoli`
+    ADD CONSTRAINT `ruoli_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`);
+
+--
+-- Limiti per la tabella `utente_badge`
+--
+ALTER TABLE `utente_badge`
+    ADD CONSTRAINT `utente_badge_ibfk_1` FOREIGN KEY (`id_badge`) REFERENCES `badge` (`id_badge`),
+  ADD CONSTRAINT `utente_badge_ibfk_2` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`);
+COMMIT;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2025-12-12  2:00:03

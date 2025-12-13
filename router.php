@@ -8,10 +8,9 @@ $whitelist = [
     '/signup' => 'pages/signup.php',
     '/logout' => 'pages/logout.php',
     '/protected' => 'pages/protected.php',
-    '/contatti' => 'pages/contatti.php',
-    '/privacy' => 'pages/privacy.php',
-    '/terms' => 'pages/terms.php',
-    '/profilo' => 'pages/profilo.php',
+    './contatti' => 'pages/contatti.php',
+    './privacy' => 'pages/privacy.php',
+    './terms' => 'pages/terms.php',
 ];
 
 
