@@ -2,6 +2,33 @@
 // 1. IMPORTANTE: Avviamo la sessione per vedere se l'utente è loggato
 session_start();
 
+//scaricare il composer
+//composer require picqer/php-barcode-generator
+
+// Gestione generazione barcode PRIMA di qualsiasi altro output
+if (isset($_GET['generate_barcode'])) {
+    require __DIR__ . '/../../vendor/autoload.php';
+
+    $ean = $_GET['ean'] ?? '';
+
+    // Validazione: EAN-13 deve essere esattamente 13 cifre
+    if (strlen($ean) === 13 && ctype_digit($ean)) {
+        $generator = new Picqer\Barcode\BarcodeGeneratorPNG();
+        header('Content-Type: image/png');
+        echo $generator->getBarcode($ean, $generator::TYPE_EAN_13);
+    } else {
+        // Se non è valido, genera un'immagine di errore
+        header('Content-Type: image/png');
+        $img = imagecreate(200, 50);
+        $bg = imagecolorallocate($img, 255, 255, 255);
+        $text = imagecolorallocate($img, 255, 0, 0);
+        imagestring($img, 3, 10, 20, "EAN non valido", $text);
+        imagepng($img);
+        imagedestroy($img);
+    }
+    exit; // Importante: termina qui per non generare altro HTML
+}
+
 // Includiamo la configurazione
 require_once 'db_config.php';
 
@@ -115,6 +142,7 @@ if (isset($pdo)) {
                 <td><input type="text" placeholder="titolo" name="titolo" required></td>
                 <td><input type="text" placeholder="descrizione" name="descrizione" required></td>
                 <td><input type="text" placeholder="ean" name="ean" required></td>
+
                 <input type="hidden" name="inserisci" value="1">
                 <td><input type="submit" value="inserisci"></td>
             </form>
@@ -127,6 +155,7 @@ if (isset($pdo)) {
             <th>Titolo</th>
             <th>Descrizione</th>
             <th>Ean</th>
+            <th>EAN a barre</th>
             <th>Azioni</th>
         </tr>
 
@@ -146,6 +175,12 @@ if (isset($pdo)) {
                         <input type="text" name="ean"
                                value="<?= htmlspecialchars($b['ean']) ?>">
                     </td>
+                    <td>
+                        <img src="dashboard-libri?generate_barcode=1&ean=<?= htmlspecialchars($b['ean']) ?>"
+                             alt="EAN <?= htmlspecialchars($b['ean']) ?>"
+                             height="50">
+                    </td>
+
 
                     <td>
                         <!-- SALVA -->
@@ -178,4 +213,4 @@ if (isset($pdo)) {
         padding: 15px;
         border: solid 1px black;
     }
-</style>
+</style>3

@@ -173,7 +173,7 @@ try {
         </table>
 
 
-        <table border="1" width="100%">
+        <table>
         <tr>
             <th>Codice Alfanumerico</th>
             <th>Nome</th>

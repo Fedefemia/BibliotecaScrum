@@ -29,6 +29,8 @@ if (isset($pdo)) {
         if (isset($_POST['delete_id'])) {
             $stmt = $pdo->prepare("DELETE FROM biblioteche WHERE id = :id");
             $stmt->execute(['id' => $_POST['delete_id']]);
+            header("Location: "."dashboard-biblioteche");
+            exit;
         }
 
         // SALVA MODIFICA
@@ -45,6 +47,25 @@ if (isset($pdo)) {
                 'lon' => $_POST['lon'],
                 'id' => $_POST['edit_id']
             ]);
+            header("Location: "."dashboard-biblioteche");
+            exit;
+        }
+        //AGGIUNGI
+        if (isset($_POST['inserisci'])) {
+            $stmt = $pdo->prepare("
+            INSERT INTO biblioteche(nome,indirizzo,lat,lon,orari)
+            values (:nome,:indirizzo,:lat,:lon,:orari)
+        ");
+            $stmt->execute([
+                    'indirizzo' => $_POST['indirizzo'],
+                    'lat' => $_POST['lat'],
+                    'lon' => $_POST['lon'],
+                    'nome' => $_POST['nome'],
+                    'orari' => $_POST['orari']
+            ]);
+            header("Location: "."dashboard-biblioteche");
+            exit;
+
         }
 
         $stmt = $pdo->prepare("SELECT * FROM biblioteche");
@@ -77,10 +98,32 @@ if (isset($pdo)) {
 <!-- INIZIO DEL BODY -->
 
 <div class="page_contents">
+    <h2>Inserisci nuovo libro</h2>
 
-    <table border="1" width="100%">
+    <table style="margin-bottom: 40px">
         <tr>
-
+            <th>Nome</th>
+            <th>Indirizzo</th>
+            <th>Latitudine</th>
+            <th>Longitudine</th>
+            <th>Orari</th>
+            <th>Azioni</th>
+        </tr>
+        <tr>
+            <form method="post">
+                <td><input type="text" placeholder="nome" name="nome" required></td>
+                <td><input type="text" placeholder="indirizzo" name="indirizzo" required></td>
+                <td><input type="text" placeholder="lat" name="lat" required></td>
+                <td><input type="text" placeholder="lon" name="lon" required></td>
+                <td><input type="text" placeholder="orari" name="orari"></td>
+                <input type="hidden" name="inserisci" value="1">
+                <td><input type="submit" value="inserisci"></td>
+            </form>
+        </tr>
+    </table>
+    <table>
+        <tr>
+            <th>ID</th>
             <th>Nome</th>
             <th>Indirizzo</th>
             <th>Latitudine</th>
@@ -91,6 +134,9 @@ if (isset($pdo)) {
         <?php foreach ($biblioteche as $b): ?>
             <tr>
                 <form method="POST">
+                    <td>
+                        <?= htmlspecialchars($b['id']) ?>
+                    </td>
                     <td>
                         <input type="text" name="nome"
                                value="<?= htmlspecialchars($b['nome']) ?>">
