@@ -68,7 +68,8 @@ try {
     <?php endif; ?>
 
     <div class="book_info">
-        <img src="<?= htmlspecialchars($libro['copertina']) ?>" alt="Copertina" class="book_cover">
+        <img id="book-cover-image" src="<?= htmlspecialchars($libro['copertina'] ?: 'src/assets/placeholder.jpg') ?>" alt="Copertina" class="book_cover">
+        
         <p><strong>Autori:</strong>
             <?= htmlspecialchars(implode(', ', array_map(fn($a)=>$a['nome'].' '.$a['cognome'], $autori))) ?>
         </p>
@@ -96,5 +97,39 @@ try {
         <p>Nessuna recensione disponibile.</p>
     <?php endif; ?>
 </div>
+
+<script>
+async function fetchCover(isbn) {
+    try {
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+        const data = await res.json();
+
+        if (data.items && data.items.length) {
+            for (const item of data.items) {
+                const links = item.volumeInfo?.imageLinks;
+                if (links) {
+                    // Cerca l'immagine migliore disponibile
+                    const cover = links.extraLarge || links.large || links.medium || links.small || links.thumbnail || links.smallThumbnail;
+                    if (cover) return cover.replace(/^http:/, 'https:');
+                }
+            }
+        }
+        return null; // Ritorna null se non trova nulla, così manteniamo l'originale o placeholder
+    } catch(e) {
+        console.error('Errore fetch copertina', isbn, e);
+        return null;
+    }
+}
+
+// Esegue il fetch per l'ISBN corrente
+(async () => {
+    const currentIsbn = "<?= $isbn ?>";
+    const coverUrl = await fetchCover(currentIsbn);
+    
+    if (coverUrl) {
+        document.getElementById('book-cover-image').src = coverUrl;
+    }
+})();
+</script>
 
 <?php require './src/includes/footer.php'; ?>
