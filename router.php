@@ -20,6 +20,9 @@ $whitelist = [
     '/dashboard' => 'pages/dashboard.php',
     '/blank' => 'pages/blankpage.php',
     '/search' => 'pages/search.php',
+
+    //temp
+    '/cover-fetcher'=> 'coverFetcher.php',
 ];
 
 // LOGICA ROUTER
