@@ -1,29 +1,22 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 $whitelist = [
-    '/'        => 'pages/index.php',
-    '/home'    => 'pages/index.php',
-    '/webhook' => 'webhook.php',
-    '/login'   => 'pages/login.php',
+    '/'        => 'pages/index.php',             // home page
+    '/home'        => 'pages/index.php',         // home page
+    '/webhook' => 'webhook.php',                 // Webhook pull server (local server)
+    '/login' => 'pages/login.php',
     '/confirm-email' => 'pages/confirmemail.php',
-    '/signup'  => 'pages/signup.php',
-    '/logout'  => 'pages/logout.php',
+    '/signup' => 'pages/signup.php',
+    '/logout' => 'pages/logout.php',
     '/protected' => 'pages/protected.php',
     '/contatti' => 'pages/contatti.php',
-    '/privacy'   => 'pages/privacy.php',
-    '/terms'     => 'pages/terms.php',
-    '/libro' => 'pages/libro.php',
-    '/verifica' => 'pages/verifica.php',
-    '/dashboard' => 'pages/dashboard.php',
-    '/blank' => 'pages/blankpage.php',
-    '/search' => 'pages/search.php',
-
-    //temp
-    '/cover-fetcher'=> 'coverFetcher.php',
+    './privacy' => 'pages/privacy.php',
+    './terms' => 'pages/terms.php',
+    '/dashboard' => 'pages/admin/dashboard.php',
+    '/dashboard-biblioteche' => 'pages/admin/D_biblioteche.php',
+    '/dashboard-libri' => 'pages/admin/D_libri.php',
+    '/dashboard-utenti' => 'pages/admin/D_utenti.php',
 ];
+
 
 // LOGICA ROUTER
 $request_uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
