@@ -171,94 +171,137 @@ require './src/includes/navbar.php';
     const checkboxes = document.querySelectorAll('#filter_form input[type=checkbox]');
     const searchQuery = '<?= addslashes($search_query) ?>'.toLowerCase();
 
-    // --- Pulsanti per mostrare solo una sezione ---
-    btnBooks.addEventListener('click', () => {
+    /* ===============================
+       🧠 MEMORIA SEZIONE ATTIVA
+    =============================== */
+
+    // Se arrivo da un'altra pagina → default Libri
+    if (document.referrer && !document.referrer.includes('search')) {
+        sessionStorage.setItem('activeSearchSection', 'books');
+    }
+
+    const savedSection = sessionStorage.getItem('activeSearchSection') || 'books';
+
+    function showBooks() {
         sectionBooks.style.display = 'block';
         sectionUsers.style.display = 'none';
         filtersBooks.style.display = 'block';
         filtersUsers.style.display = 'none';
         btnBooks.classList.add('active');
         btnUsers.classList.remove('active');
-    });
+        sessionStorage.setItem('activeSearchSection', 'books');
+    }
 
-    btnUsers.addEventListener('click', () => {
+    function showUsers() {
         sectionBooks.style.display = 'none';
         sectionUsers.style.display = 'block';
         filtersBooks.style.display = 'none';
         filtersUsers.style.display = 'block';
         btnBooks.classList.remove('active');
         btnUsers.classList.add('active');
-    });
+        sessionStorage.setItem('activeSearchSection', 'users');
+    }
 
-    // Evidenzia il testo corrispondente
+    // Applica la sezione iniziale
+    if (savedSection === 'users') {
+        showUsers();
+    } else {
+        showBooks();
+    }
+
+    // Eventi pulsanti
+    btnBooks.addEventListener('click', showBooks);
+    btnUsers.addEventListener('click', showUsers);
+
+    /* ===============================
+       🔎 HIGHLIGHT TESTO
+    =============================== */
+
     function highlightText(text, search) {
         if (!search) return text;
         const regex = new RegExp(`(${search})`, 'gi');
         return text.replace(regex, '<mark>$1</mark>');
     }
 
-    /*
-    --- Parte OnChange dei filtri ---
-    Questa funzione viene eseguita ogni volta che si cambia una checkbox.
-    Non rifà la ricerca sul server, lavora direttamente sui dati già caricati.
-    Filtra libri, autori e utenti in base ai campi selezionati.
-    */
+    /* ===============================
+       🎛️ FILTRI ON-CHANGE
+    =============================== */
+
     function filterResults() {
-        // Filtri attivi per libri
+        // Filtri libri attivi
         const activeFiltersBooks = Array.from(checkboxes)
             .filter(cb => cb.checked && cb.closest('#filters_books'))
             .map(cb => cb.name.replace('filtra_', ''));
 
-        // Filtri attivi per utenti
+        // Filtri utenti attivi
         const activeFiltersUsers = Array.from(checkboxes)
             .filter(cb => cb.checked && cb.closest('#filters_users'))
             .map(cb => cb.name.replace('filtra_', ''));
 
-        // --- Filtra libri ---
+        /* ---------- LIBRI ---------- */
         let visibleBooks = 0;
         document.querySelectorAll('.book_card').forEach(card => {
-            const show = activeFiltersBooks.some(field => (card.dataset[field] || '').toLowerCase().includes(searchQuery));
+            const show = activeFiltersBooks.some(field =>
+                (card.dataset[field] || '').toLowerCase().includes(searchQuery)
+            );
             card.style.display = show ? 'flex' : 'none';
-            if(show) visibleBooks++;
-            if(show) card.querySelectorAll('h3,p').forEach(el => {
-                const field = el.className.replace('book_', '');
-                if(activeFiltersBooks.includes(field)) el.innerHTML = highlightText(card.dataset[field], searchQuery);
-            });
+            if (show) {
+                visibleBooks++;
+                card.querySelectorAll('h3,p').forEach(el => {
+                    const field = el.className.replace('book_', '');
+                    if (activeFiltersBooks.includes(field)) {
+                        el.innerHTML = highlightText(card.dataset[field] || '', searchQuery);
+                    }
+                });
+            }
         });
         document.getElementById('results_count_books').textContent = visibleBooks;
 
-        // --- Filtra autori ---
+        /* ---------- AUTORI ---------- */
         let visibleAuthors = 0;
         document.querySelectorAll('.author_card').forEach(card => {
-            const show = activeFiltersBooks.some(field => (card.dataset[field] || '').toLowerCase().includes(searchQuery));
+            const show = activeFiltersBooks.some(field =>
+                (card.dataset[field] || '').toLowerCase().includes(searchQuery)
+            );
             card.style.display = show ? 'flex' : 'none';
-            if(show) visibleAuthors++;
-            if(show) card.querySelectorAll('p').forEach(el => {
-                const field = el.className.replace('author_', '');
-                if(activeFiltersBooks.includes(field)) el.innerHTML = highlightText(card.dataset[field], searchQuery);
-            });
+            if (show) {
+                visibleAuthors++;
+                card.querySelectorAll('p').forEach(el => {
+                    const field = el.className.replace('author_', '');
+                    if (activeFiltersBooks.includes(field)) {
+                        el.innerHTML = highlightText(card.dataset[field] || '', searchQuery);
+                    }
+                });
+            }
         });
         document.getElementById('results_count_authors').textContent = visibleAuthors;
 
-        // --- Filtra utenti ---
+        /* ---------- UTENTI ---------- */
         let visibleUsers = 0;
         document.querySelectorAll('.user_card').forEach(card => {
-            const show = activeFiltersUsers.some(field => (card.dataset[field] || '').toLowerCase().includes(searchQuery));
+            const show = activeFiltersUsers.some(field =>
+                (card.dataset[field] || '').toLowerCase().includes(searchQuery)
+            );
             card.style.display = show ? 'block' : 'none';
-            if(show) visibleUsers++;
-            if(show) card.querySelectorAll('p').forEach(el => {
-                const field = el.className.replace('user_', '');
-                if(activeFiltersUsers.includes(field)) el.innerHTML = highlightText(card.dataset[field], searchQuery);
-            });
+            if (show) {
+                visibleUsers++;
+                card.querySelectorAll('p').forEach(el => {
+                    const field = el.className.replace('user_', '');
+                    if (activeFiltersUsers.includes(field)) {
+                        el.innerHTML = highlightText(card.dataset[field] || '', searchQuery);
+                    }
+                });
+            }
         });
         document.getElementById('results_count_users').textContent = visibleUsers;
     }
 
-    // Aggiunge l'evento onchange a tutte le checkbox
+    // Eventi checkbox
     checkboxes.forEach(cb => cb.addEventListener('change', filterResults));
 
-    // Applica il filtro iniziale
+    // Filtro iniziale
     filterResults();
 </script>
+
 
 <?php require './src/includes/footer.php'; ?>

@@ -15,6 +15,7 @@ $whitelist = [
     '/dashboard-biblioteche' => 'pages/admin/D_biblioteche.php',
     '/dashboard-libri' => 'pages/admin/D_libri.php',
     '/dashboard-utenti' => 'pages/admin/D_utenti.php',
+    '/search' => 'pages/search.php',
 ];
 
 
