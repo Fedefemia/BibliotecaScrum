@@ -17,13 +17,12 @@ $authors = [];
 if (!empty($search_query)) {
     // --- Libri ---
     $sql_books = "
-        SELECT l.isbn, l.titolo, c.copertina, 
+        SELECT l.isbn, l.titolo, 
                GROUP_CONCAT(DISTINCT a.nome SEPARATOR ', ') AS autore_nome,
                GROUP_CONCAT(DISTINCT a.cognome SEPARATOR ', ') AS autore_cognome
         FROM libri l
         LEFT JOIN autore_libro al ON al.isbn = l.isbn
         LEFT JOIN autori a ON a.id_autore = al.id_autore
-        LEFT JOIN copie c ON c.isbn = l.isbn
         GROUP BY l.isbn
         ORDER BY l.titolo ASC
     ";
@@ -107,12 +106,12 @@ require './src/includes/navbar.php';
                      data-autore_nome="<?= $book['autore_nome'] ?>"
                      data-autore_cognome="<?= $book['autore_cognome'] ?>"
                      style="margin-bottom:10px; display:flex; align-items:center;">
-                    <img src="<?= $book['copertina'] ?? 'src/assets/placeholder.jpg' ?>" alt="Copertina" style="width:50px;height:70px;margin-right:10px;">
+                    <img src="public/bookCover<?= $book['isbn'] ?? 'src/assets/placeholder' ?>.jpg" alt="Copertina" style="width:50px;height:70px;margin-right:10px;">
                     <div>
                         <h3 class="book_titolo"><?= highlight_text($book['titolo'], $search_query) ?></h3>
                         <p class="book_autore_nome"><strong>Nome autore:</strong> <?= highlight_text($book['autore_nome'], $search_query) ?></p>
                         <p class="book_autore_cognome"><strong>Cognome autore:</strong> <?= highlight_text($book['autore_cognome'], $search_query) ?></p>
-                        <a href="/libro_info?isbn=<?= urlencode($isbn) ?>">Dettagli</a>
+                        <a href="./libro?isbn=<?= urlencode($isbn) ?>">Dettagli</a>
                     </div>
                 </div>
             <?php endforeach; ?>
@@ -128,12 +127,12 @@ require './src/includes/navbar.php';
                      data-autore_nome="<?= $book['autore_nome'] ?>"
                      data-autore_cognome="<?= $book['autore_cognome'] ?>"
                      style="margin-bottom:10px; display:flex; align-items:center;">
-                    <img src="<?= $book['copertina'] ?? 'src/assets/placeholder.jpg' ?>" alt="Copertina" style="width:50px;height:70px;margin-right:10px;">
+                    <img src="public/bookCover<?= $book['isbn'] ?? 'src/assets/placeholder' ?>.jpg" alt="Copertina" style="width:50px;height:70px;margin-right:10px;">
                     <div>
                         <p class="author_nome"><strong>Nome autore:</strong> <?= highlight_text($book['autore_nome'], $search_query) ?></p>
                         <p class="author_cognome"><strong>Cognome autore:</strong> <?= highlight_text($book['autore_cognome'], $search_query) ?></p>
                         <p><strong>Libro:</strong> <?= $book['titolo'] ?></p>
-                        <a href="/libro_info?isbn=<?= urlencode($isbn) ?>">Dettagli</a>
+                        <a href="./libro?isbn=<?= urlencode($isbn) ?>">Dettagli</a>
                     </div>
                 </div>
             <?php endforeach; ?>

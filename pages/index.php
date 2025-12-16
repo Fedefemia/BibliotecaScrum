@@ -121,8 +121,6 @@ function renderVoto($media) {
 </style>
 
 <div class="page_contents">
-    <h1>Home</h1>
-
     <?php if ($messaggio_db): ?>
         <pre class="message"><?= $messaggio_db ?></pre>
     <?php endif; ?>
