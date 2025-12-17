@@ -22,8 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             // Recupero utente dal DB
-            $stmt = $pdo->prepare("SELECT password_hash, codice_alfanumerico, email_confermata, nome, cognome, email FROM utenti WHERE username = ? OR email = ? LIMIT 1");
-            $stmt->execute([$user_input, $user_input]);
+            $stmt = $pdo->prepare("SELECT password_hash, codice_alfanumerico, email_confermata, nome, cognome, email FROM utenti WHERE  username = ? OR email = ? OR codice_fiscale = ? LIMIT 1");
+            $stmt->execute([$user_input, $user_input, $user_input]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$row) {
@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                <p><a href=\"" . htmlspecialchars($verifyLink) . "\">Conferma email</a></p>
                                <br>
                                <p>Inviato da: Biblioteca Scrum Itis Rossi</p>
-                               <p><a href='https://unexploratory-franchesca-lipochromic.ngrok-free.dev/verifica'>Biblioteca Itis Rossi</a></p>";
+                               <p><a href='https://unexploratory-franchesca-lipochromic.ngrok-free.dev/'>Biblioteca Itis Rossi</a></p>";
                 $mail->send();
 
                 $error_msg = "Conferma l'email prima di accedere. Ti è stato inviato un nuovo codice!";
@@ -70,40 +70,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
+
+$title = "Accedi";
+$page_css = "./public/css/style_forms.css";
 ?>
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-</head>
-<body>
-
     <?php include './src/includes/header.php'; ?>
-    <?php include './src/includes/navbar.php'; ?>
 
-    <div class="container">
-        <h2>Accedi</h2>
+    <div class="form_container_1">
+        <h2 class="form_title_1">Accedi</h2>
 
         <?php if (!empty($error_msg)): ?>
             <div class="error"><?php echo htmlspecialchars($error_msg); ?></div>
         <?php endif; ?>
 
         <form method="post">
-            <label>Username, Email o Codice Fiscale</label>
-            <input name="username" type="text" placeholder="Inserisci credenziali" required value="<?php echo htmlspecialchars($user_input ?? ''); ?>">
+            <label class="form_1_label">Username, Email o Codice Fiscale</label>
+            <input class="form_1_input_sring" name="username" type="text" placeholder="Inserisci credenziali" required value="<?php echo htmlspecialchars($user_input ?? ''); ?>">
             
-            <label>Password</label>
-            <input name="password" type="password" placeholder="Password" required>
+            <label class="form_1_label">Password</label>
+            <input class="form_1_input_sring" name="password" type="password" placeholder="Password" required>
+            <a id="form_1_sublabel" href="./password-reset">Password dimenticata?</a>
             
-            <button type="submit">Login</button>
+            <button class="form_1_btn_submit" type="submit">Login</button>
         </form>
 
         <br>
-        <a href="./signup">Non hai un account? Registrati</a>
+        <a href="./signup">Registrati</a>
     </div>
 
-    <?php include './src/includes/footer.php'; ?>
-
+</div>
 </body>
 </html>

@@ -31,17 +31,18 @@ if (isset($_SESSION['nome_utente'])) {
             <img src="./public/assets/icon_search_ligth.png" alt="Cerca" class="navbar_search_icon_mobile">
         </a>
         <div class="search_container">
-            <form class="search_container" action="">
+            <form class="search_container" action="search" method="GET">
                 <button type="submit" class="search_icon_button">
                     <img src="./public/assets/icon_search_dark.png" alt="Cerca" class="navbar_search_icon">
                 </button>
-                <input type="text" placeholder="Search.." name="search" class="navbar_search_input instrument-sans-semibold">
+                <input type="text" placeholder="Search.." name="search" class="navbar_search_input instrument-sans-semibold"
+                       value="<?= isset($_GET['search']) ? $_GET['search']: '' ?>">
             </form>
         </div>
     </div>
     <div class="navbar_rigth">
         <div class="navbar_rigth_rigth">
-            <a href="#" class="navbar_link instrument-sans-semibold">Dashboard</a>
+            <a href="./dashboard" class="navbar_link instrument-sans-semibold">Dashboard</a>
         </div>
 
         <div class="navbar_rigth_left">
@@ -55,7 +56,7 @@ if (isset($_SESSION['nome_utente'])) {
                         <img src="./public/assets/base_pfp.png" alt="pfp" class="navbar_icon navbar_pfp">
                     </a>
             <?php    } else { ?>
-                <a href="./login" class="navbar_link instrument-sans-semibold text_underline">Log-In</a>
+                <a href="./login" class="navbar_link instrument-sans-semibold text_underline">Accedi</a>
             <?php     } ?>
 
         </div>

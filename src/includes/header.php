@@ -8,6 +8,10 @@
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <title><?php if(isset($title)){echo $title;} else echo "Biblioteca Scrum"?></title>
         <link rel="stylesheet" href="./public/css/style_global.css">
+        <?php if (isset($page_css)): ?>
+            <link rel="stylesheet" href="<?php echo htmlspecialchars($page_css); ?>">
+        <?php endif; ?>
+
         <link rel="icon" href="./public/assets/icon.png">
 
         <link rel="preconnect" href="https://fonts.googleapis.com">
