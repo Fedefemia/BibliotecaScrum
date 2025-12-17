@@ -8,7 +8,7 @@ $username = "Test";
 $nome = "Test";
 $cf = "Test12344";
 $cognome = "Test";
-$email = "Test";
+$email = "Test7";
 
 
 $recuperoDati = "SELECT * FROM utenti WHERE codice_alfanumerico = ?";
