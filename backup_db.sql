@@ -1048,7 +1048,8 @@ CREATE TABLE `ruoli` (
   `docente` tinyint(1) DEFAULT 0,
   `bibliotecario` tinyint(1) DEFAULT 0,
   `amministratore` tinyint(1) DEFAULT 0,
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
+  KEY `fk_ruoli_utenti` (`codice_alfanumerico`),
+  CONSTRAINT `fk_ruoli_utenti` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `ruoli_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -1059,6 +1060,14 @@ CREATE TABLE `ruoli` (
 
 LOCK TABLES `ruoli` WRITE;
 /*!40000 ALTER TABLE `ruoli` DISABLE KEYS */;
+INSERT INTO `ruoli` VALUES
+('000001',1,0,0,0),
+('000003',1,0,0,0),
+('000004',1,0,0,0),
+('000005',1,0,0,0),
+('000006',1,0,0,0),
+('000007',1,0,0,0),
+('000008',1,0,0,0);
 /*!40000 ALTER TABLE `ruoli` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1077,7 +1086,7 @@ CREATE TABLE `tokenemail` (
   PRIMARY KEY (`id`),
   KEY `token` (`token`),
   KEY `codice_alfanumerico` (`codice_alfanumerico`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1095,7 +1104,9 @@ INSERT INTO `tokenemail` VALUES
 (8,'000004','10765326bdb2d61ef9443a7d0bc05dce8dca49ca0c3c3e1da275fe819fdd293f','2025-12-13 09:57:26'),
 (9,'000004','ea358a7a6ed44809fd199d43fcd39ad51a3fe38940d4f48007230dc5a15aa8a8','2025-12-13 09:58:03'),
 (10,'000001','e727f5b3a8641b3702cdebe02ad70f5999559495d53e1d6875c2bcda40619c8f','2025-12-13 10:12:26'),
-(11,'000008','1b79aa7784c7128145f48fa07e3d5459c32f3f00fc1887ec6212d9f8a214c53d','2025-12-14 20:10:30');
+(11,'000008','1b79aa7784c7128145f48fa07e3d5459c32f3f00fc1887ec6212d9f8a214c53d','2025-12-14 20:10:30'),
+(13,'000008','6b6243d55fd5466383b375d75c14315ff1360a9dcd4df4a7f6b8a36b1891baf7','2025-12-16 15:21:53'),
+(14,'000008','f9906e411b89e37529fd2719c779ef521009c326f0d0229f4241be02e0a32fa4','2025-12-16 15:23:35');
 /*!40000 ALTER TABLE `tokenemail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1167,7 +1178,7 @@ INSERT INTO `utenti` VALUES
 ('000005','LettoreVorace','Mario','Rossi','RSSMRA80A01H501Z','mario.rossi@example.com','hash1',0,0,0,0,0,'2025-12-14'),
 ('000006','BookLover99','Luca','Bianchi','BNCLCU90B02F205K','luca.bianchi@example.com','hash2',0,0,0,0,0,'2025-12-14'),
 ('000007','CriticoSevero','Giulia','Verdi','VRDGLI85C45L219X','giulia.verdi@example.com','hash3',0,0,0,0,0,'2025-12-14'),
-('000008','Fede','Fede','Femia','FMEFDE12T12H501O','federico.femia121007@gmail.com','$2y$10$sojyd0AwTg1cGbWB1bP4v.vTd0szNIwWizW524Me40DJLXa1EU.Qi',0,0,0,0,1,'2025-12-14');
+('000008','Fede','Fede','Femia','FMEFDE12T12H501O','federico.femia121007@gmail.com','$2y$10$ou9.za96K3zKxHMoot9qy.9Fh6PhFTgiZvriAQOqNZSq7tWqRkcAi',0,0,0,0,1,'2025-12-14');
 /*!40000 ALTER TABLE `utenti` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1328,4 +1339,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-12-16  2:00:03
+-- Dump completed on 2025-12-17  2:00:03
