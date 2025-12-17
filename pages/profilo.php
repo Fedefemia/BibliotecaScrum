@@ -39,7 +39,7 @@ try {
                 $prenotazioni = $resuPrenotazioni;
             }
             //Recupero Letture
-            $recuperoletture = $recuperoPrestiti . " AND p.data_restituzione < NOW();";
+            $recuperoletture = $recuperoPrestiti . " AND p.data_scadenza < NOW()";
             $newStmt = $pdo->prepare($recuperoletture);
             $newStmt->bindParam(":codice", $utente['codice_alfanumerico']);
             $resuletture = $newStmt->fetchAll();
