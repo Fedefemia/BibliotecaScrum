@@ -1,7 +1,10 @@
 <?php
 require_once 'db_config.php';
 
-// Funzione per evidenziare il testo corrispondente alla ricerca
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 function highlight_text(?string $text, string $search): string {
     if ($text === null) return '';
     if ($search === '') return $text;

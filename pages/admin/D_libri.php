@@ -1,6 +1,11 @@
 <?php
-// 1. IMPORTANTE: Avviamo la sessione per vedere se l'utente è loggato
-session_start();
+
+require_once 'security.php';
+if (!checkAccess('amministratore')) header('Location: ./');
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 //scaricare il composer
 //composer require picqer/php-barcode-generator
@@ -99,9 +104,6 @@ if (isset($pdo)) {
         $stmt = $pdo->prepare("SELECT * FROM libri");
         $stmt->execute();
         $libri = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        /*}else{
-            header("Location: ./index");
-        }*/
 
         $stmt = $pdo->prepare("INSERT INTO visitatori (nome) VALUES (:nome)");
         $stmt->execute(['nome' => $nome_visitatore]);

@@ -1,5 +1,9 @@
 <?php
-session_start();
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once 'db_config.php';
 require_once './src/includes/codiceFiscaleMethods.php';
 require_once './phpmailer.php';

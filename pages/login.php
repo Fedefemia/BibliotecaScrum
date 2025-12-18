@@ -1,5 +1,9 @@
 <?php
-session_start();
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once 'db_config.php';
 require_once './phpmailer.php';
 
@@ -22,7 +26,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         try {
             // Recupero utente dal DB
-            $stmt = $pdo->prepare("SELECT password_hash, codice_alfanumerico, email_confermata, nome, cognome, email FROM utenti WHERE  username = ? OR email = ? OR codice_fiscale = ? LIMIT 1");
+            $stmt = $pdo->prepare("
+            SELECT u.password_hash, u.codice_alfanumerico, u.email_confermata, u.nome, u.cognome, u.email, r.studente, r.docente, r.bibliotecario, r.amministratore
+            FROM utenti u
+            JOIN ruoli r on r.codice_alfanumerico = u.codice_alfanumerico
+            WHERE  u.username = ? OR u.email = ? OR u.codice_fiscale = ? 
+            LIMIT 1
+            ");
             $stmt->execute([$user_input, $user_input, $user_input]);
             $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -31,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif (!password_verify($pass_input, $row['password_hash'])) {
                 $error_msg = "Password errata.";
             } elseif ($row['email_confermata'] != 1) {
-                // Email non confermata → invio nuovo token
+                // Email non confermata
                 $token = bin2hex(random_bytes(32));
                 $ins = $pdo->prepare("INSERT INTO tokenemail (token, codice_alfanumerico) VALUES (?, ?)");
                 $ins->execute([$token, $row['codice_alfanumerico']]);
@@ -58,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['logged'] = true;
                 $_SESSION['codice_utente'] = $row['codice_alfanumerico'];
                 $_SESSION['username'] = $user_input;
+                $_SESSION['ruoloMaggiore'] = $row['amministratore'] ? 'amministratore' : ($row['bibliotecario'] ? 'bibliotecario' : ($row['docente'] ? 'docente' : 'studente'));
 
                 setcookie('auth', 'ok', time() + 604800, '/', '', false, true);
 

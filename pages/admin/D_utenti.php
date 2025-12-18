@@ -1,5 +1,12 @@
 <?php
-session_start();
+
+require_once 'security.php';
+if (!checkAccess('amministratore')) header('Location: ./');
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once 'db_config.php';
 
 $messaggio_db = "";

@@ -1,6 +1,10 @@
 <?php
 require_once 'db_config.php';
 
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 echo '<!DOCTYPE html><html><body>';
 
 if (isset($_GET['token']) === isset($_GET['pswreset'])) {

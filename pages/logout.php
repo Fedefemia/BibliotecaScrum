@@ -1,5 +1,9 @@
 <?php
-session_start();
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 $era_loggato = isset($_SESSION['logged']) && $_SESSION['logged'] === true;
 $_SESSION = [];
 if (isset($_COOKIE['auth'])) {

@@ -1,6 +1,11 @@
 <?php
-// 1. IMPORTANTE: Avviamo la sessione per vedere se l'utente è loggato
-session_start();
+
+require_once 'security.php';
+if (!checkAccess('amministratore')) header('Location: ./');
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Includiamo la configurazione
 require_once 'db_config.php';
