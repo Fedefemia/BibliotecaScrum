@@ -24,11 +24,27 @@ if (checkAccess('amministratore')) { ?>
             <a href="admin/dashboard-utenti">Dashboard utenti</a>
         </div>
 
+        <div>
+            <a href="bibliotecario/dashboard-gestioneprestiti">Gestione Prestiti</a>
+        </div>
+        <div>
+            <a href="bibliotecario/dashboard-aggiuntaprestiti">Aggiunta Prestiti</a>
+        </div>
+
     </div>
 
 <?php } elseif (checkAccess('bibliotecario')) { ?>
     <div class="page_contents">
         Ciao Bibliotecario!
+        <div class="page_contents">
+            <div>
+                <a href="bibliotecario/dashboard-gestioneprestiti">Gestione Prestiti</a>
+            </div>
+            <div>
+                <a href="bibliotecario/dashboard-aggiuntaprestiti">Aggiunta Prestiti</a>
+            </div>
+
+        </div>
     </div>
 <?php }else{header('Location: ./'); } ?>
 
