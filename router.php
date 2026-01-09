@@ -25,6 +25,11 @@ $whitelist = [
     '/admin/dashboard-biblioteche' => 'pages/admin/D_biblioteche.php',
     '/admin/dashboard-libri' => 'pages/admin/D_libri.php',
     '/admin/dashboard-utenti' => 'pages/admin/D_utenti.php',
+    //bibliotecario
+    '/bibliotecario/dashboard-prestiti' => 'pages/bibliotecario/D_prestiti.php',
+    '/bibliotecario/dashboard-gestioneprestiti' => 'pages/bibliotecario/D_gestioneprestiti.php',
+    '/bibliotecario/dashboard-aggiuntaprestiti' => 'pages/bibliotecario/D_aggiuntaprestiti.php',
+
     //temp
     '/cover-fetcher'=> 'coverFetcher.php',
 ];
