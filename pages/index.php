@@ -3,7 +3,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', 0);
 ini_set('display_startup_errors', 0);
 ini_set('log_errors', 1);
-ini_set('error_log', '/var/www/html/php_errors.log');
+//ini_set('error_log', '/var/www/html/php_errors.log');
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -64,6 +64,7 @@ if ($codice) {
 }
 
 // ---------------- HTML HEADER ----------------
+$page_css = "./public/css/style_index.css";
 require './src/includes/header.php';
 require './src/includes/navbar.php';
 
@@ -87,90 +88,80 @@ function renderVoto($media) {
 }
 ?>
 
-<style>
-.grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px; /* Aumentato leggermente lo spazio */
-}
+    <div class="index_wrapper">
+        <header class="index_hero">
+            <img src="./public/assets/icon.png" alt="Logo" class="hero_icon">
+            <h1 class="hero_title">Scrum Library</h1>
+        </header>
 
-.card.cover-only {
-    flex: 0 0 auto;
-    width: 120px;
-    /* Altezza rimossa (auto) per contenere anche il voto */
-    height: auto; 
-    display: flex;
-    flex-direction: column;
-    text-decoration: none; /* Toglie la sottolineatura dal link */
-    color: #333;
-    margin-bottom: 10px;
-}
+        <div class="page_contents">
+            <?php if ($messaggio_db): ?>
+                <pre class="message"><?= $messaggio_db ?></pre>
+            <?php endif; ?>
 
-.card.cover-only img {
-    width: 120px;
-    height: 180px; /* L'immagine mantiene l'altezza fissa */
-    object-fit: cover;
-    border-radius: 4px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
+            <?php if ($prestiti_attivi): ?>
+                <section class="index_section">
+                    <div class="section_header">
+                        <img src="./public/assets/logo_ligth.png" class="section_icon" alt="icon">
+                        <h2 class="section_title">I tuoi prestiti</h2>
+                    </div>
+                    <div class="books_grid">
+                        <?php foreach ($prestiti_attivi as $libro): ?>
+                            <a href="./libro?isbn=<?= $libro['isbn'] ?>" class="book_item">
+                                <img src="<?= getCoverPath($libro['isbn']) ?>" alt="Cover" class="book_cover">
+                                <div class="voto-box instrument-sans-semibold">
+                                    <img src="./public/assets/ui_icon_star.png" class="star_icon" alt="star">
+                                    <?= $libro['media_voto'] ? number_format((float)$libro['media_voto'], 1) : 'N/V' ?>
+                                </div>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
+                    <hr class="section_divider">
+                </section>
+            <?php endif; ?>
 
-.voto-box {
-    margin-top: 5px;
-    font-size: 0.9rem;
-    text-align: center;
-    font-weight: bold;
-    display: block;
-}
-</style>
+            <section class="index_section">
+                <div class="section_header">
+                    <img src="./public/assets/logo_ligth.png" class="section_icon" alt="icon">
+                    <h2 class="section_title">Libri Popolari</h2>
+                </div>
+                <div class="books_grid">
+                    <?php foreach ($popolari as $libro): ?>
+                        <a href="./libro?isbn=<?= $libro['isbn'] ?>" class="book_item">
+                            <img src="<?= getCoverPath($libro['isbn']) ?>" alt="Cover" class="book_cover">
+                            <div class="voto-box instrument-sans-semibold">
+                                <img src="./public/assets/ui_icon_star.png" class="star_icon" alt="star">
+                                <?= $libro['media_voto'] ? number_format((float)$libro['media_voto'], 1) : 'N/V' ?>
+                            </div>
+                        </a>
+                    <?php endforeach; ?>
+                </div>
+                <hr class="section_divider">
+            </section>
 
-<div class="page_contents">
-    <?php if ($messaggio_db): ?>
-        <pre class="message"><?= $messaggio_db ?></pre>
-    <?php endif; ?>
-
-    <?php if ($prestiti_attivi): ?>
-        <div class="section">
-            <h2>I tuoi prestiti attivi</h2>
-            <div class="grid">
-                <?php foreach ($prestiti_attivi as $libro): ?>
-                    <a href="./libro?isbn=<?= $libro['isbn'] ?>" class="card cover-only">
-                        <img src="<?= getCoverPath($libro['isbn']) ?>" alt="Libro">
-                        <?= renderVoto($libro['media_voto']) ?>
-                    </a>
-                <?php endforeach; ?>
-            </div>
-        </div>
-    <?php endif; ?>
-
-    <div class="section">
-        <h2>Libri Popolari</h2>
-        <div class="grid">
-            <?php foreach ($popolari as $libro): ?>
-                <a href="./libro?isbn=<?= $libro['isbn'] ?>" class="card cover-only">
-                    <img src="<?= getCoverPath($libro['isbn']) ?>" alt="Libro">
-                    <?= renderVoto($libro['media_voto']) ?>
-                </a>
+            <?php foreach ($categoriePopolari as $catName => $libriCat): ?>
+                <?php if ($libriCat): ?>
+                    <section class="index_section">
+                        <div class="section_header">
+                            <img src="./public/assets/logo_ligth.png" class="section_icon" alt="icon">
+                            <h2 class="section_title"><?= htmlspecialchars($catName) ?></h2>
+                        </div>
+                        <div class="books_grid">
+                            <?php foreach ($libriCat as $libro): ?>
+                                <a href="./libro?isbn=<?= $libro['isbn'] ?>" class="book_item">
+                                    <img src="<?= getCoverPath($libro['isbn']) ?>" alt="Cover" class="book_cover">
+                                    <div class="voto-box instrument-sans-semibold">
+                                        <img src="./public/assets/ui_icon_star.png" class="star_icon" alt="star">
+                                        <?= $libro['media_voto'] ? number_format((float)$libro['media_voto'], 1) : 'N/V' ?>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                        <hr class="section_divider">
+                    </section>
+                <?php endif; ?>
             <?php endforeach; ?>
         </div>
     </div>
-
-    <?php foreach ($categoriePopolari as $catName => $libriCat): ?>
-        <div class="section">
-            <h2><?= htmlspecialchars($catName) ?></h2>
-            <div class="grid">
-                <?php if ($libriCat): ?>
-                    <?php foreach ($libriCat as $libro): ?>
-                        <a href="./libro?isbn=<?= $libro['isbn'] ?>" class="card cover-only">
-                            <img src="<?= getCoverPath($libro['isbn']) ?>" alt="Libro">
-                            <?= renderVoto($libro['media_voto']) ?>
-                        </a>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <div>Nessun libro in questa categoria</div>
-                <?php endif; ?>
-            </div>
-        </div>
-    <?php endforeach; ?>
-</div>
 
 <?php require './src/includes/footer.php'; ?>
