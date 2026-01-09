@@ -64,6 +64,7 @@ if ($codice) {
 }
 
 // ---------------- HTML HEADER ----------------
+$path = "./";
 $page_css = "./public/css/style_index.css";
 require './src/includes/header.php';
 require './src/includes/navbar.php';
@@ -122,7 +123,7 @@ function renderVoto($media) {
 
             <section class="index_section">
                 <div class="section_header">
-                    <img src="./public/assets/logo_ligth.png" class="section_icon" alt="icon">
+                    <img src="<?= $path ?>public/assets/icone_categorie/Icon_LibriPopolari.png" class="section_icon" alt="icon">
                     <h2 class="section_title">Libri Popolari</h2>
                 </div>
                 <div class="books_grid">
@@ -143,7 +144,7 @@ function renderVoto($media) {
                 <?php if ($libriCat): ?>
                     <section class="index_section">
                         <div class="section_header">
-                            <img src="./public/assets/logo_ligth.png" class="section_icon" alt="icon">
+                            <img src="<?= $path ?>public/assets/icone_categorie/<?=$catName ?>.png" class="section_icon" alt="icon">
                             <h2 class="section_title"><?= htmlspecialchars($catName) ?></h2>
                         </div>
                         <div class="books_grid">
