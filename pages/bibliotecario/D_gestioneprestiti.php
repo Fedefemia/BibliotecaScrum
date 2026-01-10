@@ -1,8 +1,9 @@
 <?php
 require_once 'security.php';
 
+// Controllo accessi
 if (!checkAccess('amministratore') && !checkAccess('bibliotecario')) {
-    header('Location: ./');
+    header('Location: ../index.php');
     exit;
 }
 
@@ -11,6 +12,7 @@ require_once 'db_config.php';
 $prestitiAttivi = [];
 if (isset($pdo)) {
     try {
+        // Logica per processare la restituzione
         if (isset($_POST['restituisci_id'])) {
             $data_scelta = !empty($_POST['data_fine']) ? $_POST['data_fine'] : date('Y-m-d');
             $stmt = $pdo->prepare("UPDATE prestiti SET data_restituzione = :data WHERE id_prestito = :id");
@@ -18,10 +20,13 @@ if (isset($pdo)) {
                     'data' => $data_scelta,
                     'id' => $_POST['restituisci_id']
             ]);
-            header("Location: dashboard-prestiti.php");
+
+            // REINDIRIZZAMENTO ALLA GESTIONE
+            header("Location: ../bibliotecario/dashboard-gestioneprestiti?success=1");
             exit;
         }
 
+        // Query per recuperare solo i prestiti attivi
         $query = "SELECT 
                     p.id_prestito, 
                     u.nome, 
@@ -47,67 +52,74 @@ if (isset($pdo)) {
 
 <?php
 $title = "Gestione Prestiti";
-    $path = "../";
-    require_once './src/includes/header.php';
-    require_once './src/includes/navbar.php';
+$path = "../";
+require_once './src/includes/header.php';
+require_once './src/includes/navbar.php';
 ?>
 
-    <div class="page_contents">
-        <h2>Gestione Prestiti</h2>
+<div class="page_contents">
+    <h2>Gestione Prestiti</h2>
 
-        <p>
-            <a href="../bibliotecario/dashboard-aggiuntaprestiti">Registra Nuovo Prestito</a>
-        </p>
+    <?php if (isset($_GET['success'])): ?>
+        <div style="background-color: #d4edda; color: #155724; padding: 10px; margin-bottom: 20px; border: 1px solid #c3e6cb; border-radius: 5px;">
+            Restituzione registrata con successo!
+        </div>
+    <?php endif; ?>
 
-        <table>
-            <thead>
+    <p>
+        <a href="../bibliotecario/dashboard-aggiuntaprestiti">Registra Nuovo Prestito</a>
+    </p>
+
+    <table border="1" style="width: 100%; border-collapse: collapse;">
+        <thead>
+        <tr style="background-color: #f8f9fa;">
+            <th>ID</th>
+            <th>Utente</th>
+            <th>Libro (ID Copia)</th>
+            <th>Inizio</th>
+            <th>Scadenza</th>
+            <th>Rinnovi</th>
+            <th>Data Restituzione</th>
+            <th>Azioni</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php if (empty($prestitiAttivi)): ?>
             <tr>
-                <th>ID</th>
-                <th>Utente</th>
-                <th>Libro (ID Copia)</th>
-                <th>Inizio</th>
-                <th>Scadenza</th>
-                <th>Rinnovi</th>
-                <th>Data Restituzione</th>
-                <th>Azioni</th>
+                <td colspan="8" style="text-align: center; padding: 20px;">Nessun prestito attivo.</td>
             </tr>
-            </thead>
-            <tbody>
-            <?php if (empty($prestitiAttivi)): ?>
+        <?php else: ?>
+            <?php foreach ($prestitiAttivi as $p): ?>
                 <tr>
-                    <td colspan="8">Nessun prestito attivo.</td>
-                </tr>
-            <?php else: ?>
-                <?php foreach ($prestitiAttivi as $p): ?>
-                    <tr>
-                        <td><?= $p['id_prestito'] ?></td>
-                        <td><?= $p['nome'] ?> <?= $p['cognome'] ?></td>
-                        <td><?= $p['titolo'] ?> (ID: <?= $p['id_copia'] ?>)</td>
-                        <td><?= $p['data_prestito'] ?></td>
-                        <td><?= $p['data_scadenza'] ?></td>
-                        <td><?= $p['num_rinnovi'] ?></td>
+                    <td><?= $p['id_prestito'] ?></td>
+                    <td><?= htmlspecialchars($p['nome'] . ' ' . $p['cognome']) ?></td>
+                    <td><?= htmlspecialchars($p['titolo']) ?> (ID: <?= $p['id_copia'] ?>)</td>
+                    <td><?= $p['data_prestito'] ?></td>
+                    <td><?= $p['data_scadenza'] ?></td>
+                    <td><?= $p['num_rinnovi'] ?></td>
+                    <form method="POST">
                         <td>
-                            <form method="POST">
-                                <input type="date" name="data_fine" value="<?= date('Y-m-d') ?>">
+                            <input type="date" name="data_fine" value="<?= date('Y-m-d') ?>">
                         </td>
                         <td>
                             <input type="hidden" name="restituisci_id" value="<?= $p['id_prestito'] ?>">
-                            <button type="submit">Restituisci</button>
+                            <button type="submit" onclick="return confirm('Confermi la restituzione?')">Restituisci</button>
 
-                            <a href="dettagli-prestito.php?id=<?= $p['id_prestito'] ?>">
-                                Dettagli
+                            <a href="Rinnovo-prestito.php?id=<?= $p['id_prestito'] ?>" style="margin-left: 10px;">
+                                Rinnovo
                             </a>
 
-                            <a href="gestione-multe.php?id_prestito=<?= $p['id_prestito'] ?>">
+                            <a href="gestione-multe.php?id_prestito=<?= $p['id_prestito'] ?>" style="margin-left: 10px;">
                                 Multe
                             </a>
-                            </form>
                         </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
-            </tbody>
-        </table>
-    </div>
+                    </form>
+                </tr>
+            <?php endforeach; ?>
+        <?php endif; ?>
+        </tbody>
+    </table>
+</div>
 
 <?php require_once './src/includes/footer.php'; ?>
+
