@@ -2,9 +2,10 @@
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    grid-column-gap: 5px;
-    grid-row-gap: 5px;
+    grid-column-gap: 10px;
+    grid-row-gap: 10px;
     justify-items: stretch;
+    margin-top: 30px;
 }
 
 .dashboard_card {
