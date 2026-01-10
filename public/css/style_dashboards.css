@@ -24,6 +24,16 @@
     color: var(--color_accent_dark); /* Applica il colore a tutto il testo dentro */
     transition: transform 0.2s ease; /* Un tocco cute per l'hover */
     cursor: pointer;
+
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    .dashboard_cards_con {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+    }
 }
 
 .dashboard_card:hover {
