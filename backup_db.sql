@@ -1074,7 +1074,8 @@ INSERT INTO `ruoli` VALUES
 ('00000A',0,1,0,0),
 ('00000B',0,0,1,0),
 ('00000C',0,0,0,1),
-('00000D',1,0,0,0);
+('00000D',1,0,0,0),
+('00000E',1,0,0,0);
 /*!40000 ALTER TABLE `ruoli` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1093,7 +1094,7 @@ CREATE TABLE `tokenemail` (
   PRIMARY KEY (`id`),
   KEY `token` (`token`),
   KEY `codice_alfanumerico` (`codice_alfanumerico`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1113,7 +1114,9 @@ INSERT INTO `tokenemail` VALUES
 (10,'000001','e727f5b3a8641b3702cdebe02ad70f5999559495d53e1d6875c2bcda40619c8f','2025-12-13 10:12:26'),
 (11,'000008','1b79aa7784c7128145f48fa07e3d5459c32f3f00fc1887ec6212d9f8a214c53d','2025-12-14 20:10:30'),
 (13,'000008','6b6243d55fd5466383b375d75c14315ff1360a9dcd4df4a7f6b8a36b1891baf7','2025-12-16 15:21:53'),
-(14,'000008','f9906e411b89e37529fd2719c779ef521009c326f0d0229f4241be02e0a32fa4','2025-12-16 15:23:35');
+(14,'000008','f9906e411b89e37529fd2719c779ef521009c326f0d0229f4241be02e0a32fa4','2025-12-16 15:23:35'),
+(18,'00000E','a426efa7547445dc67948c878e15e3fe2d66de7626d6218c15cba0757cb4d1e5','2026-01-12 14:09:49'),
+(19,'00000E','d3ca78da7be64e277d001eb875fdd11085755ba664fd7c973e3cde92262ffe64','2026-01-12 14:10:16');
 /*!40000 ALTER TABLE `tokenemail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1190,7 +1193,8 @@ INSERT INTO `utenti` VALUES
 ('00000A','DocenteProva','Docente','Prova','BNCLRN80A01H501U','docente.prova@example.com','$2y$10$iaWHpX4iHgrXeTjxBDKjZOSI7SCTFaG3fRiWoofRIXMOvowyBYKX.',0,0,0,0,1,'2025-12-17'),
 ('00000B','BibliotecarioProva','Bibliotecario','Prova','PLCNDR75B12C345D','bibliotecario.prova@example.com','$2y$10$Dvprn8Xd8io3QsQT3iGuJu9KJ0QZmv/o8iYnpf4WoWn1b.bNH6brC',0,0,0,0,1,'2025-12-17'),
 ('00000C','AdminProva','Amministratore','Prova','VRDNRD70D22F789G','admin.prova@example.com','$2y$10$sT/MMNj60JJowywNPuOA8OqIgqUWvQrTFlOrlIu/20UCbgUeJaPlq',0,0,0,0,1,'2025-12-17'),
-('00000D','Porcoddio','Por','Codio','CDOPRO51D50L157M','khevinkharai@gmail.com','$2y$10$yOVeoYN52PkJ7mrnGono8.EAmhucZArCF8GXlq8wm47H43Kf0kIu.',0,0,0,0,1,'2026-01-10');
+('00000D','Porcoddio','Por','Codio','CDOPRO51D50L157M','khevinkharai@gmail.com','$2y$10$yOVeoYN52PkJ7mrnGono8.EAmhucZArCF8GXlq8wm47H43Kf0kIu.',0,0,0,0,1,'2026-01-10'),
+('00000E','HackerNero','Maurizio','Costanzo','CSTMRZ85L03L840W','tuanonna@gmail.com','$2y$10$7OgQ3SfpWC.N16FhzVzM1O9TWjHVTc/fR19OkLVAywxHXpT.gshda',0,0,0,0,0,'2026-01-12');
 /*!40000 ALTER TABLE `utenti` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1351,4 +1355,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-12  2:00:03
+-- Dump completed on 2026-01-13  2:00:03
