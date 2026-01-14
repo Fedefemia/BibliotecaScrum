@@ -13,7 +13,7 @@ il database é impostato per backupare alle 2:00 UTC+1 sul file backup_db.sql
 
 ### Come connettersi al database
 1. Installare DBeaver o qualsiasi interfaccia per la connessione ad un database remoto (porta 3306)
-2. Connettersi al database come URL **4.tcp.eu.ngrok.io:14943 ** (jdbc:mysql://4.tcp.eu.ngrok.io:14943 ) usando le credenziali fornite
+2. Connettersi al database con l'Url e le credenziali fornite in privato
    
 ## Creare nuove pagine
 1. Per creare nuove pagine piazzare il file .php della pagina dentro la cartella /pages

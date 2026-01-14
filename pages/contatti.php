@@ -118,12 +118,12 @@ try {
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Pulsante "Riaccentra mappa"
+    // Pulsante "Centra mappa"
     const ResetControl = L.Control.extend({
         options: { position: 'topleft' },
         onAdd: function () {
             const container = L.DomUtil.create('div', 'leaflet-control-resetmap');
-            container.innerHTML = "Riaccentra mappa";
+            container.innerHTML = "Centra mappa";
             container.onclick = () => map.setView([45.5470, 11.5396], 10);
             L.DomEvent.disableClickPropagation(container);
             return container;
