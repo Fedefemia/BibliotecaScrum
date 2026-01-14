@@ -243,7 +243,7 @@ require_once './src/includes/navbar.php';
         options: { maintainAspectRatio: false }
     });
 
-    // 6. Nuovi Utenti
+
     new Chart(document.getElementById('areaUtenti'), {
         type: 'line',
         data: {
