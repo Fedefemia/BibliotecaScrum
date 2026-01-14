@@ -7,7 +7,7 @@ if (!checkAccess('amministratore') ) {
 require_once 'db_config.php';
 
 $sogliaScaduti = 10;
-
+ciao
 try {
     // 1. KPI Principali
     $stmtKpi = $pdo->query("
