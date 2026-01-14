@@ -47,16 +47,6 @@ if (isset($pdo)) {
         // Se l'utente è loggato, usiamo il suo nome nel DB, altrimenti "Utente Web"
         $nome_visitatore = isset($_SESSION['username']) ? $_SESSION['username'] . ' (Logged)' : 'Utente Web';
 
-        //guarda se l'utente è un amministratore
-        /*
-        $stmt = $pdo->prepare("select * from utenti where name = :name
-                                join ruoli on utenti.alfanumerico = ruoli.alfanumerico
-                                having ruoli.amministratore = 1");
-        $stmt->execute([':name' => $nome_visitatore]);
-        $IsAmministratore = $stmt->fatchall();
-
-        if(isset($IsAmministratore[0])){*/
-
         // ELIMINA
         if (isset($_POST['delete_id'])) {
             $stmt = $pdo->prepare("DELETE FROM libri WHERE isbn = :isbn");
