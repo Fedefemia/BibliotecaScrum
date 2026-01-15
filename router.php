@@ -20,6 +20,8 @@ $whitelist = [
     '/verifica'=> 'pages/verifica.php',
     '/libro'=> 'pages/libro.php',
     '/profilo' => 'pages/profilo.php',
+    '/badge' => 'pages/badge.php',
+    '/badges' => 'pages/badges.php',
 
     //admin
     '/admin/dashboard-biblioteche' => 'pages/admin/D_biblioteche.php',
