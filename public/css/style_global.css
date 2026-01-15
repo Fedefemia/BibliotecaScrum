@@ -490,3 +490,7 @@ body {
     transform: none;
     box-shadow: none;
 }
+
+.h3_title {
+    color: var(--color_accent_dark);
+}
