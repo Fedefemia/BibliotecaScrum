@@ -1,3 +1,7 @@
+
+/* ===============================
+   --- HERO LOGO ---
+=============================== */
 .index_hero {
     background-color: #eae3d2;
     padding: 100px 40px;
@@ -26,16 +30,12 @@
         display: none;
     }
 }
+/* =============================== */
 
-.section_divider {
-    border: 0;
-    height: 4px;
-    background-color: #ebe7dd;
-    margin: 60px auto;
-    width: 95%;
-    border-radius: 2px;
-}
 
+/* ===============================
+   --- SECTIONS ---
+=============================== */
 .index_section {
     padding: 0 40px;
     margin-bottom: 60px;
@@ -61,7 +61,12 @@
     height: auto;
     opacity: 0.8;
 }
+/* =============================== */
 
+
+/* ===============================
+   --- GRIGLIA LIBRI ---
+=============================== */
 .books_grid {
     display: flex;
     gap: 30px;
@@ -124,12 +129,12 @@
     height: 16px;
     margin-bottom: 2px;
 }
+/* =============================== */
 
 
-
-
-/* --- PAGINA LIBRO --- */
-
+/* ===============================
+   --- PAGINA LIBRO ---
+=============================== */
 .book_details_wrapper {
     max-width: 1100px;
     margin: 40px auto;
@@ -165,7 +170,6 @@
     padding-top: 5px;
 }
 
-/* Tipografia */
 .book_main_title {
     font-family: "Young Serif", serif;
     font-size: 3rem;
@@ -191,7 +195,6 @@
     color: #444;
 }
 
-/* Badge e Label */
 .book_tags {
     display: flex;
     flex-wrap: wrap;
@@ -221,7 +224,6 @@
 .badge_ok { background-color: #d4edda; color: #155724; }
 .badge_ko { background-color: #f8d7da; color: #721c24; }
 
-/* Trama */
 .book_desc_box {
     margin-top: 30px;
     border-top: 2px solid rgba(0,0,0,0.05);
@@ -241,8 +243,12 @@
     color: #444;
     text-align: justify;
 }
+/* =============================== */
 
-/* --- RECENSIONI --- */
+
+/* ===============================
+   --- RECENSIONI ---
+=============================== */
 .reviews_section {
     max-width: 900px;
     margin: 0 auto 80px auto;
@@ -256,8 +262,12 @@
     margin-bottom: 30px;
     color: #333;
 }
+/* =============================== */
 
-/* Form */
+
+/* ===============================
+   --- FORM REVIEW ---
+=============================== */
 .review_form_box {
     background-color: #faf9f6;
     border: 2px solid #eae3d2;
@@ -295,8 +305,12 @@
     cursor: pointer;
 }
 .btn_send:hover { background-color: #555; }
+/* =============================== */
 
-/* Lista Recensioni */
+
+/* ===============================
+   --- LISTA RECENSIONI ---
+=============================== */
 .review_card {
     background: #fff;
     padding: 20px;

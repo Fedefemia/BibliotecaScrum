@@ -48,7 +48,10 @@ a {
 }
 
 
-/* Variabili Globali */
+
+/* ===============================
+   --- VARIABILI GLOBALI ---
+=============================== */
 :root {
     --color_background_dark: #eae3d2;
     --color_background_ligth: #f8f4e9;
@@ -57,10 +60,18 @@ a {
     --color_accent_ligth_low: #aac99a;
     --color_accent_medium: #819e71;
     --color_text_black: #2c2c2c;
+    --color_text_dark_green: #263120;
 }
 
 .young-serif-regular {
     font-family: "Young Serif", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.instrument-sans {
+    font-family: "Instrument Sans", sans-serif;
+    font-optical-sizing: auto;
     font-weight: 400;
     font-style: normal;
 }
@@ -78,7 +89,9 @@ a {
     text-decoration: underline;
 }
 
-/* Body */
+/* ===============================
+   --- BODY ---
+=============================== */
 * {
     transition: all 0.15s ease-in;
 }
@@ -91,10 +104,15 @@ body {
     padding: 8px;
     border-radius: 8px;
     background-color: var(--color_background_ligth);
+    box-shadow: 0 4px 6px rgba(63, 81, 53, 0.15);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 
-/* Navbar */
+
+/* ===============================
+   --- NAVBAR ---
+=============================== */
 .navbar {
     background-color: var(--color_accent_dark);
     color: var(--color_accent_ligth);
@@ -109,6 +127,9 @@ body {
     align-items: center;
     flex-wrap: nowrap;
     flex-direction: row;
+
+    box-shadow: 0 4px 6px rgba(63, 81, 53, 0.15);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .navbar_left {
@@ -214,14 +235,20 @@ body {
 }
 
 
-/* Mobile e Tablet */
+
+/* ===============================
+   --- MOBILE E TABLET ADAPTATION ---
+=============================== */
 @media (max-width: 768px) {
 
     body {
         padding: 0;
     }
 
-    /* 1. Struttura Principale: navbar */
+
+    /* ===============================
+       --- NAVBAR ---
+    =============================== */
     .navbar {
         height: auto;
         flex-direction: column;
@@ -232,7 +259,7 @@ body {
         width: 100%;
         height: 36px;
         display: flex;
-        flex-direction: row-reverse;
+        flex-direction: row;
         justify-content: space-between;
         margin-bottom: 8px;
     }
@@ -242,7 +269,15 @@ body {
     }
 
     .search_container {
-        display: none;
+        border: none;
+        padding: 0;
+        margin: 0 0 0 0;
+        display: flex;
+        align-items: center;
+        background-color: var(--color_background_ligth);
+        border-radius: 20px;
+        height: 36px;
+        width: 200px;
     }
 
     .navbar_search_mobile_link {
@@ -289,13 +324,19 @@ body {
 }
 
 
-/* Footer */
+
+/* ===============================
+   --- FOOTER ---
+=============================== */
 .footer {
     background-color: var(--color_accent_dark);
     color: var(--color_accent_ligth);
     padding: 20px 8px;
     border-radius: 5px;
     margin-top: 2rem;
+
+    box-shadow: 0 4px 6px rgba(63, 81, 53, 0.15);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .footer_content {
@@ -398,4 +439,58 @@ body {
     .footer_title {
         font-size: 26px;
     }
+}
+
+.section_divider {
+    border: 0;
+    height: 4px;
+    background-color: #ebe7dd;
+    margin: 60px auto;
+    width: 95%;
+    border-radius: 2px;
+}
+
+
+    /* ===============================
+       --- BOTTONI DI BASE ---
+    =============================== */
+.general_button_dark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    background-color: var(--color_accent_dark);
+    color: var(--color_background_ligth);
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 1rem;
+    text-align: center;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(63, 81, 53, 0.15);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.general_button_dark:hover {
+    background-color: var(--color_accent_medium);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(63, 81, 53, 0.25);
+}
+
+.general_button_dark:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 4px rgba(63, 81, 53, 0.1);
+    filter: brightness(0.95);
+}
+
+.general_button_dark:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.h3_title {
+    color: var(--color_accent_dark);
 }

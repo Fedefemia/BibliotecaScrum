@@ -20,6 +20,8 @@ $whitelist = [
     '/verifica'=> 'pages/verifica.php',
     '/libro'=> 'pages/libro.php',
     '/profilo' => 'pages/profilo.php',
+    '/badge' => 'pages/badge.php',
+    '/badges' => 'pages/badges.php',
 
     //admin
     '/admin/dashboard-biblioteche' => 'pages/admin/D_biblioteche.php',
@@ -28,12 +30,11 @@ $whitelist = [
     '/admin/dashboard-report' => 'pages/admin/D_report.php',
     '/admin/pdf' => 'pages/admin/export_pdf.php',
     '/admin/xml' => 'pages/admin/export_xml.php',
+    '/cover-fetcher'=> 'pages/admin/coverFetcher.php',
+    
     //bibliotecario
     '/bibliotecario/dashboard-gestioneprestiti' => 'pages/bibliotecario/D_gestioneprestiti.php',
     '/bibliotecario/dashboard-aggiuntaprestiti' => 'pages/bibliotecario/D_aggiuntaprestiti.php',
-
-    //temp
-    '/cover-fetcher'=> 'coverFetcher.php',
 ];
 
 
