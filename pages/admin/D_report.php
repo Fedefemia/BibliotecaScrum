@@ -1,56 +1,146 @@
 <?php
 require_once 'security.php';
-if (!checkAccess('amministratore') ) {
+if (!checkAccess('amministratore')) {
     header('Location: ../index.php');
     exit;
 }
+
 require_once 'db_config.php';
 
 // Inizializzazione dati
-$kpi = ['totale_titoli' => 0, 'copie_fisiche' => 0, 'prestiti_attivi' => 0, 'prestiti_scaduti' => 0, 'scadenza_oggi' => 0, 'multe_totali' => 0, 'utenti_totali' => 0];
-$trendPrestiti = []; $topLibri = []; $distribuzioneCat = []; $ruoliLabels = []; $ruoliValori = []; $statoCopie = ['Disponibili' => 0, 'In_Prestito' => 0]; $catStoricoPrestiti = [];
+$kpi = [
+        'totale_titoli' => 0,
+        'copie_fisiche' => 0,
+        'prestiti_attivi' => 0,
+        'prestiti_scaduti' => 0,
+        'scadenza_oggi' => 0,
+        'multe_totali' => 0,
+        'utenti_totali' => 0
+];
+
+$trendPrestiti = [];
+$topLibri = [];
+$distribuzioneCat = [];
+$ruoliLabels = [];
+$ruoliValori = [];
+$statoCopie = ['Disponibili' => 0, 'In_Prestito' => 0];
+$catStoricoPrestiti = [];
+$scadenzeProssime = [];
+$topUtenti = [];
+$ultimiPrestiti = [];
 
 if (isset($pdo) && $pdo instanceof PDO) {
     try {
-        // 1. KPI Generali: Divisione Titoli/Copie
-        $stmtKpi = $pdo->query("SELECT 
+        // KPI Generali
+        $stmtKpi = $pdo->query("
+            SELECT 
                 (SELECT COUNT(*) FROM libri) as totale_titoli, 
                 (SELECT COUNT(*) FROM copie) as copie_fisiche, 
                 (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL) as prestiti_attivi, 
                 (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL AND data_scadenza < CURDATE()) as prestiti_scaduti, 
                 (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL AND data_scadenza = CURDATE()) as scadenza_oggi, 
                 (SELECT COUNT(*) FROM multe WHERE pagata = 0) as multe_totali, 
-                (SELECT COUNT(*) FROM utenti) as utenti_totali");
+                (SELECT COUNT(*) FROM utenti) as utenti_totali
+        ");
         $kpi = $stmtKpi->fetch(PDO::FETCH_ASSOC);
 
-        // 2. Categorie più prestate (Storico per grafico torta)
-        $catStoricoPrestiti = $pdo->query("SELECT c.categoria, COUNT(p.id_prestito) as conteggio 
-                FROM categorie c 
-                JOIN libro_categoria lc ON c.id_categoria = lc.id_categoria 
-                JOIN copie cp ON lc.isbn = cp.isbn 
-                JOIN prestiti p ON cp.id_copia = p.id_copia 
-                GROUP BY c.id_categoria 
-                ORDER BY conteggio DESC 
-                LIMIT 6")->fetchAll(PDO::FETCH_ASSOC);
+        // Categorie più prestate (storico)
+        $catStoricoPrestiti = $pdo->query("
+            SELECT c.categoria, COUNT(p.id_prestito) as conteggio
+            FROM categorie c
+            JOIN libro_categoria lc ON c.id_categoria = lc.id_categoria
+            JOIN copie cp ON lc.isbn = cp.isbn
+            JOIN prestiti p ON cp.id_copia = p.id_copia
+            GROUP BY c.id_categoria
+            ORDER BY conteggio DESC
+            LIMIT 6
+        ")->fetchAll(PDO::FETCH_ASSOC);
 
-        // 3. Distribuzione Catalogo (Cosa abbiamo in totale)
-        $distribuzioneCat = $pdo->query("SELECT c.categoria, COUNT(lc.isbn) as conteggio FROM categorie c JOIN libro_categoria lc ON c.id_categoria = lc.id_categoria GROUP BY c.id_categoria")->fetchAll(PDO::FETCH_ASSOC);
+        // Distribuzione catalogo
+        $distribuzioneCat = $pdo->query("
+            SELECT c.categoria, COUNT(lc.isbn) as conteggio 
+            FROM categorie c 
+            JOIN libro_categoria lc ON c.id_categoria = lc.id_categoria 
+            GROUP BY c.id_categoria
+        ")->fetchAll(PDO::FETCH_ASSOC);
 
-        // 4. Ruoli Utenti
-        $distRuoli = $pdo->query("SELECT SUM(studente) as Studenti, SUM(docente) as Docenti, SUM(bibliotecario) as Bibliotecari, SUM(amministratore) as Admin FROM ruoli")->fetch(PDO::FETCH_ASSOC);
-        $ruoliLabels = array_keys($distRuoli); $ruoliValori = array_values($distRuoli);
+        // Ruoli utenti
+        $distRuoli = $pdo->query("
+            SELECT SUM(studente) as Studenti, SUM(docente) as Docenti, SUM(bibliotecario) as Bibliotecari, SUM(amministratore) as Admin
+            FROM ruoli
+        ")->fetch(PDO::FETCH_ASSOC);
+        $ruoliLabels = array_keys($distRuoli);
+        $ruoliValori = array_values($distRuoli);
 
-        // 5. Scadenze Imminenti
-        $scadenzeProssime = $pdo->query("SELECT p.data_scadenza, l.titolo, u.email FROM prestiti p JOIN copie c ON p.id_copia = c.id_copia JOIN libri l ON c.isbn = l.isbn JOIN utenti u ON p.codice_alfanumerico = u.codice_alfanumerico WHERE p.data_restituzione IS NULL AND (p.data_scadenza = CURDATE() OR p.data_scadenza = DATE_ADD(CURDATE(), INTERVAL 1 DAY)) ORDER BY p.data_scadenza ASC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+        // Scadenze imminenti (lista breve)
+        $scadenzeProssime = $pdo->query("
+            SELECT p.data_scadenza, l.titolo, u.email 
+            FROM prestiti p
+            JOIN copie c ON p.id_copia = c.id_copia
+            JOIN libri l ON c.isbn = l.isbn
+            JOIN utenti u ON p.codice_alfanumerico = u.codice_alfanumerico
+            WHERE p.data_restituzione IS NULL 
+              AND (p.data_scadenza = CURDATE() OR p.data_scadenza = DATE_ADD(CURDATE(), INTERVAL 1 DAY))
+            ORDER BY p.data_scadenza ASC
+            LIMIT 5
+        ")->fetchAll(PDO::FETCH_ASSOC);
 
-        // 6. Trend e Classifiche
-        $topUtenti = $pdo->query("SELECT u.nome, u.cognome, COUNT(p.id_prestito) as tot FROM utenti u JOIN prestiti p ON u.codice_alfanumerico = p.codice_alfanumerico GROUP BY u.codice_alfanumerico ORDER BY tot DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
-        $topLibri = $pdo->query("SELECT l.titolo, COUNT(p.id_prestito) as n_prestiti FROM libri l JOIN copie c ON l.isbn = c.isbn JOIN prestiti p ON c.id_copia = p.id_copia GROUP BY l.isbn ORDER BY n_prestiti DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
-        $statoCopie = $pdo->query("SELECT (SELECT COUNT(*) FROM copie) - (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL) as Disponibili, (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL) as In_Prestito")->fetch(PDO::FETCH_ASSOC);
-        $trendPrestiti = $pdo->query("SELECT DATE_FORMAT(data_prestito, '%m/%Y') as mese, COUNT(*) as totale FROM prestiti WHERE data_prestito >= DATE_SUB(NOW(), INTERVAL 12 MONTH) GROUP BY LAST_DAY(data_prestito) ORDER BY LAST_DAY(data_prestito) ASC")->fetchAll(PDO::FETCH_ASSOC);
-        $trendUtenti = $pdo->query("SELECT DATE_FORMAT(data_creazione, '%d/%m') as giorno, COUNT(*) as nuovi FROM utenti WHERE data_creazione >= DATE_SUB(NOW(), INTERVAL 30 DAY) GROUP BY data_creazione ORDER BY data_creazione ASC")->fetchAll(PDO::FETCH_ASSOC);
+        // Trend e classifiche
+        $topUtenti = $pdo->query("
+            SELECT u.nome, u.cognome, COUNT(p.id_prestito) as tot
+            FROM utenti u
+            JOIN prestiti p ON u.codice_alfanumerico = p.codice_alfanumerico
+            GROUP BY u.codice_alfanumerico
+            ORDER BY tot DESC
+            LIMIT 10
+        ")->fetchAll(PDO::FETCH_ASSOC);
 
-    } catch (PDOException $e) { error_log($e->getMessage()); }
+        $topLibri = $pdo->query("
+            SELECT l.titolo, COUNT(p.id_prestito) as n_prestiti
+            FROM libri l
+            JOIN copie c ON l.isbn = c.isbn
+            JOIN prestiti p ON c.id_copia = p.id_copia
+            GROUP BY l.isbn
+            ORDER BY n_prestiti DESC
+            LIMIT 10
+        ")->fetchAll(PDO::FETCH_ASSOC);
+
+        $statoCopie = $pdo->query("
+            SELECT 
+                (SELECT COUNT(*) FROM copie) - (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL) as Disponibili,
+                (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL) as In_Prestito
+        ")->fetch(PDO::FETCH_ASSOC);
+
+        $trendPrestiti = $pdo->query("
+            SELECT DATE_FORMAT(data_prestito, '%m/%Y') as mese, COUNT(*) as totale
+            FROM prestiti
+            WHERE data_prestito >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+            GROUP BY LAST_DAY(data_prestito)
+            ORDER BY LAST_DAY(data_prestito) ASC
+        ")->fetchAll(PDO::FETCH_ASSOC);
+
+        $trendUtenti = $pdo->query("
+            SELECT DATE_FORMAT(data_creazione, '%d/%m') as giorno, COUNT(*) as nuovi
+            FROM utenti
+            WHERE data_creazione >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+            GROUP BY data_creazione
+            ORDER BY data_creazione ASC
+        ")->fetchAll(PDO::FETCH_ASSOC);
+
+        // Ultimi 10 prestiti
+        $ultimiPrestiti = $pdo->query("
+            SELECT p.data_prestito, p.data_scadenza, l.titolo, u.nome, u.cognome
+            FROM prestiti p
+            JOIN copie c ON p.id_copia = c.id_copia
+            JOIN libri l ON c.isbn = l.isbn
+            JOIN utenti u ON p.codice_alfanumerico = u.codice_alfanumerico
+            ORDER BY p.data_prestito DESC
+            LIMIT 10
+        ")->fetchAll(PDO::FETCH_ASSOC);
+
+    } catch (PDOException $e) {
+        error_log($e->getMessage());
+    }
 }
 
 $title = "Dashboard Analitica";
@@ -152,18 +242,23 @@ require_once './src/includes/navbar.php';
     <div class="tab-content">
         <div class="tab-pane fade show active" id="tab-attivita">
             <div class="row g-4">
-                <div class="col-lg-6">
+                <!-- Grafico Volume Prestiti -->
+                <div class="col-lg-3">
                     <div class="card p-4 h-100">
-                        <h6 class="fw-bold mb-4">Volume Prestiti (Ultimi 12 mesi)</h6>
+                        <h6 class="fw-bold mb-4">Volume Prestiti</h6>
                         <div class="chart-container"><canvas id="linePrestiti"></canvas></div>
                     </div>
                 </div>
+
+                <!-- Grafico Categorie più prestate -->
                 <div class="col-lg-3">
                     <div class="card p-4 h-100">
                         <h6 class="fw-bold mb-4 text-center">Categorie più prestate</h6>
                         <div class="chart-container"><canvas id="piePrestitiCat"></canvas></div>
                     </div>
                 </div>
+
+                <!-- Scadenze imminenti -->
                 <div class="col-lg-3">
                     <div class="card p-4 h-100 border-top border-warning border-4">
                         <h6 class="fw-bold text-warning mb-3 small text-uppercase">Scadenze Imminenti</h6>
@@ -180,8 +275,35 @@ require_once './src/includes/navbar.php';
                         </div>
                     </div>
                 </div>
+
+                <!-- Quarta scheda: Ultimi 10 Prestiti -->
+                <div class="col-lg-3">
+                    <div class="card p-4 h-100">
+                        <h6 class="fw-bold mb-3 text-center">Ultimi 10 Prestiti</h6>
+                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                            <table class="table table-sm table-hover small mb-0">
+                                <thead>
+                                <tr>
+                                    <th>Titolo</th>
+                                    <th>Utente</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <?php foreach ($ultimiPrestiti as $up): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($up['titolo']) ?></td>
+                                        <td><?= htmlspecialchars($up['nome'].' '.$up['cognome']) ?></td>
+                                    </tr>
+                                <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
+
 
         <div class="tab-pane fade" id="tab-utenza">
             <div class="row g-4">
