@@ -109,7 +109,7 @@ require_once './src/includes/navbar.php';
                                 Rinnovo
                             </a>
 
-                            <a href="gestione-multe.php?id_prestito=<?= $p['id_prestito'] ?>" style="margin-left: 10px;">
+                            <a href="../bibliotecario/dashboard-gestionemulte?id_prestito=<?= $p['id_prestito'] ?>" style="margin-left: 10px;">
                                 Multe
                             </a>
                         </td>
