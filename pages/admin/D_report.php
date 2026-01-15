@@ -224,9 +224,13 @@ require_once './src/includes/navbar.php';
             <h2 class="h3 fw-bold text-dark m-0">Dashboard Amministrativa</h2>
             <p class="text-muted small m-0">Statistiche e monitoraggio del patrimonio librario</p>
         </div>
-        <button class="btn btn-primary btn-sm rounded-pill px-4 shadow-sm" onclick="window.print()">
-            <i class="bi bi-printer me-2"></i>Stampa Report
-        </button>
+        <div class="d-flex justify-content-end align-items-center mb-4 px-2 gap-2">
+            <a href="../admin/pdf" class="btn btn-danger btn-sm rounded-pill px-4 shadow-sm">
+                <i class="bi bi-file-earmark-pdf me-2"></i>Esporta PDF
+            </a>
+        </div>
+
+
     </div>
 
     <!-- KPI cards -->
