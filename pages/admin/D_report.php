@@ -14,24 +14,24 @@ if (isset($pdo) && $pdo instanceof PDO) {
     try {
         // 1. KPI Generali: Divisione Titoli/Copie
         $stmtKpi = $pdo->query("SELECT 
-            (SELECT COUNT(*) FROM libri) as totale_titoli, 
-            (SELECT COUNT(*) FROM copie) as copie_fisiche, 
-            (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL) as prestiti_attivi, 
-            (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL AND data_scadenza < CURDATE()) as prestiti_scaduti, 
-            (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL AND data_scadenza = CURDATE()) as scadenza_oggi, 
-            (SELECT COUNT(*) FROM multe WHERE pagata = 0) as multe_totali, 
-            (SELECT COUNT(*) FROM utenti) as utenti_totali");
+                (SELECT COUNT(*) FROM libri) as totale_titoli, 
+                (SELECT COUNT(*) FROM copie) as copie_fisiche, 
+                (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL) as prestiti_attivi, 
+                (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL AND data_scadenza < CURDATE()) as prestiti_scaduti, 
+                (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL AND data_scadenza = CURDATE()) as scadenza_oggi, 
+                (SELECT COUNT(*) FROM multe WHERE pagata = 0) as multe_totali, 
+                (SELECT COUNT(*) FROM utenti) as utenti_totali");
         $kpi = $stmtKpi->fetch(PDO::FETCH_ASSOC);
 
         // 2. Categorie più prestate (Storico per grafico torta)
         $catStoricoPrestiti = $pdo->query("SELECT c.categoria, COUNT(p.id_prestito) as conteggio 
-            FROM categorie c 
-            JOIN libro_categoria lc ON c.id_categoria = lc.id_categoria 
-            JOIN copie cp ON lc.isbn = cp.isbn 
-            JOIN prestiti p ON cp.id_copia = p.id_copia 
-            GROUP BY c.id_categoria 
-            ORDER BY conteggio DESC 
-            LIMIT 6")->fetchAll(PDO::FETCH_ASSOC);
+                FROM categorie c 
+                JOIN libro_categoria lc ON c.id_categoria = lc.id_categoria 
+                JOIN copie cp ON lc.isbn = cp.isbn 
+                JOIN prestiti p ON cp.id_copia = p.id_copia 
+                GROUP BY c.id_categoria 
+                ORDER BY conteggio DESC 
+                LIMIT 6")->fetchAll(PDO::FETCH_ASSOC);
 
         // 3. Distribuzione Catalogo (Cosa abbiamo in totale)
         $distribuzioneCat = $pdo->query("SELECT c.categoria, COUNT(lc.isbn) as conteggio FROM categorie c JOIN libro_categoria lc ON c.id_categoria = lc.id_categoria GROUP BY c.id_categoria")->fetchAll(PDO::FETCH_ASSOC);
@@ -74,9 +74,12 @@ require_once './src/includes/navbar.php';
         .nav-pills .nav-link { color: #555; font-weight: 500; border-radius: 8px; margin-right: 8px; }
         .nav-pills .nav-link.active { background-color: #4e73df; color: white; }
         .chart-container { position: relative; height: 260px; width: 100%; }
-        .text-xs { font-size: 0.7rem; font-weight: 700; text-uppercase: uppercase; letter-spacing: 0.5px; }
+        .text-xs { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .navbar {min-height: 60px; padding: 0.75rem 1rem;}
+        .navbar .nav-link {padding: 0.5rem 1rem;font-weight: 600;color: #333;}
+        .navbar .nav-link.active {background-color: #4e73df;color: whiteborder-radius: 0.5rem;}
     </style>
-</head>
+
 <body>
 
 <div class="container-fluid py-4">

@@ -1,5 +1,56 @@
-<?php
 
+<?php
+/**
+ * Questo blocco DEVE essere in cima al file D_libri.php
+ */
+if (isset($_GET['generate_barcode'])) {
+    // 1. Eliminiamo qualsiasi output sporco accumulato dal Router o da db_config
+    // Questo è fondamentale perché il router include questo file "dentro" la sua esecuzione
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+
+    // 2. Percorso relativo alla root (dove si trova vendor)
+    // Poiché il file è in pages/admin/D_libri.php, usiamo ../../
+    require_once __DIR__ . '/../../vendor/autoload.php';
+
+    $isbn = $_GET['isbn'] ?? '';
+    // Pulizia dell'ISBN da caratteri non numerici
+    $isbn = preg_replace('/[^0-9]/', '', $isbn);
+
+    if ((strlen($isbn) === 10 || strlen($isbn) === 13)) {
+        try {
+            $generator = new \Picqer\Barcode\BarcodeGeneratorPNG();
+
+            // 3. Header specifici per evitare il caching di immagini corrotte
+            header('Content-Type: image/png');
+            header('Cache-Control: no-store, no-cache, must-revalidate');
+            header('Pragma: no-cache');
+
+            // Generazione barcode
+            if (strlen($isbn) === 13) {
+                echo $generator->getBarcode($isbn, $generator::TYPE_EAN_13);
+            } else {
+                echo $generator->getBarcode($isbn, $generator::TYPE_CODE_128);
+            }
+        } catch (Exception $e) {
+            // Se fallisce la libreria, creiamo un'immagine con l'errore
+            header('Content-Type: image/png');
+            $img = imagecreate(150, 30);
+            imagecolorallocate($img, 255, 255, 255);
+            $text = imagecolorallocate($img, 255, 0, 0);
+            imagestring($img, 2, 5, 5, "Library Error", $text);
+            imagepng($img);
+            imagedestroy($img);
+        }
+    }
+    // 4. Blocca l'esecuzione: non vogliamo che il router continui a caricare HTML
+    exit;
+}
+
+/**
+ * LOGICA NORMALE DELLA PAGINA
+ */
 require_once 'security.php';
 if (!checkAccess('amministratore')) header('Location: ./');
 
@@ -7,203 +58,48 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-//scaricare il composer
-//composer require picqer/php-barcode-generator
+// ... il resto del tuo codice per il database e l'HTML ...
 
-// Gestione generazione barcode PRIMA di qualsiasi altro output
-if (isset($_GET['generate_barcode'])) {
-    require __DIR__ . '/../../vendor/autoload.php';
+$stmt = $pdo->prepare("SELECT * FROM libri ORDER BY anno_pubblicazione DESC");
+$stmt->execute();
+$libri = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    $ean = $_GET['ean'] ?? '';
-
-    // Validazione: EAN-13 deve essere esattamente 13 cifre
-    if (strlen($ean) === 13 && ctype_digit($ean)) {
-        $generator = new Picqer\Barcode\BarcodeGeneratorPNG();
-        header('Content-Type: image/png');
-        echo $generator->getBarcode($ean, $generator::TYPE_EAN_13);
-    } else {
-        // Se non è valido, genera un'immagine di errore
-        header('Content-Type: image/png');
-        $img = imagecreate(200, 50);
-        $bg = imagecolorallocate($img, 255, 255, 255);
-        $text = imagecolorallocate($img, 255, 0, 0);
-        imagestring($img, 3, 10, 20, "EAN non valido", $text);
-        imagepng($img);
-        imagedestroy($img);
-    }
-    exit; // Importante: termina qui per non generare altro HTML
-}
-
-// Includiamo la configurazione
-require_once 'db_config.php';
-
-// Inizializziamo il messaggio per evitare errori "Undefined variable"
-$messaggio_db = "";
-
-// --- 1. TEST SCRITTURA (INSERT) ---
-// Eseguiamo l'INSERT solo se la connessione ($pdo) esiste
-if (isset($pdo)) {
-    try {
-        // Se l'utente è loggato, usiamo il suo nome nel DB, altrimenti "Utente Web"
-        $nome_visitatore = isset($_SESSION['username']) ? $_SESSION['username'] . ' (Logged)' : 'Utente Web';
-
-        // ELIMINA
-        if (isset($_POST['delete_id'])) {
-            $stmt = $pdo->prepare("DELETE FROM libri WHERE isbn = :isbn");
-            $stmt->execute(['isbn' => $_POST['delete_id']]);
-            header("Location: "."dashboard-libri");
-            exit;
-
-        }
-
-        // SALVA MODIFICA
-        if (isset($_POST['edit_id'])) {
-            $stmt = $pdo->prepare("
-            UPDATE libri 
-            SET titolo = :titolo, descrizione = :descrizione, ean = :ean
-            WHERE isbn = :isbn
-        ");
-            $stmt->execute([
-                    'titolo' => $_POST['titolo'],
-                    'descrizione' => $_POST['descrizione'],
-                    'ean' => $_POST['ean'],
-                    'isbn' => $_POST['edit_id']
-            ]);
-            header("Location: "."dashboard-libri");
-            exit;
-
-        }
-
-        //AGGIUNGI
-        if (isset($_POST['inserisci'])) {
-            $stmt = $pdo->prepare("
-            INSERT INTO libri(isbn,titolo,descrizione,ean)
-            values (:isbn,:titolo,:descrizione,:ean)
-        ");
-            $stmt->execute([
-                    'titolo' => $_POST['titolo'],
-                    'descrizione' => $_POST['descrizione'],
-                    'ean' => $_POST['ean'],
-                    'isbn' => $_POST['isbn']
-            ]);
-            header("Location: "."dashboard-libri");
-            exit;
-
-        }
-
-        $stmt = $pdo->prepare("SELECT * FROM libri");
-        $stmt->execute();
-        $libri = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        $stmt = $pdo->prepare("INSERT INTO visitatori (nome) VALUES (:nome)");
-        $stmt->execute(['nome' => $nome_visitatore]);
-        $messaggio_db = "Nuovo accesso registrato nel DB!";
-        $class_messaggio = "success";
-    } catch (PDOException $e) {
-        $messaggio_db = "Errore Scrittura: " . $e->getMessage();
-        $class_messaggio = "error";
-    }
-} else {
-    $messaggio_db = "Connessione al Database non riuscita (controlla db_config.php).";
-    $class_messaggio = "error";
-}
-?>
-
-<?php
 $title = "Dashboard Catalogo Libri";
-    $path = "../";
-    require_once './src/includes/header.php';
-    require_once './src/includes/navbar.php';
+$path = "../";
+require_once './src/includes/header.php';
+require_once './src/includes/navbar.php';
 ?>
-
-<!-- INIZIO DEL BODY -->
 
 <div class="page_contents">
-    <h2>Inserisci nuovo libro</h2>
-
-    <table style="margin-bottom: 40px">
+    <h2>Libri nel catalogo</h2>
+    <table style="width:100%; border-collapse: collapse;">
+        <thead>
         <tr>
-            <th>Isbn</th>
-            <th>Titolo</th>
-            <th>Descrizione</th>
-            <th>Ean</th>
-            <th>Azioni</th>
+            <th style="border: 1px solid #000; padding: 10px;">Barcode</th>
+            <th style="border: 1px solid #000; padding: 10px;">Titolo</th>
+            <th style="border: 1px solid #000; padding: 10px;">Azioni</th>
         </tr>
-        <tr>
-            <form method="post">
-                <td><input type="text" placeholder="isbn" name="isbn" required></td>
-                <td><input type="text" placeholder="titolo" name="titolo" required></td>
-                <td><input type="text" placeholder="descrizione" name="descrizione" required></td>
-                <td><input type="text" placeholder="ean" name="ean" required></td>
-
-                <input type="hidden" name="inserisci" value="1">
-                <td><input type="submit" value="inserisci"></td>
-            </form>
-        </tr>
-    </table>
-
-    <table>
-        <tr>
-
-            <th>Titolo</th>
-            <th>Descrizione</th>
-            <th>Ean</th>
-            <th>EAN a barre</th>
-            <th>Azioni</th>
-        </tr>
-
+        </thead>
+        <tbody>
         <?php foreach ($libri as $b): ?>
             <tr>
-                <form method="POST">
-                    <td>
-                        <input type="text" name="titolo"
-                               value="<?= htmlspecialchars($b['titolo']) ?>">
-                    </td>
-
-                    <td>
-                        <input type="text" name="descrizione"
-                               value="<?= htmlspecialchars($b['descrizione']) ?>">
-                    </td>
-                    <td>
-                        <input type="text" name="ean"
-                               value="<?= htmlspecialchars($b['ean']) ?>">
-                    </td>
-                    <td>
-                        <img src="dashboard-libri?generate_barcode=1&ean=<?= htmlspecialchars($b['ean']) ?>"
-                             alt="EAN <?= htmlspecialchars($b['ean']) ?>"
-                             height="50">
-                    </td>
-
-
-                    <td>
-                        <!-- SALVA -->
-                        <input type="hidden" name="edit_id" value="<?= $b['isbn'] ?>">
-                        <button type="submit">Salva</button>
-                </form>
-
-                <!-- ELIMINA -->
-                <form method="POST" style="display:inline;">
-                    <input type="hidden" name="delete_id" value="<?= $b['isbn'] ?>">
-                    <button type="submit"
-                            onclick="return confirm('Eliminare questa biblioteca?')">
-                        Elimina
-                    </button>
-                </form>
+                <td style="text-align: center; border: 1px solid #000; padding: 10px;">
+                    <img src="dashboard-libri?generate_barcode=1&isbn=<?= htmlspecialchars($b['isbn']) ?>"
+                         alt="Barcode"
+                         style="display: block; margin: 0 auto; max-width: 150px; height: auto;">
+                    <div style="margin-top: 5px; font-weight: bold;"><?= htmlspecialchars($b['isbn']) ?></div>
+                </td>
+                <td style="border: 1px solid #000; padding: 10px;">
+                    <?= htmlspecialchars($b['titolo']) ?>
+                </td>
+                <td style="border: 1px solid #000; padding: 10px; text-align: center;">
+                    <button>Salva</button>
+                    <button>Elimina</button>
                 </td>
             </tr>
         <?php endforeach; ?>
-
+        </tbody>
     </table>
-
-
-
 </div>
 
-
 <?php require_once './src/includes/footer.php'; ?>
-<style>
-    th, td {
-        padding: 15px;
-        border: solid 1px black;
-    }
-</style>3
