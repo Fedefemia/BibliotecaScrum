@@ -88,6 +88,7 @@ try {
 
         $stmt = $pdo->prepare("
             UPDATE utenti SET
+                username = :username,
                 nome = :nome,
                 cognome = :cognome,
                 codice_fiscale = :codice_fiscale,
@@ -103,6 +104,7 @@ try {
         ");
 
         $stmt->execute([
+                'username' => $_POST['username'],
                 'nome' => $_POST['nome'],
                 'cognome' => $_POST['cognome'],
                 'codice_fiscale' => $_POST['codice_fiscale'],
@@ -243,7 +245,6 @@ require_once './src/includes/navbar.php';
         <?php endif; ?>
 
         <h2>Inserisci nuovo utente</h2>
-        <p><strong>Nota:</strong> Il codice alfanumerico verrà generato automaticamente. Username NON deve essere un codice fiscale.</p>
 
         <table style="margin-bottom: 40px">
             <tr>
@@ -288,6 +289,7 @@ require_once './src/includes/navbar.php';
         <table>
             <tr>
                 <th>Codice</th>
+                <th>Username</th>
                 <th>Nome</th>
                 <th>Cognome</th>
                 <th>Codice Fiscale</th>
@@ -311,7 +313,10 @@ require_once './src/includes/navbar.php';
                             <input type="hidden" name="codice_alfanumerico"
                                    value="<?= htmlspecialchars($u['codice_alfanumerico'] ?? '') ?>">
                         </td>
-
+                        <td>
+                            <input type="text" name="username"
+                                   value="<?= htmlspecialchars($u['username'] ?? '') ?>" required>
+                        </td>
                         <td>
                             <input type="text" name="nome"
                                    value="<?= htmlspecialchars($u['nome'] ?? '') ?>" required>
