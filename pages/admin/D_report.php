@@ -65,20 +65,178 @@ require_once './src/includes/navbar.php';
     <meta charset="UTF-8">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        body { background-color: #f4f6f9; font-family: 'Inter', sans-serif; }
-        .card { border: none; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.04); }
-        .kpi-card { border-left: 4px solid; transition: transform 0.2s; }
-        .kpi-card:hover { transform: translateY(-5px); }
-        .nav-pills .nav-link { color: #555; font-weight: 500; border-radius: 8px; margin-right: 8px; }
-        .nav-pills .nav-link.active { background-color: #4e73df; color: white; }
-        .chart-container { position: relative; height: 260px; width: 100%; }
-        .text-xs { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>
+        /* ===============================
+           PALETTE COERENTE CON IL SITO
+        ================================ */
+        :root {
+            --bg-main: #faf7f0;
+            --bg-card: #ffffff;
+            --bg-accent: #eae3d2;
+
+            --text-main: #333;
+            --text-muted: #666;
+
+            --accent-primary: #3f5135;   /* verde salvia */
+            --accent-secondary: #8b9a7c;
+            --accent-warning: #f1c40f;
+            --accent-danger: #c0392b;
+        }
+
+        /* ===============================
+           BASE
+        ================================ */
+        body {
+            background-color: var(--bg-main);
+            font-family: 'Instrument Sans', sans-serif;
+            color: var(--text-main);
+        }
+
+        /* ===============================
+           NAVBAR
+        ================================ */
         .navbar {min-height: 60px; padding: 0.75rem 1rem;}
         .navbar .nav-link {padding: 0.5rem 1rem;font-weight: 600;color: #333;}
         .navbar .nav-link.active {background-color: #4e73df;color: whiteborder-radius: 0.5rem;}
+
+        /* ===============================
+           CARDS
+        ================================ */
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 18px;
+            border: 1px solid #eee;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+        }
+
+        /* ===============================
+           KPI
+        ================================ */
+        .kpi-card {
+            border-left: 5px solid var(--accent-primary);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 22px rgba(0,0,0,0.08);
+        }
+
+        .kpi-card .text-xs {
+            font-size: 0.75rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--accent-primary);
+        }
+
+        .kpi-card i {
+            color: var(--accent-primary);
+            opacity: 0.25;
+        }
+
+        /* ===============================
+           TABS
+        ================================ */
+        .nav-pills {
+            background-color: var(--bg-accent);
+            border-radius: 14px;
+        }
+
+        .nav-pills .nav-link {
+            color: var(--text-main);
+            font-weight: 600;
+            border-radius: 10px;
+            padding: 8px 18px;
+        }
+
+        .nav-pills .nav-link.active {
+            background-color: var(--accent-primary);
+            color: #fff;
+        }
+
+        /* ===============================
+           TITOLI
+        ================================ */
+        h2, h3, h4, h5, h6 {
+            font-family: "Young Serif", serif;
+            color: #2c2c2c;
+        }
+
+        .card h6 {
+            font-family: "Instrument Sans", sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* ===============================
+           GRAFICI
+        ================================ */
+        .chart-container {
+            position: relative;
+            height: 260px;
+            width: 100%;
+        }
+
+        /* ===============================
+           SCADENZE
+        ================================ */
+        .border-warning {
+            border-color: var(--accent-warning) !important;
+        }
+
+        .list-group-item {
+            background-color: transparent;
+            border: none;
+            padding: 12px 0;
+        }
+
+        .list-group-item .badge {
+            background-color: var(--bg-accent);
+            color: var(--text-main);
+            font-weight: 600;
+        }
+
+        /* ===============================
+           TABELLE
+        ================================ */
+        .table {
+            font-family: "Instrument Sans", sans-serif;
+        }
+
+        .table td {
+            border: none;
+            padding: 8px 4px;
+        }
+
+        .table tr:not(:last-child) {
+            border-bottom: 1px solid #eee;
+        }
+
+        /* ===============================
+           BOTTONE STAMPA
+        ================================ */
+        .btn-primary {
+            background-color: var(--accent-primary);
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background-color: #2f3f29;
+        }
+
+        /* ===============================
+           TESTI SECONDARI
+        ================================ */
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
     </style>
+
 
 <body>
 
@@ -268,5 +426,8 @@ require_once './src/includes/navbar.php';
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<?php require_once './src/includes/footer.php'; ?>
 </body>
 </html>
+
