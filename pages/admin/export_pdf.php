@@ -1,13 +1,17 @@
 <?php
+
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/../../db_config.php';
 require_once __DIR__ . '/../../security.php';
+
 if (!checkAccess('amministratore')) {
     header('Location: ../../index.php');
     exit;
 }
+
 try {
 
+    // KPI Generali
     $kpi = $pdo->query("SELECT 
         (SELECT COUNT(*) FROM libri) as totale_titoli,
         (SELECT COUNT(*) FROM copie) as copie_fisiche,
@@ -18,12 +22,14 @@ try {
         (SELECT COUNT(*) FROM utenti) as utenti_totali
     ")->fetch(PDO::FETCH_ASSOC);
 
+    //  Stato Copie
     $statoCopie = $pdo->query("
         SELECT 
             (SELECT COUNT(*) FROM copie) - (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL) as Disponibili,
             (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL) as In_Prestito
     ")->fetch(PDO::FETCH_ASSOC);
 
+    //  Ultimi 10 Prestiti
     $ultimiPrestiti = $pdo->query("
         SELECT p.data_prestito, p.data_scadenza, l.titolo, u.nome, u.cognome
         FROM prestiti p
@@ -34,6 +40,7 @@ try {
         LIMIT 10
     ")->fetchAll(PDO::FETCH_ASSOC);
 
+    // Prestiti Scaduti
     $prestitiScaduti = $pdo->query("
         SELECT l.titolo, u.nome, u.cognome, DATEDIFF(CURDATE(), p.data_scadenza) AS ritardo
         FROM prestiti p
@@ -45,6 +52,7 @@ try {
         LIMIT 10
     ")->fetchAll(PDO::FETCH_ASSOC);
 
+    //  Multe Attive
     $multeAttive = $pdo->query("
         SELECT u.nome, u.cognome, l.titolo, m.importo
         FROM multe m
@@ -57,6 +65,7 @@ try {
         LIMIT 10
     ")->fetchAll(PDO::FETCH_ASSOC);
 
+    //  Top 10 Libri
     $topLibri = $pdo->query("
         SELECT l.titolo, COUNT(p.id_prestito) as n_prestiti
         FROM libri l
@@ -67,6 +76,7 @@ try {
         LIMIT 10
     ")->fetchAll(PDO::FETCH_ASSOC);
 
+    // Top 10 Utenti
     $topUtenti = $pdo->query("
         SELECT u.nome, u.cognome, COUNT(p.id_prestito) as tot
         FROM utenti u
@@ -76,6 +86,7 @@ try {
         LIMIT 10
     ")->fetchAll(PDO::FETCH_ASSOC);
 
+    // Categorie più Prestate
     $catStoricoPrestiti = $pdo->query("
         SELECT c.categoria, COUNT(p.id_prestito) as conteggio
         FROM categorie c
@@ -87,6 +98,7 @@ try {
         LIMIT 6
     ")->fetchAll(PDO::FETCH_ASSOC);
 
+    //  Prestiti in Scadenza
     $scadenzeProssime = $pdo->query("
         SELECT p.data_scadenza, l.titolo, u.email 
         FROM prestiti p
@@ -103,6 +115,7 @@ try {
     die("Errore DB: " . $e->getMessage());
 }
 
+// Creazione PDF
 $pdf = new TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
 $pdf->SetCreator('Sistema Biblioteca');
 $pdf->SetAuthor('Dashboard Amministrativa');
@@ -114,18 +127,21 @@ $pdf->SetFont('helvetica', '', 11);
 $html = "<h1>Report Mensile Biblioteca</h1>";
 $html .= "<p>Generato il " . date('d/m/Y H:i') . "</p>";
 
+//  KPI
 $html .= "<h2>KPI Generali</h2><ul>";
 foreach ($kpi as $key => $val) {
     $html .= "<li><b>$key:</b> $val</li>";
 }
 $html .= "</ul>";
 
+// Stato copie
 $html .= "<h2>Stato Copie</h2>
 <ul>
 <li>Disponibili: {$statoCopie['Disponibili']}</li>
 <li>In Prestito: {$statoCopie['In_Prestito']}</li>
 </ul>";
 
+// Ultimi prestiti
 $html .= "<h2>Ultimi 10 Prestiti</h2>
 <table border='1' cellpadding='4'>
 <tr><th>Titolo</th><th>Utente</th><th>Data Prestito</th><th>Data Scadenza</th></tr>";
@@ -139,6 +155,7 @@ foreach ($ultimiPrestiti as $p) {
 }
 $html .= "</table>";
 
+// Prestiti scaduti
 $html .= "<h2>Prestiti Scaduti</h2>
 <table border='1' cellpadding='4'>
 <tr><th>Titolo</th><th>Utente</th><th>Ritardo (gg)</th></tr>";
@@ -209,4 +226,4 @@ $pdf->writeHTML($html, true, false, true, false, '');
 
 // Nome dinamico e download automatico
 $filename = 'export_biblioteca_' . date('dmY') . '.pdf';
-$pdf->Output($filename, 'D'); // D = download
+$pdf->Output($filename, 'D');
