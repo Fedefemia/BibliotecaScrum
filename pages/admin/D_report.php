@@ -219,19 +219,20 @@ require_once './src/includes/navbar.php';
 <body>
 
 <div class="container-fluid py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-        <div>
-            <h2 class="h3 fw-bold text-dark m-0">Dashboard Amministrativa</h2>
-            <p class="text-muted small m-0">Statistiche e monitoraggio del patrimonio librario</p>
-        </div>
-        <div class="d-flex justify-content-end align-items-center mb-4 px-2 gap-2">
-            <a href="../admin/pdf" class="btn btn-danger btn-sm rounded-pill px-4 shadow-sm">
-                <i class="bi bi-file-earmark-pdf me-2"></i>Esporta PDF
-            </a>
-        </div>
-
-
+    <div class="d-flex justify-content-end align-items-center mb-4 px-2 gap-2">
+        <!-- PDF -->
+        <a href="../admin/pdf" class="btn btn-danger btn-sm rounded-pill px-4 shadow-sm">
+            <i class="bi bi-file-earmark-pdf me-2"></i>Esporta PDF
+        </a>
+        <!-- XML -->
+        <a href="../admin/xml" class="btn btn-warning btn-sm rounded-pill px-4 shadow-sm">
+            <i class="bi bi-file-earmark-code me-2"></i>Esporta XML
+        </a>
     </div>
+
+
+
+</div>
 
     <!-- KPI cards -->
     <div class="row g-3 mb-4">
