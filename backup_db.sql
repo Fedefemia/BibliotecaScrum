@@ -384,7 +384,7 @@ CREATE TABLE `copie` (
   KEY `fk_copie_biblioteche` (`id_biblioteca`),
   CONSTRAINT `copie_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`),
   CONSTRAINT `fk_copie_biblioteche` FOREIGN KEY (`id_biblioteca`) REFERENCES `biblioteche` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -683,10 +683,13 @@ CREATE TABLE `notifiche` (
   `codice_alfanumerico` varchar(6) NOT NULL,
   `titolo` varchar(255) NOT NULL,
   `messaggio` text NOT NULL,
+  `link_riferimento` varchar(255) DEFAULT NULL,
   `tipo` varchar(50) NOT NULL,
   `dataora_invio` datetime DEFAULT current_timestamp(),
+  `dataora_scadenza` datetime DEFAULT NULL,
   PRIMARY KEY (`id_notifica`),
   KEY `codice_alfanumerico` (`codice_alfanumerico`),
+  KEY `idx_dataora_scadenza` (`dataora_scadenza`),
   CONSTRAINT `notifiche_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -747,7 +750,7 @@ CREATE TABLE `prenotazioni` (
   KEY `fk_prenotazioni_utenti` (`codice_alfanumerico`),
   CONSTRAINT `fk_prenotazioni_copie` FOREIGN KEY (`id_copia`) REFERENCES `copie` (`id_copia`),
   CONSTRAINT `fk_prenotazioni_utenti` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -785,7 +788,7 @@ CREATE TABLE `prestiti` (
   KEY `id_copia` (`id_copia`),
   CONSTRAINT `prestiti_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`),
   CONSTRAINT `prestiti_ibfk_2` FOREIGN KEY (`id_copia`) REFERENCES `copie` (`id_copia`)
-) ENGINE=InnoDB AUTO_INCREMENT=179 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=182 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -828,7 +831,10 @@ INSERT INTO `prestiti` VALUES
 (115,'00000C',84,'2026-01-14','2026-01-16',NULL,0),
 (116,'00000C',40,'2024-01-01','2024-02-01','2024-01-15',0),
 (117,'00000C',15,'2024-01-01','2024-02-01','2024-01-15',0),
-(118,'00000C',4,'2024-01-01','2024-02-01','2024-01-15',0);
+(118,'00000C',4,'2024-01-01','2024-02-01','2024-01-15',0),
+(179,'000006',89,'2026-01-15','2026-02-14',NULL,0),
+(180,'BOT_01',3,'2026-01-15','2026-02-14','2026-01-15',0),
+(181,'BOT_05',33,'2026-01-16','2026-02-15','2026-01-16',0);
 /*!40000 ALTER TABLE `prestiti` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -853,7 +859,7 @@ CREATE TABLE `recensioni` (
   KEY `codice_alfanumerico` (`codice_alfanumerico`),
   CONSTRAINT `recensioni_ibfk_1` FOREIGN KEY (`isbn`) REFERENCES `libri` (`isbn`),
   CONSTRAINT `recensioni_ibfk_2` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB AUTO_INCREMENT=454 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=455 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1055,7 +1061,8 @@ INSERT INTO `recensioni` VALUES
 (450,9788804616898,'00000C',4,'dwada','2026-01-10',0,0),
 (451,9788804702027,'00000D',4,'Sborro','2026-01-10',0,0),
 (452,9788804665292,'00000B',5,'Bel Libro. Lo consiglio','2026-01-14',0,0),
-(453,9788804665292,'00000C',5,'Ho letto questo libro ed è fantastico. Il badge conferma che l\'ho preso in prestito!','2026-01-14',0,0);
+(453,9788804665292,'00000C',5,'Ho letto questo libro ed è fantastico. Il badge conferma che l\'ho preso in prestito!','2026-01-14',0,0),
+(454,9788804683838,'00000C',5,'utile','2026-01-15',0,0);
 /*!40000 ALTER TABLE `recensioni` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1133,7 +1140,7 @@ INSERT INTO `ruoli` VALUES
 ('00000A',0,1,0,0),
 ('00000B',0,0,1,0),
 ('00000C',0,0,0,1),
-('00000D',1,0,0,0),
+('00000D',1,0,0,1),
 ('00000E',1,0,0,0),
 ('00000F',1,0,0,0);
 /*!40000 ALTER TABLE `ruoli` ENABLE KEYS */;
@@ -1254,7 +1261,7 @@ INSERT INTO `utenti` VALUES
 ('00000A','DocenteProva','Docente','Prova','BNCLRN80A01H501U','docente.prova@example.com','$2y$10$iaWHpX4iHgrXeTjxBDKjZOSI7SCTFaG3fRiWoofRIXMOvowyBYKX.',0,0,0,0,1,'2025-12-17'),
 ('00000B','BibliotecarioProva','Bibliotecario','Prova','PLCNDR75B12C345D','bibliotecario.prova@example.com','$2y$10$Dvprn8Xd8io3QsQT3iGuJu9KJ0QZmv/o8iYnpf4WoWn1b.bNH6brC',0,0,0,0,1,'2025-12-17'),
 ('00000C','AdminProva','Amministratore','Prova','VRDNRD70D22F789G','admin.prova@example.com','$2y$10$sT/MMNj60JJowywNPuOA8OqIgqUWvQrTFlOrlIu/20UCbgUeJaPlq',0,0,0,0,1,'2025-12-17'),
-('00000D','Porcoddio','Por','Codio','CDOPRO51D50L157M','khevinkharai@gmail.com','$2y$10$yOVeoYN52PkJ7mrnGono8.EAmhucZArCF8GXlq8wm47H43Kf0kIu.',0,0,0,0,1,'2026-01-10'),
+('00000D','Porcoddio','Por','Codio','CDOPRO51D50L157M','khevinkharai@gmail.com','$2y$10$8NzaYA989YHF1dO9NDAbK.ArO7dniTRC6FtS1yXTqt3inLz5FyLe2',0,0,0,0,1,'2026-01-10'),
 ('00000E','HackerNero','Maurizio','Costanzo','CSTMRZ85L03L840W','tuanonna@gmail.com','$2y$10$7OgQ3SfpWC.N16FhzVzM1O9TWjHVTc/fR19OkLVAywxHXpT.gshda',0,0,0,0,0,'2026-01-12'),
 ('00000F','HackerNer0','Hacker','Ner0','NREHKR09B11G302X','10934123@itisrossi.vi.it','$2y$10$qfQb3wzldzOb7LNxX55uh.4eZ9Og0VpH4Yir5Jz/m6F2WOX3cIttW',0,0,0,0,0,'2026-01-13'),
 ('BOT_01','BotUno','Tizio','Uno','','bot1@test.com','hash_finto',0,0,0,0,0,'2026-01-14'),
@@ -1422,4 +1429,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-15  2:00:02
+-- Dump completed on 2026-01-16  2:00:03
