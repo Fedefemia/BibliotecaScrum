@@ -16,7 +16,7 @@ $codice = $_SESSION['codice_utente'] ?? null;
 // ---------------- 1. LOGICA CONSIGLIATI (SOLO SE LOGGATO) ----------------
 $consigliati = [];
 if ($codice) {
-    // Questa query cerca libri basati su generi e autori dei prestiti passati
+    // Questa query cerca libri basati su generi e autori dei prestiti passati CBR
     // Esclude i libri già letti e ne prende 6 casuali
     $queryConsigliati = "
         SELECT DISTINCT l.isbn, 
