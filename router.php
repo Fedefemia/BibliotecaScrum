@@ -24,6 +24,7 @@ $whitelist = [
     '/badges' => 'pages/badges.php',
     '/notifiche' => 'pages/notifiche.php',
     '/pubblico' => 'pages/profiloPubblico.php',
+    '/consigli' => 'pages/consigli.php',
 
     //admin
     '/admin/dashboard-biblioteche' => 'pages/admin/D_biblioteche.php',
@@ -35,6 +36,7 @@ $whitelist = [
     '/admin/pdf' => 'pages/admin/export_pdf.php',
     '/admin/xml' => 'pages/admin/export_xml.php',
     '/admin/dashboard-multe' => 'pages/admin/D_multe.php',
+    '/admin/genera-trending' => 'pages/admin/genera_trending.php',
     
     //bibliotecario
     '/bibliotecario/dashboard-gestioneprestiti' => 'pages/bibliotecario/D_gestioneprestiti.php',

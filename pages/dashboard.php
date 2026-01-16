@@ -71,7 +71,12 @@ $messaggio_db = "";
                 <img src="<?= $path ?>/public/assets/icone_categorie/Raccomandazione.png" alt="Icon">
                 <h1>Badge</h1>
             </a>
-            
+            <a href="admin/genera-trending" class="dashboard_card dashboard_card_11">
+                <img src="<?= $path ?>/public/assets/icone_categorie/Trending.png" alt="Icon">
+                <h1>Genera Trending</h1>
+            </a>
+
+
         </div>
     </div>
 

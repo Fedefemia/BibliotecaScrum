@@ -111,6 +111,9 @@ function getCoverPath(string $isbn): string {
     }
     return "public/assets/book_placeholder.jpg";
 }
+
+
+
 ?>
 
 <?php
