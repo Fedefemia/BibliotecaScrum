@@ -277,6 +277,35 @@ $max_libri_mese = 0;
 foreach($storico_stat as $s) { if($s['qta'] > $max_libri_mese) $max_libri_mese = $s['qta']; }
 $badges = [];
 
+if (isset($uid) && $uid) {
+    try {
+        $stm = $pdo->prepare("
+            SELECT b.*, ub.livello
+            FROM badge b
+            JOIN utente_badge ub ON b.id_badge = ub.id_badge
+            WHERE ub.codice_alfanumerico = ?
+            ORDER BY ub.livello DESC, b.nome ASC
+        ");
+        $stm->execute([$uid]);
+        $badges = $stm->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        $messaggio_db = "Errore caricamento badge: " . $e->getMessage();
+    }
+}
+function badgeIconHtmlProfile(array $badge) {
+    $icon = $badge['icona'] ?? '';
+    // Primo tentativo: file in public/badges/
+    $localPath = __DIR__ . "/../public/badges/" . $icon;
+    $webPath = "./public/badges/" . $icon;
+    if ($icon && file_exists($localPath)) {
+        return '<img src="' . htmlspecialchars($webPath) . '" alt="' . htmlspecialchars($badge['nome']) . '" style="width:72px;height:72px;object-fit:contain;border-radius:8px;">';
+    }
+    // Non uso SVG inline qui per sicurezza — fallback lettera
+    $letter = strtoupper(substr($badge['nome'] ?? 'B', 0, 1));
+    return '<div style="width:72px;height:72px;border-radius:10px;background:#f3f3f3;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;color:#666;">' .
+            htmlspecialchars($letter) . '</div>';
+}
+
 require './src/includes/header.php';
 require './src/includes/navbar.php';
 
@@ -498,8 +527,33 @@ function formatCounter($dateTarget) {
         <div class="info_column extend_all">
             <div class="section">
                 <h2>Badge</h2>
-                <div class="grid">
-                    <?php if ($badges): foreach ($badges as $badge): endforeach; else: ?>
+                <?php if (!empty($badges)): ?>
+                    <?php foreach ($badges as $b): ?>
+                        <div class="book-item">
+                            <a href="./badge?id=<?= intval($b['id_badge']) ?>" class="card cover-only">
+                                <?= badgeIconHtmlProfile($b) ?>
+                            </a>
+                            <div class="book-meta">
+                                <div class="book_main_title" style="font-size:1rem; margin:0;">
+                                    <?= htmlspecialchars($b['nome']) ?>
+                                </div>
+
+                                <div class="book_authors" style="margin-top:6px; font-size:0.9rem;">
+                                    Livello: <strong><?= intval($b['livello']) ?></strong>
+                                    <?php if (!empty($b['target_numerico'])): ?>
+                                        &nbsp;•&nbsp; Target: <?= intval($b['target_numerico']) ?>
+                                    <?php endif; ?>
+                                </div>
+
+                                <?php if (!empty($b['descrizione'])): ?>
+                                    <div class="book_desc_text" style="margin-top:8px; font-size:0.9rem; max-height:48px; overflow:hidden;">
+                                        <?= nl2br(htmlspecialchars($b['descrizione'])) ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                    <?php else: ?>
                         <h4 style="color:#888;">Nessun badge acquisito</h4>
                     <?php endif; ?>
                 </div>
