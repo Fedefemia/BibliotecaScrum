@@ -264,6 +264,8 @@ $stm = $pdo->prepare("
 $stm->execute([$uid]);
 $range_date = $stm->fetch(PDO::FETCH_ASSOC);
 
+
+//calcolo media sistemato
 $media_mensile = 0;
 $mesi_totali = 1;
 
