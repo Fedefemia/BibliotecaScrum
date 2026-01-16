@@ -701,3 +701,86 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+
+/* =========================================
+   --- GESTIONE PRESTITI & AZIONI ---
+   ========================================= */
+
+/* Wrapper per le azioni nella tabella (sostituisce i d-flex inline) */
+.loan_action_form {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--color_background_ligth);
+    padding: 6px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--color_accent_medium);
+    width: fit-content;
+    transition: all 0.2s ease;
+}
+
+.loan_action_form:hover {
+    border-color: var(--color_accent_dark);
+    box-shadow: 0 2px 8px rgba(63, 81, 53, 0.1);
+}
+
+/* Input data più pulito */
+.input_date_small {
+    border: none;
+    background: transparent;
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 0.9rem;
+    color: var(--color_text_black);
+    width: 110px;
+    cursor: pointer;
+    outline: none;
+}
+
+/* Bottone restituzione custom (sostituisce btn-success) */
+.btn_return {
+    background-color: var(--color_accent_medium);
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn_return:hover {
+    background-color: var(--color_text_dark_green);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(63, 81, 53, 0.2);
+}
+
+/* Badge per lo stato del prestito (ritardo/regolare) */
+.status_badge {
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status_late {
+    background-color: #fce8e6; /* Rosso pastello soft */
+    color: #c53030;
+    border: 1px solid #feb2b2;
+}
+
+.status_regular {
+    background-color: #e6fffa; /* Verde acqua soft */
+    color: #2c7a7b;
+    border: 1px solid #b2f5ea;
+}
+
+/* Sovrascriviamo leggermente la tabella admin per allinearla verticalmente */
+.admin_table td {
+    vertical-align: middle;
+}
