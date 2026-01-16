@@ -1,0 +1,361 @@
+/* ===============================
+   SEZIONE RICERCA (HEADER)
+=============================== */
+.search_section_con {
+    background-color: var(--color_background_ligth);
+    padding: 40px 30px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 25px;
+    font-size: 2rem;
+    color: var(--color_text_dark_green);
+    box-shadow: 0 4px 6px rgba(63, 81, 53, 0.05);
+    border: 1px solid rgba(63, 81, 53, 0.1);
+}
+
+.search_section_form {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
+    width: 100%;
+}
+
+.search_section_form_left {
+    display: flex;
+    align-items: center;
+}
+
+/* Fix Icona */
+.search_section_form_icon {
+    height: 40px;
+    width: auto;
+    margin-right: 15px;
+    object-fit: contain;
+    display: inline-block;
+}
+
+h2 {
+    font-family: "Young Serif", serif;
+    font-size: 1.8rem;
+    color: var(--color_accent_dark);
+    margin: 0;
+}
+
+/* Container dei bottoni (Tab) */
+.search_buttons_container {
+    display: flex;
+    gap: 15px;
+}
+
+/* Stile specifico per i bottoni tab attivi/inattivi */
+.section_btn {
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.section_btn:not(.active) {
+    background-color: transparent;
+    color: var(--color_accent_dark);
+    border: 2px solid var(--color_accent_dark);
+    box-shadow: none;
+}
+
+.section_btn:not(.active):hover {
+    background-color: var(--color_accent_ligth);
+    border-color: var(--color_accent_ligth);
+    color: var(--color_text_dark_green);
+}
+/* =============================== */
+
+
+/* ===============================
+   FILTRI (CHECKBOX)
+=============================== */
+#filter_form {
+    width: 100%;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#filter_form h3 {
+    font-family: "Instrument Sans", sans-serif;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--color_accent_medium);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+#filter_form div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: center;
+}
+
+#filter_form label {
+    font-family: "Instrument Sans", sans-serif;
+    font-size: 0.95rem;
+    color: var(--color_text_black);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 10px;
+    transition: background 0.2s, transform 0.1s;
+    border: 1px solid transparent;
+}
+
+#filter_form label:hover {
+    background: var(--color_accent_ligth);
+    transform: translateY(-1px);
+}
+
+/* Custom Checkbox accent */
+input[type="checkbox"] {
+    accent-color: var(--color_accent_dark);
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+/* =============================== */
+
+
+/* ===============================
+   GRIGLIA DEI RISULTATI
+=============================== */
+#results_container_books,
+#results_container_authors,
+#results_container_users {
+    /* Grid layout per tenere tutto ordinato */
+    display: grid;
+    /* Colonne automatiche: minimo 280px, altrimenti si espandono */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px; /* Spazio tra le card */
+    margin-top: 20px;
+    width: 100%;
+    align-items: stretch; /* Fondamentale: allunga le card alla stessa altezza */
+}
+
+/* Titoli delle sezioni */
+#section_books h1, #section_users h1, #section_books h2 {
+    font-family: "Young Serif", serif;
+    color: var(--color_accent_dark);
+    font-size: 2rem;
+    margin-bottom: 15px;
+    margin-top: 40px;
+    clear: both;
+}
+/* =============================== */
+
+
+/* ===============================
+   CARD DEI RISULTATI (Book & Author)
+=============================== */
+.book_card, .author_card {
+    background-color: var(--color_background_ligth);
+    border: 1px solid rgba(63, 81, 53, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(63, 81, 53, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    /* Override per layout orizzontale su desktop */
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    margin-bottom: 0;
+    height: 100%; /* Occupa tutta l'altezza della cella */
+    width: auto;
+}
+
+.book_card:hover, .author_card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(63, 81, 53, 0.15);
+    background-color: #fff;
+    z-index: 2;
+}
+
+/* Immagine copertina */
+.book_card img, .author_card img {
+    border-radius: 8px;
+    object-fit: cover;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    width: 90px;
+    height: 130px; /* Leggermente più grande */
+    margin-right: 20px;
+    flex-shrink: 0;
+}
+
+/* Contenuto testuale della card */
+.book_card div, .author_card div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+}
+
+.book_card h3, .author_card h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 1.2rem;
+    color: var(--color_text_dark_green);
+}
+
+mark {
+    background-color: var(--color_accent_ligth);
+    color: var(--color_text_dark_green);
+    border-radius: 4px;
+    padding: 0 4px;
+    font-weight: 600;
+}
+/* =============================== */
+
+
+/* ===============================
+   CARD UTENTI (Fix Altezza & Layout)
+=============================== */
+.user_card {
+    background-color: #fff;
+    border: 1px solid rgba(63, 81, 53, 0.15);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(63, 81, 53, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    /* --- FLEXBOX MAGICO --- */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.user_card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(63, 81, 53, 0.1);
+    border-color: var(--color_accent_medium);
+}
+
+.user_info_wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.user_card p {
+    font-family: "Instrument Sans", sans-serif;
+    color: var(--color_text_black);
+    font-size: 0.95rem;
+    margin: 0;
+    line-height: 1.5;
+    border-bottom: 1px dashed rgba(0,0,0,0.05);
+    padding-bottom: 5px;
+}
+
+.user_username {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--color_accent_dark);
+    margin-bottom: 5px;
+    display: block;
+}
+
+/* Bottone "Visualizza profilo" */
+.user_card a {
+    margin-top: 10px;
+    width: 100%;
+    padding: 12px 0;
+    background-color: var(--color_background_ligth);
+    color: var(--color_accent_dark);
+    border: 1px solid var(--color_accent_dark);
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: block;
+}
+
+.user_card a:hover {
+    background-color: var(--color_accent_dark);
+    color: #fff;
+    box-shadow: 0 4px 8px rgba(63, 81, 53, 0.2);
+}
+/* =============================== */
+
+
+/* ===============================
+   RESPONSIVE MOBILE
+=============================== */
+@media (max-width: 768px) {
+    /* Header Stack */
+    .search_section_con {
+        padding: 30px 20px;
+        text-align: center;
+        align-items: center;
+    }
+
+    .search_section_form {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .search_section_form_left {
+        flex-direction: column;
+        gap: 10px;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .search_section_form_icon {
+        margin-right: 0;
+        height: 50px; /* Icona più grande su mobile */
+    }
+
+    /* Bottoni centrati */
+    .search_buttons_container {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .section_btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    /* Filtri centrati */
+    #filter_form div {
+        justify-content: center;
+    }
+
+    /* Card Libri/Autori diventano verticali */
+    .book_card, .author_card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 25px;
+    }
+
+    .book_card img, .author_card img {
+        margin-right: 0;
+        margin-bottom: 15px;
+        width: 120px;
+        height: auto;
+    }
+
+    .book_card div, .author_card div {
+        align-items: center; /* Testo centrato */
+    }
+}

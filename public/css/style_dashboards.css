@@ -8,24 +8,36 @@
     margin-top: 30px;
 }
 
+.dashboard_cards_con_2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    justify-items: stretch;
+    margin-top: 30px;
+}
+
 .dashboard_card {
     background-color: #eae3d2;
     padding: 60px 20px;
     border-radius: 20px;
-    display: flex; /* Funziona benissimo anche sui tag <a> */
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     gap: 30px;
     font-size: 2rem;
-    
-    /* Aggiunte queste proprietà per gestire il link */
+    margin: 5px;
+
     text-decoration: none; 
-    color: var(--color_accent_dark); /* Applica il colore a tutto il testo dentro */
-    transition: transform 0.2s ease; /* Un tocco cute per l'hover */
+    color: var(--color_accent_dark);
+    transition: transform 0.2s ease;
     cursor: pointer;
 
     text-align: center;
+    box-shadow: 0 4px 6px rgba(63, 81, 53, 0.05);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (max-width: 768px) {
@@ -50,3 +62,6 @@
 .dashboard_card_3 { grid-area: 1 / 5 / 2 / 7; }
 .dashboard_card_4 { grid-area: 2 / 1 / 3 / 4; }
 .dashboard_card_5 { grid-area: 2 / 4 / 3 / 7; }
+
+.dashboard_card_2_1 { grid-area: 1 / 1 / 2 / 2; }
+.dashboard_card_2_2 { grid-area: 1 / 2 / 2 / 3; }

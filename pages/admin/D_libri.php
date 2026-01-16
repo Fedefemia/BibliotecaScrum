@@ -54,9 +54,7 @@ if (isset($_GET['generate_barcode'])) {
 require_once 'security.php';
 if (!checkAccess('amministratore')) header('Location: ./');
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+    $isbn = preg_replace('/[^0-9]/', '', $_GET['isbn'] ?? '');
 
 // ... il resto del tuo codice per il database e l'HTML ...
 

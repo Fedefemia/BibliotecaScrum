@@ -1,8 +1,6 @@
 <?php
-// Configurazione
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-set_time_limit(0);
+require_once 'security.php';
+if (!checkAccess('amministratore')) header('Location: ./');
 
 $saveDir = __DIR__ . '/public/bookCover/';
 $concurrentRequests = 5; // Abbassato a 5 per essere meno aggressivi col server
