@@ -20,22 +20,20 @@ $whitelist = [
     '/verifica'=> 'pages/verifica.php',
     '/libro'=> 'pages/libro.php',
     '/profilo' => 'pages/profilo.php',
-    '/badge' => 'pages/badge.php',
-    '/badges' => 'pages/badges.php',
 
     //admin
     '/admin/dashboard-biblioteche' => 'pages/admin/D_biblioteche.php',
     '/admin/dashboard-libri' => 'pages/admin/D_libri.php',
     '/admin/dashboard-utenti' => 'pages/admin/D_utenti.php',
     '/admin/dashboard-report' => 'pages/admin/D_report.php',
-    '/admin/dashboard-recensioni' => 'pages/admin/D_recensioni.php',
-    '/cover-fetcher'=> 'pages/admin/coverFetcher.php',
-    
+    '/admin/pdf' => 'pages/admin/export_pdf.php',
+    '/admin/xml' => 'pages/admin/export_xml.php',
     //bibliotecario
     '/bibliotecario/dashboard-gestioneprestiti' => 'pages/bibliotecario/D_gestioneprestiti.php',
     '/bibliotecario/dashboard-aggiuntaprestiti' => 'pages/bibliotecario/D_aggiuntaprestiti.php',
-    '/bibliotecario/dashboard-richieste' => 'pages/bibliotecario/D_richieste.php',
 
+    //temp
+    '/cover-fetcher'=> 'coverFetcher.php',
 ];
 
 

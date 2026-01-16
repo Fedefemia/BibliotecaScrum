@@ -192,4 +192,4 @@ require_once './src/includes/navbar.php';
         padding: 15px;
         border: solid 1px black;
     }
-</style>
+</style>3

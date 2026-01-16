@@ -63,6 +63,12 @@ if ($codice) {
     $prestiti_attivi = $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+// ---------------- HTML HEADER ----------------
+$path = "./";
+$page_css = "./public/css/style_index.css";
+require './src/includes/header.php';
+require './src/includes/navbar.php';
+
 function getCoverPath(string $isbn): string {
     $localPath = "public/bookCover/$isbn.png";
     $publicPath = "public/bookCover/$isbn.png";
@@ -81,15 +87,6 @@ function renderVoto($media) {
     $votoFormattato = number_format((float)$media, 1);
     return '<span class="voto-box"><span style="color: #f39c12;">★</span> ' . $votoFormattato . '</span>';
 }
-?>
-
-<?php
-    // ---------------- HTML HEADER ----------------
-    $title = "Biblioteca Scrum";
-    $path = "./";
-    $page_css = "./public/css/style_index.css";
-    require './src/includes/header.php';
-    require './src/includes/navbar.php';
 ?>
 
     <div class="index_wrapper">
