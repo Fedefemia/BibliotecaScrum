@@ -28,6 +28,7 @@ $whitelist = [
     '/admin/dashboard-libri' => 'pages/admin/D_libri.php',
     '/admin/dashboard-utenti' => 'pages/admin/D_utenti.php',
     '/admin/dashboard-report' => 'pages/admin/D_report.php',
+    '/admin/dashboard-recensioni' => 'pages/admin/D_recensioni.php',
     '/cover-fetcher'=> 'pages/admin/coverFetcher.php',
     
     //bibliotecario

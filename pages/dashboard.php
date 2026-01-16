@@ -37,17 +37,22 @@ $messaggio_db = "";
                 <h1>Dashboard utenti</h1>
             </a>
 
-            <a href="bibliotecario/dashboard-gestioneprestiti" class="dashboard_card dashboard_card_4">
+            <a href="admin/dashboard-recensioni" class="dashboard_card dashboard_card_4">
+                <img src="<?= $path ?>/public/assets/icon.png" alt="Icon">
+                <h1>Dashboard recensioni</h1>
+            </a>
+
+            <a href="bibliotecario/dashboard-gestioneprestiti" class="dashboard_card dashboard_card_5">
                 <img src="<?= $path ?>/public/assets/icone_categorie/Libro.png" alt="Icon">
                 <h1>Gestione Prestiti</h1>
             </a>
 
-            <a href="bibliotecario/dashboard-aggiuntaprestiti" class="dashboard_card dashboard_card_5">
+            <a href="bibliotecario/dashboard-aggiuntaprestiti" class="dashboard_card dashboard_card_6">
                 <img src="<?= $path ?>/public/assets/icone_categorie/AggiuntaLibro.png" alt="Icon">
                 <h1>Aggiunta Prestiti</h1>
             </a>
 
-            <a href="admin/dashboard-report" class="dashboard_card dashboard_card_4">
+            <a href="admin/dashboard-report" class="dashboard_card dashboard_card_7">
                 <img src="<?= $path ?>/public/assets/icone_categorie/Statistiche.png" alt="Icon">
                 <h1>Statistiche</h1>
             </a>

@@ -57,11 +57,14 @@
     margin-bottom: 10px;
 }
 
-.dashboard_card_1 { grid-area: 1 / 1 / 2 / 3; }
-.dashboard_card_2 { grid-area: 1 / 3 / 2 / 5; }
-.dashboard_card_3 { grid-area: 1 / 5 / 2 / 7; }
-.dashboard_card_4 { grid-area: 2 / 1 / 3 / 4; }
-.dashboard_card_5 { grid-area: 2 / 4 / 3 / 7; }
+.dashboard_card_1 { grid-area: 1 / 1 / 2 / 2; }
+.dashboard_card_2 { grid-area: 1 / 2 / 2 / 4; }
+.dashboard_card_3 { grid-area: 1 / 4 / 2 / 6; }
+.dashboard_card_4 { grid-area: 1 / 6 / 2 / 7; }
+.dashboard_card_5 { grid-area: 2 / 1 / 3 / 3; }
+.dashboard_card_6 { grid-area: 2 / 3 / 3 / 5; }
+.dashboard_card_7 { grid-area: 2 / 5 / 3 / 7; }
+
 
 .dashboard_card_2_1 { grid-area: 1 / 1 / 2 / 2; }
 .dashboard_card_2_2 { grid-area: 1 / 2 / 2 / 3; }
