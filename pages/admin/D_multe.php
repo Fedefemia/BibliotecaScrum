@@ -178,7 +178,7 @@ require_once './src/includes/navbar.php';
             <div class="stat-value">€ <?= number_format($stats['incasso'], 2) ?></div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">Multe Pendenti</div>
+            <div class="stat-label">Multe Non Pagate</div>
             <div class="stat-value"><?= $stats['attive'] ?></div>
         </div>
     </div>
