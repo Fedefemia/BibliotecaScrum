@@ -11,13 +11,13 @@ require_once 'db_config.php';
 
 // Inizializzazione KPI e dati
 $kpi = [
-        'totale_titoli' => 0,
-        'copie_fisiche' => 0,
-        'prestiti_attivi' => 0,
-        'prestiti_scaduti' => 0,
-        'scadenza_oggi' => 0,
-        'multe_totali' => 0,
-        'utenti_totali' => 0
+    'totale_titoli' => 0,
+    'copie_fisiche' => 0,
+    'prestiti_attivi' => 0,
+    'prestiti_scaduti' => 0,
+    'scadenza_oggi' => 0,
+    'multe_totali' => 0,
+    'utenti_totali' => 0
 ];
 
 $trendPrestiti = [];
@@ -49,30 +49,35 @@ if (isset($pdo) && $pdo instanceof PDO) {
         $kpi = $stmtKpi->fetch(PDO::FETCH_ASSOC);
 
         // Categorie più prestate (storico)
+        // GROUP BY aggiornato per compatibilità SQL standard
         $catStoricoPrestiti = $pdo->query("
             SELECT c.categoria, COUNT(p.id_prestito) as conteggio
             FROM categorie c
             JOIN libro_categoria lc ON c.id_categoria = lc.id_categoria
             JOIN copie cp ON lc.isbn = cp.isbn
             JOIN prestiti p ON cp.id_copia = p.id_copia
-            GROUP BY c.id_categoria
+            GROUP BY c.id_categoria, c.categoria
             ORDER BY conteggio DESC
             LIMIT 6
         ")->fetchAll(PDO::FETCH_ASSOC);
+
         // Distribuzione catalogo
         $distribuzioneCat = $pdo->query("
             SELECT c.categoria, COUNT(lc.isbn) as conteggio 
             FROM categorie c 
             JOIN libro_categoria lc ON c.id_categoria = lc.id_categoria 
-            GROUP BY c.id_categoria
+            GROUP BY c.id_categoria, c.categoria
         ")->fetchAll(PDO::FETCH_ASSOC);
+
         // Distribuzione ruoli utenti
         $distRuoli = $pdo->query("
             SELECT SUM(studente) as Studenti, SUM(docente) as Docenti, SUM(bibliotecario) as Bibliotecari, SUM(amministratore) as Admin
             FROM ruoli
         ")->fetch(PDO::FETCH_ASSOC);
-        $ruoliLabels = array_keys($distRuoli);
-        $ruoliValori = array_values($distRuoli);
+        
+        $ruoliLabels = $distRuoli ? array_keys($distRuoli) : [];
+        $ruoliValori = $distRuoli ? array_values($distRuoli) : [];
+
         // Scadenze imminenti (lista breve)
         $scadenzeProssime = $pdo->query("
             SELECT p.data_scadenza, l.titolo, u.email 
@@ -85,31 +90,37 @@ if (isset($pdo) && $pdo instanceof PDO) {
             ORDER BY p.data_scadenza ASC
             LIMIT 5
         ")->fetchAll(PDO::FETCH_ASSOC);
+
         // Top utenti per numero di prestiti
+        // GROUP BY aggiornato per compatibilità SQL standard
         $topUtenti = $pdo->query("
             SELECT u.nome, u.cognome, COUNT(p.id_prestito) as tot
             FROM utenti u
             JOIN prestiti p ON u.codice_alfanumerico = p.codice_alfanumerico
-            GROUP BY u.codice_alfanumerico
+            GROUP BY u.codice_alfanumerico, u.nome, u.cognome
             ORDER BY tot DESC
             LIMIT 10
         ")->fetchAll(PDO::FETCH_ASSOC);
+
         // Top libri per numero di prestiti
+        // GROUP BY aggiornato per compatibilità SQL standard
         $topLibri = $pdo->query("
             SELECT l.titolo, COUNT(p.id_prestito) as n_prestiti
             FROM libri l
             JOIN copie c ON l.isbn = c.isbn
             JOIN prestiti p ON c.id_copia = p.id_copia
-            GROUP BY l.isbn
+            GROUP BY l.isbn, l.titolo
             ORDER BY n_prestiti DESC
             LIMIT 10
         ")->fetchAll(PDO::FETCH_ASSOC);
+
         // Stato copie fisiche
         $statoCopie = $pdo->query("
             SELECT 
                 (SELECT COUNT(*) FROM copie) - (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL) as Disponibili,
                 (SELECT COUNT(*) FROM prestiti WHERE data_restituzione IS NULL) as In_Prestito
         ")->fetch(PDO::FETCH_ASSOC);
+
         // Trend prestiti ultimi 12 mesi
         $trendPrestiti = $pdo->query("
             SELECT DATE_FORMAT(data_prestito, '%m/%Y') as mese, COUNT(*) as totale
@@ -118,6 +129,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
             GROUP BY LAST_DAY(data_prestito)
             ORDER BY LAST_DAY(data_prestito) ASC
         ")->fetchAll(PDO::FETCH_ASSOC);
+
         // Nuovi utenti ultimi 30 giorni
         $trendUtenti = $pdo->query("
             SELECT DATE_FORMAT(data_creazione, '%d/%m') as giorno, COUNT(*) as nuovi
@@ -126,6 +138,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
             GROUP BY data_creazione
             ORDER BY data_creazione ASC
         ")->fetchAll(PDO::FETCH_ASSOC);
+
         // Ultimi 10 prestiti
         $ultimiPrestiti = $pdo->query("
             SELECT p.data_prestito, p.data_scadenza, l.titolo, u.nome, u.cognome
@@ -136,6 +149,7 @@ if (isset($pdo) && $pdo instanceof PDO) {
             ORDER BY p.data_prestito DESC
             LIMIT 10
         ")->fetchAll(PDO::FETCH_ASSOC);
+
         // Prestiti scaduti
         $prestitiScaduti = $pdo->query("
             SELECT l.titolo, u.nome, u.cognome, DATEDIFF(CURDATE(), p.data_scadenza) AS ritardo
@@ -147,7 +161,8 @@ if (isset($pdo) && $pdo instanceof PDO) {
             ORDER BY ritardo DESC
             LIMIT 10
         ")->fetchAll(PDO::FETCH_ASSOC);
-        // Multe attive
+
+        // Multe attive (AGGIORNATA per usare id_prestito)
         $multeAttive = $pdo->query("
             SELECT u.nome, u.cognome, l.titolo, m.importo
             FROM multe m
@@ -220,21 +235,14 @@ require_once './src/includes/navbar.php';
 
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-end align-items-center mb-4 px-2 gap-2">
-        <!-- PDF -->
         <a href="../admin/pdf" class="btn btn-danger btn-sm rounded-pill px-4 shadow-sm">
             <i class="bi bi-file-earmark-pdf me-2"></i>Esporta PDF
         </a>
-        <!-- XML -->
         <a href="../admin/xml" class="btn btn-warning btn-sm rounded-pill px-4 shadow-sm">
             <i class="bi bi-file-earmark-code me-2"></i>Esporta XML
         </a>
     </div>
 
-
-
-</div>
-
-    <!-- KPI cards -->
     <div class="row g-3 mb-4">
         <?php
         $metrics = [
@@ -261,7 +269,6 @@ require_once './src/includes/navbar.php';
         <?php endforeach; ?>
     </div>
 
-    <!-- Tabs principali -->
     <ul class="nav nav-pills bg-white p-2 rounded shadow-sm mb-4" id="dashTabs">
         <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-attivita">Attività Prestiti</button></li>
         <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-utenza">Utenza</button></li>
@@ -270,7 +277,6 @@ require_once './src/includes/navbar.php';
     </ul>
 
     <div class="tab-content">
-        <!-- Attività prestiti -->
         <div class="tab-pane fade show active" id="tab-attivita">
             <div class="row g-4">
                 <div class="col-lg-4">
@@ -313,7 +319,6 @@ require_once './src/includes/navbar.php';
             </div>
         </div>
 
-        <!-- Utenza -->
         <div class="tab-pane fade" id="tab-utenza">
             <div class="row g-4">
                 <div class="col-md-4">
@@ -332,7 +337,6 @@ require_once './src/includes/navbar.php';
             </div>
         </div>
 
-        <!-- Patrimonio -->
         <div class="tab-pane fade" id="tab-patrimonio">
             <div class="row g-4">
                 <div class="col-md-4"><div class="card p-4"><h6>Composizione Catalogo</h6><div class="chart-container"><canvas id="pieCat"></canvas></div></div></div>
@@ -341,7 +345,6 @@ require_once './src/includes/navbar.php';
             </div>
         </div>
 
-        <!-- Alert -->
         <div class="tab-pane fade" id="tab-alert">
             <div class="row g-4">
                 <div class="col-lg-4">
@@ -427,7 +430,6 @@ require_once './src/includes/navbar.php';
     </div>
 </div>
 
-<!-- Chart.js Scripts -->
 <script>
     Chart.defaults.font.family = "'Inter', sans-serif";
     Chart.defaults.color = '#858796';

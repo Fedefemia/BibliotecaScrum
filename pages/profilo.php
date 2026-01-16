@@ -139,16 +139,20 @@ if (isset($_POST['action']) && $_POST['action'] === 'richiedi_estensione') {
 
     if ($id_prestito_target && $scadenza_attuale) {
         try {
+            // Verifica che il prestito appartenga all'utente loggato E controlla il numero di rinnovi
             $chkOwner = $pdo->prepare("SELECT num_rinnovi FROM prestiti WHERE id_prestito = ? AND codice_alfanumerico = ?");
             $chkOwner->execute([$id_prestito_target, $uid]);
             $loanData = $chkOwner->fetch(PDO::FETCH_ASSOC);
-
+            
             if ($loanData) {
+                // CONTROLLO LIMITE RINNOVI (Max 1)
                 if ($loanData['num_rinnovi'] >= 1) {
                     $messaggio_alert = "Hai già effettuato il numero massimo di rinnovi per questo libro.";
                 } else {
+                    // Verifica se c'è già una richiesta pendente per questo ID PRESTITO
                     $chk = $pdo->prepare("SELECT 1 FROM richieste_bibliotecario WHERE id_prestito = ? AND stato = 'in_attesa'");
                     $chk->execute([$id_prestito_target]);
+
                     if ($chk->fetch()) {
                         $messaggio_alert = "Hai già una richiesta in attesa per questo prestito.";
                     } else {
@@ -161,7 +165,7 @@ if (isset($_POST['action']) && $_POST['action'] === 'richiedi_estensione') {
                 $messaggio_alert = "Prestito non valido.";
             }
         } catch (Exception $e) {
-            $messaggio_alert = "Errore richiesta: " . $e->getMessage();
+            $messaggio_alert = "Errore transazione: " . $e->getMessage();
         }
     }
 }
@@ -211,7 +215,20 @@ $stm = $pdo->prepare("
 $stm->execute([$uid]);
 $multe_attive = $stm->fetchAll(PDO::FETCH_ASSOC);
 
-// PRESTITI ATTIVI
+// A. MULTE ATTIVE
+$stm = $pdo->prepare("
+    SELECT m.id_multa, m.importo, m.causale, m.data_creata, l.titolo
+    FROM multe m
+    JOIN prestiti p ON m.id_prestito = p.id_prestito
+    JOIN copie c ON p.id_copia = c.id_copia
+    JOIN libri l ON c.isbn = l.isbn
+    WHERE p.codice_alfanumerico = ? AND m.pagata = 0
+    ORDER BY m.data_creata DESC
+");
+$stm->execute([$uid]);
+$multe_attive = $stm->fetchAll(PDO::FETCH_ASSOC);
+
+// B. PRESTITI ATTIVI
 $stm = $pdo->prepare("
     SELECT 
         p.id_prestito,
@@ -229,7 +246,7 @@ $stm = $pdo->prepare("
 $stm->execute([$uid]);
 $prestiti_attivi = $stm->fetchAll(PDO::FETCH_ASSOC);
 
-// PRENOTAZIONI ATTIVE
+// C. PRENOTAZIONI ATTIVE
 $stm = $pdo->prepare("
     SELECT c.isbn, p.data_prenotazione, p.id_prenotazione, p.id_copia,
         (SELECT COUNT(*) FROM prenotazioni p2 WHERE p2.id_copia = p.id_copia AND p2.data_assegnazione IS NULL AND (p2.data_prenotazione < p.data_prenotazione OR (p2.data_prenotazione = p.data_prenotazione AND p2.id_prenotazione < p.id_prenotazione))) as utenti_davanti
@@ -241,7 +258,7 @@ $stm = $pdo->prepare("
 $stm->execute([$uid]);
 $prenotazioni = $stm->fetchAll(PDO::FETCH_ASSOC);
 
-// STORICO LIBRI LETTI
+// D. STORICO LIBRI LETTI
 $stm = $pdo->prepare("
     SELECT DISTINCT c.isbn FROM prestiti p JOIN copie c ON p.id_copia = c.id_copia 
     WHERE p.codice_alfanumerico = ? AND p.data_restituzione IS NOT NULL
@@ -250,12 +267,11 @@ $stm = $pdo->prepare("
 $stm->execute([$uid]);
 $libri_letti = $stm->fetchAll(PDO::FETCH_ASSOC);
 
-/* ---- STATISTICHE AGGIORNATE CON MEDIA CORRETTA ---- */
+// STATISTICHE
 $totale_libri_letti = count($libri_letti);
 $stm = $pdo->prepare("SELECT MIN(data_restituzione) as inizio, MAX(data_restituzione) as fine FROM prestiti WHERE codice_alfanumerico = ? AND data_restituzione IS NOT NULL");
 $stm->execute([$uid]);
 $range_date = $stm->fetch(PDO::FETCH_ASSOC);
-
 $media_mensile = 0;
 $mesi_totali = 1;
 if ($range_date['inizio']) {
@@ -274,6 +290,35 @@ $storico_stat = $stm->fetchAll(PDO::FETCH_ASSOC);
 $max_libri_mese = 0;
 foreach($storico_stat as $s) { if($s['qta'] > $max_libri_mese) $max_libri_mese = $s['qta']; }
 $badges = [];
+
+if (isset($uid) && $uid) {
+    try {
+        $stm = $pdo->prepare("
+            SELECT b.*, ub.livello
+            FROM badge b
+            JOIN utente_badge ub ON b.id_badge = ub.id_badge
+            WHERE ub.codice_alfanumerico = ?
+            ORDER BY ub.livello DESC, b.nome ASC
+        ");
+        $stm->execute([$uid]);
+        $badges = $stm->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        $messaggio_db = "Errore caricamento badge: " . $e->getMessage();
+    }
+}
+function badgeIconHtmlProfile(array $badge) {
+    $icon = $badge['icona'] ?? '';
+    // Primo tentativo: file in public/badges/
+    $localPath = __DIR__ . "/../public/badges/" . $icon;
+    $webPath = "./public/badges/" . $icon;
+    if ($icon && file_exists($localPath)) {
+        return '<img src="' . htmlspecialchars($webPath) . '" alt="' . htmlspecialchars($badge['nome']) . '" style="width:72px;height:72px;object-fit:contain;border-radius:8px;">';
+    }
+    // Non uso SVG inline qui per sicurezza — fallback lettera
+    $letter = strtoupper(substr($badge['nome'] ?? 'B', 0, 1));
+    return '<div style="width:72px;height:72px;border-radius:10px;background:#f3f3f3;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;color:#666;">' .
+            htmlspecialchars($letter) . '</div>';
+}
 
 require './src/includes/header.php';
 require './src/includes/navbar.php';
@@ -495,14 +540,63 @@ function formatCounter($dateTarget) {
                 <?php endif; ?>
             </div>
 
-            <div class="info_column extend_all">
-                <div class="section">
-                    <h2>Badge</h2>
-                    <div class="grid">
-                        <?php if ($badges): foreach ($badges as $badge): endforeach; else: ?>
-                            <h4 style="color:#888;">Nessun badge acquisito</h4>
-                        <?php endif; ?>
-                    </div>
+            <?php if (!empty($multe_attive)): ?>
+                <div class="fine-container">
+                    <h4 style="margin:0; color:#c0392b; font-size:0.9rem; border-bottom:1px solid #eee; padding-bottom:5px; width:100%;">
+                        Multe da saldare (<?= count($multe_attive) ?>)
+                    </h4>
+                    <?php foreach ($multe_attive as $m): ?>
+                        <div class="fine-card">
+                            <div class="fine-info">
+                                <span class="fine-title" title="<?= htmlspecialchars($m['titolo']) ?>">
+                                    <?= htmlspecialchars($m['titolo']) ?>
+                                </span>
+                                <span class="fine-meta" title="<?= htmlspecialchars($m['causale']) ?>">
+                                    <?= htmlspecialchars($m['causale']) ?>
+                                </span>
+                            </div>
+                            <div class="fine-actions">
+                                <span class="fine-price">€ <?= number_format($m['importo'], 2) ?></span>
+                                <button class="btn-pay" onclick="apriPagamento(<?= $m['id_multa'] ?>, '<?= number_format($m['importo'], 2) ?>')">Paga</button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="info_column extend_all">
+            <div class="section">
+                <h2>Badge</h2>
+                <?php if (!empty($badges)): ?>
+                    <?php foreach ($badges as $b): ?>
+                        <div class="book-item">
+                            <a href="./badge?id=<?= intval($b['id_badge']) ?>" class="card cover-only">
+                                <?= badgeIconHtmlProfile($b) ?>
+                            </a>
+                            <div class="book-meta">
+                                <div class="book_main_title" style="font-size:1rem; margin:0;">
+                                    <?= htmlspecialchars($b['nome']) ?>
+                                </div>
+
+                                <div class="book_authors" style="margin-top:6px; font-size:0.9rem;">
+                                    Livello: <strong><?= intval($b['livello']) ?></strong>
+                                    <?php if (!empty($b['target_numerico'])): ?>
+                                        &nbsp;•&nbsp; Target: <?= intval($b['target_numerico']) ?>
+                                    <?php endif; ?>
+                                </div>
+
+                                <?php if (!empty($b['descrizione'])): ?>
+                                    <div class="book_desc_text" style="margin-top:8px; font-size:0.9rem; max-height:48px; overflow:hidden;">
+                                        <?= nl2br(htmlspecialchars($b['descrizione'])) ?>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                    <?php else: ?>
+                        <h4 style="color:#888;">Nessun badge acquisito</h4>
+                    <?php endif; ?>
                 </div>
 
                 <div class="section">
@@ -586,12 +680,12 @@ function formatCounter($dateTarget) {
                                 <span style="font-size: 0.9rem; color: #888;">Letti</span>
                             </div>
                         </div>
-                        <div style="background: #fef9f4; padding: 15px; border-radius: 12px; border-left: 4px solid #e67e22;">
-                            <span style="display: block; font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Media Mensile</span>
-                            <div style="display: flex; align-items: baseline; gap: 8px;">
-                                <strong style="font-size: 2rem; color: #e67e22;"><?= $media_mensile ?></strong>
-                                <span style="font-size: 0.9rem; color: #888;">Libri/mese</span>
-                            </div>
+                    </div>
+                    <div style="background: #fef9f4; padding: 15px; border-radius: 12px; border-left: 4px solid #e67e22;">
+                        <span style="display: block; font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Media Mensile</span>
+                        <div style="display: flex; align-items: baseline; gap: 8px;">
+                            <strong style="font-size: 2rem; color: #e67e22;"><?= $media_mensile ?></strong>
+                            <span style="font-size: 0.9rem; color: #888;">Libri/mese</span>
                         </div>
                     </div>
                     <div style="margin-top: 10px;">
@@ -704,67 +798,35 @@ function formatCounter($dateTarget) {
                 } catch (error) { showNotification("Errore di connessione."); }
             }
 
-            // GESTIONE EMAIL OTP
-            const boxEmailOtp = document.getElementById('box-email-otp');
-            const inpEmail = document.getElementById('inp-email');
-            const inpOtp = document.getElementById('inp-otp');
-            const btnEmailAction = document.getElementById('btn-email-action');
-            let emailStep = 1;
-            function handleEmailInput(input) {
-                if (input.value !== input.dataset.original) { boxEmailOtp.classList.add('open'); resetEmailState(); }
-                else { boxEmailOtp.classList.remove('open'); }
-            }
-            function resetEmailState() {
-                emailStep = 1; btnEmailAction.innerText = "Invia"; btnEmailAction.type = "button";
-                inpOtp.disabled = true; inpOtp.classList.add('otp-locked'); inpOtp.value = "";
-            }
-            async function handleEmailAction() {
-                if (emailStep === 1) {
-                    const formData = new FormData();
-                    formData.append('ajax_send_email_code', 1);
-                    formData.append('email_dest', inpEmail.value);
-                    btnEmailAction.innerText = "...";
-                    try {
-                        const response = await fetch(window.location.href, { method: 'POST', body: formData });
-                        const data = await response.json();
-                        if (data.status === 'success') {
-                            showNotification(data.message);
-                            emailStep = 2; inpOtp.disabled = false; inpOtp.classList.remove('otp-locked'); inpOtp.focus();
-                            btnEmailAction.innerText = "Conferma"; btnEmailAction.type = "submit";
-                        } else { showNotification(data.message); btnEmailAction.innerText = "Invia"; }
-                    } catch (e) { showNotification("Errore di rete."); btnEmailAction.innerText = "Invia"; }
-                }
-            }
+        // GESTIONE MODAL TESSERA
+        const modalTessera = document.getElementById('modalTessera');
+        function apriTessera() { modalTessera.style.display = 'flex'; }
+        function chiudiTessera() { modalTessera.style.display = 'none'; }
+        function stampa() { window.print(); }
+        function scaricaPNG() {
+            const elemento = document.getElementById("tessera-card");
+            html2canvas(elemento, { backgroundColor: "#ffffff", scale: 3 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Tessera_BibliotecaScrum.png';
+                link.href = canvas.toDataURL("image/png");
+                link.click();
+            });
+        }
 
-            // GESTIONE MODAL TESSERA
-            const modalTessera = document.getElementById('modalTessera');
-            function apriTessera() { modalTessera.style.display = 'flex'; }
-            function chiudiTessera() { modalTessera.style.display = 'none'; }
-            function stampa() { window.print(); }
-            function scaricaPNG() {
-                const elemento = document.getElementById("tessera-card");
-                html2canvas(elemento, { backgroundColor: "#ffffff", scale: 3 }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = 'Tessera_BibliotecaScrum.png';
-                    link.href = canvas.toDataURL("image/png");
-                    link.click();
-                });
-            }
+        // GESTIONE MODAL PAGAMENTO
+        const modalPay = document.getElementById('modalPagamento');
+        function apriPagamento(id, amount) {
+            document.getElementById('payMultaId').value = id;
+            document.getElementById('payAmountDisplay').innerText = amount;
+            modalPay.style.display = 'flex';
+        }
+        function chiudiPagamento() { modalPay.style.display = 'none'; }
 
-            // GESTIONE MODAL PAGAMENTO
-            const modalPay = document.getElementById('modalPagamento');
-            function apriPagamento(id, amount) {
-                document.getElementById('payMultaId').value = id;
-                document.getElementById('payAmountDisplay').innerText = amount;
-                modalPay.style.display = 'flex';
-            }
-            function chiudiPagamento() { modalPay.style.display = 'none'; }
-
-            // CHIUSURA MODAL CLICK ESTERNO
-            window.onclick = function(event) {
-                if (event.target == modalTessera) chiudiTessera();
-                if (event.target == modalPay) chiudiPagamento();
-            }
-        </script>
+        // CHIUSURA MODAL CLICK ESTERNO
+        window.onclick = function(event) {
+            if (event.target == modalTessera) chiudiTessera();
+            if (event.target == modalPay) chiudiPagamento();
+        }
+    </script>
 
     <?php require './src/includes/footer.php'; ?>
