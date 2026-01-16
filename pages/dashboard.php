@@ -36,7 +36,10 @@ $messaggio_db = "";
                 <img src="<?= $path ?>/public/assets/icone_categorie/Utenti.png" alt="Icon">
                 <h1>Dashboard utenti</h1>
             </a>
-
+            <a href="bibliotecario/dashboard-richieste" class="dashboard_card dashboard_card_8">
+                <img src="<?= $path ?>/public/assets/icone_categorie/Utenti.png" alt="Icon">
+                <h1>Dashboard richieste</h1>
+            </a>
             <a href="admin/dashboard-recensioni" class="dashboard_card dashboard_card_4">
                 <img src="<?= $path ?>/public/assets/icon.png" alt="Icon">
                 <h1>Dashboard recensioni</h1>

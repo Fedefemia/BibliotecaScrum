@@ -121,5 +121,6 @@ require_once './src/includes/navbar.php';
     </table>
 </div>
 
+
 <?php require_once './src/includes/footer.php'; ?>
 
