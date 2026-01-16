@@ -138,7 +138,7 @@ require './src/includes/navbar.php';
     <div class="index_wrapper">
         <header class="index_hero">
             <img src="./public/assets/icon.png" alt="Logo" class="hero_icon">
-            <h1 class="hero_title">Scrum Library</h1>
+            <h1 class="hero_title young-serif-regular">Scrum Library</h1>
         </header>
 
         <div class="page_contents">
@@ -147,7 +147,7 @@ require './src/includes/navbar.php';
                 <section class="index_section">
                     <div class="section_header">
                         <img src="./public/assets/logo_ligth.png" class="section_icon" alt="icon">
-                        <h2 class="section_title">I tuoi prestiti</h2>
+                        <h2 class="section_title young-serif-regular">I tuoi prestiti</h2>
                     </div>
                     <div class="books_grid">
                         <?php foreach ($prestiti_attivi as $libro): ?>
@@ -167,8 +167,8 @@ require './src/includes/navbar.php';
             <?php if ($codice && !empty($consigliati)): ?>
                 <section class="index_section">
                     <div class="section_header">
-                        <img src="./public/assets/icone_categorie/Icon_LibriPopolari.png" class="section_icon" alt="icon">
-                        <h2 class="section_title">Consigliati per te</h2>
+                        <img src="./public/assets/icone_categorie/Raccomandazione.png" class="section_icon" alt="icon">
+                        <h2 class="section_title young-serif-regular">Consigliati per te</h2>
                     </div>
                     <div class="books_grid">
                         <?php foreach ($consigliati as $libro): ?>
@@ -191,7 +191,7 @@ require './src/includes/navbar.php';
             <section class="index_section">
                 <div class="section_header">
                     <img src="<?= $path ?>public/assets/icone_categorie/Icon_LibriPopolari.png" class="section_icon" alt="icon">
-                    <h2 class="section_title">Libri Popolari</h2>
+                    <h2 class="section_title young-serif-regular">Libri Popolari</h2>
                 </div>
                 <div class="books_grid">
                     <?php foreach ($popolari as $libro): ?>
@@ -212,7 +212,7 @@ require './src/includes/navbar.php';
                     <section class="index_section">
                         <div class="section_header">
                             <img src="<?= $path ?>public/assets/icone_categorie/<?=$catName ?>.png" class="section_icon" alt="icon" onerror="this.src='<?= $path ?>public/assets/logo_ligth.png'">
-                            <h2 class="section_title"><?= htmlspecialchars($catName) ?></h2>
+                            <h2 class="section_title young-serif-regular"><?= htmlspecialchars($catName) ?></h2>
                         </div>
                         <div class="books_grid">
                             <?php foreach ($libriCat as $libro): ?>

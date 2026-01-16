@@ -102,7 +102,7 @@ require_once './src/includes/navbar.php';
                     <label><input type="checkbox" name="filtra_autore_nome" checked> Nome autore</label><br>
                     <label><input type="checkbox" name="filtra_autore_cognome" checked> Cognome autore</label><br>
                 </div>
-                <div id="filters_users" style="display:none;">
+                <div id="filters_users">
                     <h3>Utenti</h3>
                     <label><input type="checkbox" name="filtra_username" checked> Username utente</label><br>
                     <label><input type="checkbox" name="filtra_user_nome" checked> Nome utente</label><br>
@@ -149,7 +149,7 @@ require_once './src/includes/navbar.php';
                 <label><input type="checkbox" name="filtra_autore_nome" checked> Nome autore</label><br>
                 <label><input type="checkbox" name="filtra_autore_cognome" checked> Cognome autore</label><br>
             </div>
-            <div id="filters_users" style="display:none;">
+            <div id="filters_users">
                 <h3>Utenti</h3>
                 <label><input type="checkbox" name="filtra_username" checked> Username utente</label><br>
                 <label><input type="checkbox" name="filtra_user_nome" checked> Nome utente</label><br>

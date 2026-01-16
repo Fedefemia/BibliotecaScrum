@@ -2,7 +2,7 @@
    SEZIONE RICERCA (HEADER)
 =============================== */
 .search_section_con {
-    background-color: var(--color_background_ligth);
+    background-color: var(--color_background_dark);
     padding: 40px 30px;
     border-radius: 20px;
     display: flex;
