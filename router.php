@@ -22,6 +22,7 @@ $whitelist = [
     '/profilo' => 'pages/profilo.php',
     '/badge' => 'pages/badge.php',
     '/badges' => 'pages/badges.php',
+    '/notifiche' => 'pages/notifiche.php',
 
     //admin
     '/admin/dashboard-biblioteche' => 'pages/admin/D_biblioteche.php',
@@ -30,7 +31,6 @@ $whitelist = [
     '/admin/dashboard-report' => 'pages/admin/D_report.php',
     '/admin/dashboard-recensioni' => 'pages/admin/D_recensioni.php',
     '/cover-fetcher'=> 'coverFetcher.php',
-    '/admin/dashboard-report' => 'pages/admin/D_report.php',
     '/admin/pdf' => 'pages/admin/export_pdf.php',
     '/admin/xml' => 'pages/admin/export_xml.php',
     

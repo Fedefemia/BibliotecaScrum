@@ -1,5 +1,6 @@
 <?php
 require_once 'security.php';
+require_once 'db_config.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -7,18 +8,15 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // --- LOGICA MESSAGGI CENTRALIZZATA ---
 $display_status = null;
-
 if (isset($_SESSION['status'])) {
     $display_status = $_SESSION['status'];
     unset($_SESSION['status']);
 }
-
 if (isset($status) && !empty($status)) {
     $display_status = $status;
 }
 
-$nome_visualizzato = 'Utente';  // username da database
-
+$nome_visualizzato = 'Utente';
 if (isset($_SESSION['nome_utente'])) {
     $nome_visualizzato = $_SESSION['nome_utente'];
 }
@@ -28,6 +26,53 @@ if(isset($_POST["logout"])){
     session_destroy();
     header("Location: login");
     exit;
+}
+
+// --- LOGICA GESTIONE NOTIFICHE (POST) ---
+if (isset($_SESSION['codice_utente']) && isset($pdo) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    
+    // 1. SEGNA TUTTE COME LETTE
+    if (isset($_POST['azione']) && $_POST['azione'] === 'segna_tutte') {
+        try {
+            $stmt_all = $pdo->prepare("UPDATE notifiche SET visualizzato = 1 WHERE codice_alfanumerico = ?");
+            $stmt_all->execute([$_SESSION['codice_utente']]);
+            header("Refresh:0"); // Ricarica pagina
+        } catch (PDOException $e) {
+            error_log("Errore mark all: " . $e->getMessage());
+        }
+    }
+
+    // 2. SEGNA SINGOLA COME LETTA (Pulsante X)
+    if (isset($_POST['azione']) && $_POST['azione'] === 'segna_singola' && isset($_POST['id_notifica'])) {
+        try {
+            $stmt_one = $pdo->prepare("UPDATE notifiche SET visualizzato = 1 WHERE id_notifica = ? AND codice_alfanumerico = ?");
+            $stmt_one->execute([$_POST['id_notifica'], $_SESSION['codice_utente']]);
+            header("Refresh:0"); // Ricarica pagina
+        } catch (PDOException $e) {
+            error_log("Errore mark one: " . $e->getMessage());
+        }
+    }
+}
+
+// --- LOGICA RECUPERO NOTIFICHE (SOLO NON VISUALIZZATE) ---
+$lista_notifiche = [];
+
+if (isset($_SESSION['codice_utente']) && isset($pdo)) {
+    try {
+        // Query: prende SOLO quelle con visualizzato = 0
+        $sql_nav_notifiche = "SELECT * FROM notifiche 
+                              WHERE codice_alfanumerico = ? 
+                              AND visualizzato = 0
+                              AND (dataora_scadenza IS NULL OR dataora_scadenza > NOW())
+                              ORDER BY dataora_invio DESC LIMIT 5";
+        
+        $stmt_nav = $pdo->prepare($sql_nav_notifiche);
+        $stmt_nav->execute([$_SESSION['codice_utente']]);
+        $lista_notifiche = $stmt_nav->fetchAll(PDO::FETCH_ASSOC);
+        
+    } catch (PDOException $e) {
+        error_log("Errore notifiche navbar: " . $e->getMessage());
+    }
 }
 ?>
 
@@ -49,10 +94,64 @@ if(isset($_POST["logout"])){
     </div>
     
     <div class="navbar_rigth">
-        <div class="navbar_rigth_left">
-            <a href="#" class="navbar_link_img instrument-sans-semibold">
-                <img src="<?= $path ?>public/assets/icon_notification.png" alt="notifica" class="navbar_icon">
-            </a>
+        <div class="navbar_rigth_left" style="display: flex; align-items: center;">
+
+            <?php if (isset($_SESSION['logged']) && $_SESSION['logged'] === true) { ?>
+                <div class="dropdown">
+                    <div onclick="toggleNotifiche()" style="cursor: pointer; display: flex; align-items: center; position: relative;">
+                        <img src="<?= $path ?>public/assets/icon_notification.png" alt="notifica" class="navbar_icon">
+                        
+                        <?php if (count($lista_notifiche) > 0): ?>
+                            <span style="position: absolute; top: -2px; right: -2px; width: 10px; height: 10px; background-color: #dc3545; border-radius: 50%; border: 2px solid #fff;"></span>
+                        <?php endif; ?>
+                    </div>
+
+                    <div id="dropdownNotifiche" class="dropdown-content notifications">
+                        
+                        <div class="notifica-header-title">Nuove Notifiche</div>
+
+                        <?php if (count($lista_notifiche) > 0): ?>
+                            <?php foreach ($lista_notifiche as $notifica): ?>
+                                <div class="notifica-row">
+                                    <a href="<?= $path ?>notifiche" class="notifica-link-content">
+                                        <span class="n-titolo"><?= htmlspecialchars($notifica['titolo']) ?></span>
+                                        <span class="n-preview"><?= htmlspecialchars($notifica['messaggio']) ?></span>
+                                        <span class="n-data"><?= date('d/m H:i', strtotime($notifica['dataora_invio'])) ?></span>
+                                    </a>
+
+                                    <form action="" method="POST" class="form-close-notifica">
+                                        <input type="hidden" name="azione" value="segna_singola">
+                                        <input type="hidden" name="id_notifica" value="<?= $notifica['id_notifica'] ?>">
+                                        <button type="submit" class="btn-close-notifica" title="Segna come letta">&times;</button>
+                                    </form>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div style="padding: 30px 20px; text-align: center; color: #888; font-size: 14px;">
+                                Nessuna nuova notifica
+                            </div>
+                        <?php endif; ?>
+                        
+                        <div class="notifica-footer">
+                            <a href="<?= $path ?>notifiche" class="link-mostra-tutte">Mostra tutte</a>
+                            
+                            <?php if (count($lista_notifiche) > 0): ?>
+                                <form action="" method="POST" style="margin:0;">
+                                    <input type="hidden" name="azione" value="segna_tutte">
+                                    <button type="submit" class="btn-clean-all" title="Segna tutte come lette">
+                                        &#10003; Pulisci
+                                    </button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
+
+                    </div>
+                </div>
+            <?php } else { ?>
+                <a href="<?= $path ?>login" class="navbar_link_img instrument-sans-semibold" style="margin-right: 15px;">
+                    <img src="<?= $path ?>public/assets/icon_notification.png" alt="notifica" class="navbar_icon">
+                </a>
+            <?php } ?>
 
             <?php
             if (isset($_SESSION['logged']) && $_SESSION['logged'] === true) {
@@ -65,7 +164,7 @@ if(isset($_POST["logout"])){
                 ?>
                 
                 <div class="dropdown">
-                    <div id="navbar_pfp" onclick="toggleDropdown()">
+                    <div id="navbar_pfp" onclick="toggleProfilo()">
                         <img src="<?= $pfpPath ?>" alt="pfp" class="navbar_pfp">
                     </div>
 
@@ -92,8 +191,28 @@ if(isset($_POST["logout"])){
 </nav>
 
 <script>
-    function toggleDropdown() {
-        document.getElementById("navbarDropdown").classList.toggle("show");
+    function toggleNotifiche() {
+        var notifDropdown = document.getElementById("dropdownNotifiche");
+        var profDropdown = document.getElementById("dropdownProfilo");
+        
+        if (profDropdown && profDropdown.classList.contains('show')) {
+            profDropdown.classList.remove('show');
+        }
+        if (notifDropdown) {
+            notifDropdown.classList.toggle("show");
+        }
+    }
+
+    function toggleProfilo() {
+        var notifDropdown = document.getElementById("dropdownNotifiche");
+        var profDropdown = document.getElementById("dropdownProfilo");
+        
+        if (notifDropdown && notifDropdown.classList.contains('show')) {
+            notifDropdown.classList.remove('show');
+        }
+        if (profDropdown) {
+            profDropdown.classList.toggle("show");
+        }
     }
 
     window.onclick = function(event) {
