@@ -219,7 +219,7 @@ $stm = $pdo->prepare("
 ");
 $stm->execute([$uid]);
 $libri_letti = $stm->fetchAll(PDO::FETCH_ASSOC);
-$badges = []; // rimuovere/ricambiare con il blocco seguente
+$badges = [];
 
 if (isset($uid) && $uid) {
     try {
