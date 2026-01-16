@@ -202,7 +202,7 @@ try {
 
         // Recensioni Altri
         $sqlAltri = "
-            SELECT r.*, u.username, u.codice_alfanumerico as id_recensore, 
+            SELECT r.*, u.username as username, u.codice_alfanumerico as id_recensore, 
             (SELECT 1 FROM prestiti p JOIN copie c ON p.id_copia = c.id_copia WHERE p.codice_alfanumerico = u.codice_alfanumerico AND c.isbn = r.isbn LIMIT 1) as ha_letto 
             FROM recensioni r 
             JOIN utenti u ON r.codice_alfanumerico = u.codice_alfanumerico 
@@ -519,7 +519,7 @@ function getPfpPath($userId){ $path="public/pfp/$userId.png"; return file_exists
             <div class="reviews_list">
                 <?php foreach ($recensioni_altri as $r): ?>
                     <div class="review_card">
-                        <img src="<?= getPfpPath($r['id_recensore']) ?>" class="review_pfp">
+                        <a style="display: contents" href="./pubblico?username=<?= $r['username'] ?>"><img src="<?= getPfpPath($r['id_recensore']) ?>" class="review_pfp"></a>
                         <div class="review_content_col">
                             <div class="review_header_row">
                                 <div class="review_user"><?= htmlspecialchars($r['username']) ?></div>

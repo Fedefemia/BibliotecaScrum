@@ -41,6 +41,24 @@ if (isset($_POST['ajax_username']) && $uid) {
     }
     exit;
 }
+if (isset($_POST['ajax_livello']) && $uid) {
+    header('Content-Type: application/json');
+    $new_livello = trim($_POST['ajax_livello']);
+    try {
+        $chk = $pdo->prepare("SELECT 1 FROM utenti WHERE livello_privato = ? AND codice_alfanumerico != ?");
+        $chk->execute([$new_livello, $uid]);
+        if ($chk->fetch()) {
+            echo json_encode(['status' => 'error', 'message' => 'Username già occupato!']);
+        } else {
+            $upd = $pdo->prepare("UPDATE utenti SET livello_privato = ? WHERE codice_alfanumerico = ?");
+            $upd->execute([$new_livello, $uid]);
+            echo json_encode(['status' => 'success', 'message' => 'Username aggiornato con successo!']);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => 'Errore DB: ' . $e->getMessage()]);
+    }
+    exit;
+}
 
 if (isset($_POST['ajax_send_email_code']) && $uid) {
     header('Content-Type: application/json');
@@ -294,6 +312,35 @@ foreach ($storico_stat as $s) {
 
 $badges = [];
 
+if (isset($uid) && $uid) {
+    try {
+        $stm = $pdo->prepare("
+            SELECT b.*, ub.livello
+            FROM badge b
+            JOIN utente_badge ub ON b.id_badge = ub.id_badge
+            WHERE ub.codice_alfanumerico = ?
+            ORDER BY ub.livello DESC, b.nome ASC
+        ");
+        $stm->execute([$uid]);
+        $badges = $stm->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        $messaggio_db = "Errore caricamento badge: " . $e->getMessage();
+    }
+}
+function badgeIconHtmlProfile(array $badge) {
+    $icon = $badge['icona'] ?? '';
+    // Primo tentativo: file in public/badges/
+    $localPath = __DIR__ . "/../public/badges/" . $icon;
+    $webPath = "./public/badges/" . $icon;
+    if ($icon && file_exists($localPath)) {
+        return '<img src="' . htmlspecialchars($webPath) . '" alt="' . htmlspecialchars($badge['nome']) . '" style="width:72px;height:72px;object-fit:contain;border-radius:8px;">';
+    }
+    // Non uso SVG inline qui per sicurezza — fallback lettera
+    $letter = strtoupper(substr($badge['nome'] ?? 'B', 0, 1));
+    return '<div style="width:72px;height:72px;border-radius:10px;background:#f3f3f3;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;color:#666;">' .
+            htmlspecialchars($letter) . '</div>';
+}
+
 
 require './src/includes/header.php';
 require './src/includes/navbar.php';
@@ -485,6 +532,10 @@ function formatCounter($dateTarget) {
                         <button type="button" id="btn-email-action" class="btn-action-email" onclick="handleEmailAction()">Invia</button>
                         <input type="hidden" name="confirm_email_final" value="1">
                     </form>
+                    <div class="edit-row" id="row-livello">
+                        <input type="number" min="0" max="2" id="inp-livello" class="edit-input" value="<?= $utente['livello_privato'] ?? '' ?>" data-original="<?= $utente['livello_privato'] ?? '' ?>" placeholder="Livello sicurezza">
+                        <button type="button" id="btn-livello" class="btn-slide" onclick="ajaxSaveLivello()">Salva</button>
+                    </div>
                     <div class="edit-row"><input type="text" class="edit-input" disabled value="<?= htmlspecialchars($utente['nome'] ?? '') ?>"></div>
                     <div class="edit-row"><input type="text" class="edit-input" disabled value="<?= htmlspecialchars($utente['cognome'] ?? '') ?>"></div>
                     <div class="edit-row"><input type="text" class="edit-input" disabled value="<?= htmlspecialchars($utente['codice_fiscale'] ?? '') ?>"></div>
@@ -519,7 +570,33 @@ function formatCounter($dateTarget) {
                 <div class="section">
                     <h2>Badge</h2>
                     <div class="grid">
-                        <?php if ($badges): foreach ($badges as $badge): endforeach; else: ?>
+                        <?php if (!empty($badges)): ?>
+                            <?php foreach ($badges as $b): ?>
+                                <div class="book-item">
+                                    <a href="./badge?id=<?= intval($b['id_badge']) ?>" class="card cover-only">
+                                        <?= badgeIconHtmlProfile($b) ?>
+                                    </a>
+                                    <div class="book-meta">
+                                        <div class="book_main_title" style="font-size:1rem; margin:0;">
+                                            <?= htmlspecialchars($b['nome']) ?>
+                                        </div>
+
+                                        <div class="book_authors" style="margin-top:6px; font-size:0.9rem;">
+                                            Livello: <strong><?= intval($b['livello']) ?></strong>
+                                            <?php if (!empty($b['target_numerico'])): ?>
+                                                &nbsp;•&nbsp; Target: <?= intval($b['target_numerico']) ?>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <?php if (!empty($b['descrizione'])): ?>
+                                            <div class="book_desc_text" style="margin-top:8px; font-size:0.9rem; max-height:48px; overflow:hidden;">
+                                                <?= nl2br(htmlspecialchars($b['descrizione'])) ?>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
                             <h4 style="color:#888;">Nessun badge acquisito</h4>
                         <?php endif; ?>
                     </div>
@@ -722,6 +799,34 @@ function formatCounter($dateTarget) {
                         setTimeout(() => { rowUser.classList.remove('changed'); }, 1500);
                     } else { showNotification(data.message); }
                 } catch (error) { showNotification("Errore di connessione."); }
+            }
+
+            //GESTIONE LIVELLO PRIVATO
+            const inpLivello = document.getElementById("inp-livello");
+            const rowLivello = document.getElementById('row-livello');
+            const btnLivello = document.getElementById('btn-livello');
+            inpLivello.addEventListener('input', function() {
+                if (this.value !== this.dataset.original) {
+                    rowLivello.classList.add('changed');
+                    btnLivello.innerText = "Salva"; btnLivello.classList.remove('btn-success-anim');
+                } else { rowLivello.classList.remove('changed'); }
+            });
+            async function ajaxSaveLivello() {
+                const newVal = parseInt(inpLivello.value);
+                const formData = new FormData();
+                formData.append('ajax_livello', newVal);
+                try {
+                    const response = await fetch(window.location.href, { method: 'POST', body: formData });
+                    const data = await response.json();
+                    if (data.status === 'success') {
+                        showNotification(data.message);
+                        btnLivello.innerText = "Fatto!";
+                        btnLivello.classList.add('btn-success-anim');
+                        inpLivello.dataset.original = newVal;
+                        setTimeout(() => { rowLivello.classList.remove('changed'); }, 1500);
+                    } else { showNotification(data.message); }
+                } catch (error) { showNotification("Errore di connessione.");
+                alert(error)}
             }
 
             // GESTIONE EMAIL OTP
