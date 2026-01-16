@@ -238,7 +238,7 @@ CREATE TABLE `badge` (
   `data_fine` date DEFAULT NULL,
   `root` smallint(6) DEFAULT NULL,
   PRIMARY KEY (`id_badge`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -247,6 +247,27 @@ CREATE TABLE `badge` (
 
 LOCK TABLES `badge` WRITE;
 /*!40000 ALTER TABLE `badge` DISABLE KEYS */;
+INSERT INTO `badge` VALUES
+(1,'Lettore di Bronzo','1.png','Hai letto almeno 1 libro.','libri_letti',1,NULL,0),
+(2,'Lettore di Argento','2.png','Hai letto almeno 10 libri.','libri_letti',10,NULL,1),
+(3,'Lettore di Oro','3.png','Hai letto almeno 50 libri.','libri_letti',50,NULL,3),
+(4,'Lettore di Platino','4.png','Hai letto almeno 100 libri.','libri_letti',100,NULL,4),
+(5,'Puntuale di Bronzo','5.png','Hai restituito almeno 5 libri in orario.','restituzioni_puntuali',5,NULL,0),
+(6,'Puntuale di Argento','6.png','Hai restituito almeno 20 libri in orario.','restituzioni_puntuali',20,NULL,1),
+(7,'Puntuale di Oro','7.png','Hai restituito almeno 50 libri in orario.','restituzioni_puntuali',50,NULL,3),
+(8,'Puntuale di Platino','8.png','Hai restituito almeno 100 libri in orario.','restituzioni_puntuali',100,NULL,4),
+(9,'Attento di Bronzo','9.png','Hai ricevuto al massimo 5 multe.','numero_multe',5,NULL,0),
+(10,'Attento di Argento','10.png','Hai ricevuto al massimo 3 multe.','numero_multe',3,NULL,1),
+(11,'Attento di Oro','11.png','Hai ricevuto al massimo 1 multa.','numero_multe',1,NULL,3),
+(12,'Attento di Platino','12.png','Non hai mai ricevuto multe.','numero_multe',0,NULL,4),
+(13,'Critico di Bronzo','13.png','Hai scritto almeno 1 recensione.','recensioni_scritte',1,NULL,0),
+(14,'Critico di Argento','14.png','Hai scritto almeno 10 recensioni.','recensioni_scritte',10,NULL,1),
+(15,'Critico di Oro','15.png','Hai scritto almeno 30 recensioni.','recensioni_scritte',30,NULL,3),
+(16,'Critico di Platino','16.png','Hai scritto almeno 60 recensioni.','recensioni_scritte',60,NULL,4),
+(17,'Affidabile di Bronzo','17.png','Hai effettuato almeno 5 prestiti.','prestiti_effettuati',5,NULL,0),
+(18,'Affidabile di Argento','18.png','Hai effettuato almeno 20 prestiti.','prestiti_effettuati',20,NULL,1),
+(19,'Affidabile di Oro','19.png','Hai effettuato almeno 50 prestiti.','prestiti_effettuati',50,NULL,3),
+(20,'Affidabile di Platino','20.png','Hai effettuato almeno 100 prestiti.','prestiti_effettuati',100,NULL,4);
 /*!40000 ALTER TABLE `badge` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -649,17 +670,14 @@ DROP TABLE IF EXISTS `multe`;
 CREATE TABLE `multe` (
   `id_multa` int(11) NOT NULL AUTO_INCREMENT,
   `id_prestito` int(11) NOT NULL,
-  `codice_alfanumerico` varchar(6) NOT NULL,
   `importo` decimal(10,2) NOT NULL,
   `causale` text NOT NULL,
-  `data_creata` date DEFAULT current_timestamp(),
-  `pagata` tinyint(1) NOT NULL DEFAULT 0,
+  `data_creata` date DEFAULT curdate(),
+  `pagata` tinyint(1) DEFAULT 0,
   PRIMARY KEY (`id_multa`),
-  KEY `id_prestito` (`id_prestito`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  CONSTRAINT `multe_ibfk_1` FOREIGN KEY (`id_prestito`) REFERENCES `prestiti` (`id_prestito`),
-  CONSTRAINT `multe_ibfk_2` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `idx_prestito` (`id_prestito`),
+  CONSTRAINT `fk_multe_prestiti` FOREIGN KEY (`id_prestito`) REFERENCES `prestiti` (`id_prestito`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -668,6 +686,12 @@ CREATE TABLE `multe` (
 
 LOCK TABLES `multe` WRITE;
 /*!40000 ALTER TABLE `multe` DISABLE KEYS */;
+INSERT INTO `multe` VALUES
+(1,2,5.50,'Ritardo consegna (10 giorni)','2026-01-16',1),
+(2,3,15.00,'Danneggiamento copertina','2025-11-16',1),
+(3,3,15.00,'Danneggiamento copertina','2025-11-16',0),
+(4,3,15.00,'Danneggiamento copertina','2025-11-16',0),
+(5,2,10.00,'godo','2026-01-16',0);
 /*!40000 ALTER TABLE `multe` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -743,14 +767,14 @@ CREATE TABLE `prenotazioni` (
   `id_prenotazione` int(11) NOT NULL AUTO_INCREMENT,
   `codice_alfanumerico` varchar(6) NOT NULL,
   `id_copia` int(11) NOT NULL,
-  `data_prenotazione` date DEFAULT NULL,
+  `data_prenotazione` date DEFAULT curdate(),
   `data_assegnazione` date DEFAULT NULL,
   PRIMARY KEY (`id_prenotazione`),
-  KEY `fk_prenotazioni_copie` (`id_copia`),
-  KEY `fk_prenotazioni_utenti` (`codice_alfanumerico`),
-  CONSTRAINT `fk_prenotazioni_copie` FOREIGN KEY (`id_copia`) REFERENCES `copie` (`id_copia`),
-  CONSTRAINT `fk_prenotazioni_utenti` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `idx_utente_pren` (`codice_alfanumerico`),
+  KEY `idx_copia_pren` (`id_copia`),
+  CONSTRAINT `fk_prenotazioni_copie` FOREIGN KEY (`id_copia`) REFERENCES `copie` (`id_copia`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_prenotazioni_utenti` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -760,11 +784,9 @@ CREATE TABLE `prenotazioni` (
 LOCK TABLES `prenotazioni` WRITE;
 /*!40000 ALTER TABLE `prenotazioni` DISABLE KEYS */;
 INSERT INTO `prenotazioni` VALUES
-(1,'BOT_01',66,'2023-01-01',NULL),
-(2,'BOT_02',66,'2023-01-02',NULL),
-(3,'BOT_03',66,'2023-01-03',NULL),
-(4,'BOT_04',66,'2023-01-04',NULL),
-(5,'BOT_05',66,'2023-01-05',NULL);
+(1,'000009',15,'2026-01-16',NULL),
+(2,'00000C',86,'2026-01-16',NULL),
+(3,'00000C',84,'2026-01-06','2026-01-11');
 /*!40000 ALTER TABLE `prenotazioni` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -778,17 +800,17 @@ DROP TABLE IF EXISTS `prestiti`;
 CREATE TABLE `prestiti` (
   `id_prestito` int(11) NOT NULL AUTO_INCREMENT,
   `codice_alfanumerico` varchar(6) NOT NULL,
-  `id_copia` int(11) DEFAULT NULL,
-  `data_prestito` date DEFAULT NULL,
+  `id_copia` int(11) NOT NULL,
+  `data_prestito` date DEFAULT curdate(),
   `data_scadenza` date DEFAULT NULL,
   `data_restituzione` date DEFAULT NULL,
   `num_rinnovi` int(11) DEFAULT 0,
   PRIMARY KEY (`id_prestito`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  KEY `id_copia` (`id_copia`),
-  CONSTRAINT `prestiti_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`),
-  CONSTRAINT `prestiti_ibfk_2` FOREIGN KEY (`id_copia`) REFERENCES `copie` (`id_copia`)
-) ENGINE=InnoDB AUTO_INCREMENT=182 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `idx_utente` (`codice_alfanumerico`),
+  KEY `idx_copia` (`id_copia`),
+  CONSTRAINT `fk_prestiti_copie` FOREIGN KEY (`id_copia`) REFERENCES `copie` (`id_copia`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_prestiti_utenti` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -798,43 +820,11 @@ CREATE TABLE `prestiti` (
 LOCK TABLES `prestiti` WRITE;
 /*!40000 ALTER TABLE `prestiti` DISABLE KEYS */;
 INSERT INTO `prestiti` VALUES
-(1,'00000C',3,'2026-01-09','2026-02-08','2026-01-09',0),
-(2,'00000C',3,'2026-01-09','2026-02-08','2026-01-09',0),
-(3,'00000C',21,'2026-01-09','2026-02-08','2026-01-10',0),
-(4,'00000B',48,'2025-11-09','2025-12-09','2026-01-10',0),
-(5,'000006',89,'2026-01-09','2026-02-08','2026-01-10',0),
-(6,'00000C',11,'2026-01-09','2026-02-08','2026-01-10',0),
-(8,'000006',55,'2026-01-10','2026-02-09','2026-01-10',0),
-(10,'000006',38,'2026-01-10','2026-02-09','2026-01-10',0),
-(12,'000006',88,'2026-01-10','2026-02-09','2026-01-10',0),
-(13,'000006',88,'2026-01-10','2026-02-09','2026-01-10',0),
-(14,'000003',55,'2026-01-10','2026-02-09','2026-01-10',0),
-(15,'000003',55,'2026-01-10','2026-02-09','2026-01-10',0),
-(16,'000006',88,'2026-01-10','2026-02-09','2026-01-10',0),
-(17,'000004',11,'2026-01-10','2026-02-09','2026-01-10',0),
-(18,'000004',88,'2026-01-10','2026-02-09','2026-01-10',0),
-(19,'000004',88,'2026-01-10','2026-01-09',NULL,0),
-(20,'000006',67,'2026-01-10','2026-02-09',NULL,0),
-(21,'00000C',40,'2026-01-10','2026-02-09','2026-01-10',0),
-(22,'00000C',55,'2026-01-10','2026-01-12',NULL,0),
-(23,'00000C',39,'2026-01-10','2026-02-09',NULL,0),
-(24,'00000C',84,'2025-10-01','2025-10-31','2025-10-30',0),
-(25,'00000B',85,'2025-10-05','2025-11-04','2025-11-02',0),
-(26,'000006',86,'2025-10-10','2025-11-10','2025-11-09',0),
-(27,'000003',87,'2025-11-02','2025-12-02','2025-12-01',0),
-(28,'000004',88,'2025-11-12','2025-12-12','2025-12-10',0),
-(29,'00000C',89,'2025-11-15','2025-12-15','2025-12-20',1),
-(30,'00000B',90,'2025-12-01','2025-12-31','2025-12-30',0),
-(31,'000006',91,'2025-12-05','2026-01-04','2026-01-03',0),
-(32,'000003',3,'2025-12-10','2026-01-09','2026-01-09',0),
-(114,'00000C',96,'2025-01-01','2025-02-01','2025-01-15',0),
-(115,'00000C',84,'2026-01-14','2026-01-16',NULL,0),
-(116,'00000C',40,'2024-01-01','2024-02-01','2024-01-15',0),
-(117,'00000C',15,'2024-01-01','2024-02-01','2024-01-15',0),
-(118,'00000C',4,'2024-01-01','2024-02-01','2024-01-15',0),
-(179,'000006',89,'2026-01-15','2026-02-14',NULL,0),
-(180,'BOT_01',3,'2026-01-15','2026-02-14','2026-01-15',0),
-(181,'BOT_05',33,'2026-01-16','2026-02-15','2026-01-16',0);
+(1,'00000C',84,'2026-01-11','2026-02-10','2026-01-16',0),
+(2,'00000C',85,'2025-12-07','2026-01-13','2026-01-16',1),
+(3,'00000C',86,'2025-11-17','2025-12-17','2025-12-12',0),
+(4,'00000C',87,'2025-12-27','2026-03-04','2026-01-16',2),
+(5,'00000F',89,'2026-01-16','2026-02-15',NULL,0);
 /*!40000 ALTER TABLE `prestiti` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1075,19 +1065,16 @@ DROP TABLE IF EXISTS `richieste_bibliotecario`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `richieste_bibliotecario` (
   `id_richiesta` int(11) NOT NULL AUTO_INCREMENT,
-  `codice_alfanumerico` varchar(6) NOT NULL,
+  `id_prestito` int(11) NOT NULL,
   `tipo_richiesta` enum('estensione_prestito','altro') NOT NULL DEFAULT 'estensione_prestito',
-  `id_copia` int(11) NOT NULL,
   `data_richiesta` datetime DEFAULT current_timestamp(),
   `data_scadenza_richiesta` date DEFAULT NULL,
   `stato` enum('in_attesa','approvata','rifiutata') DEFAULT 'in_attesa',
   `note_admin` text DEFAULT NULL,
   PRIMARY KEY (`id_richiesta`),
-  KEY `codice_alfanumerico` (`codice_alfanumerico`),
-  KEY `id_copia` (`id_copia`),
-  CONSTRAINT `richieste_bibliotecario_ibfk_1` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`) ON DELETE CASCADE,
-  CONSTRAINT `richieste_bibliotecario_ibfk_2` FOREIGN KEY (`id_copia`) REFERENCES `copie` (`id_copia`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  KEY `idx_prestito` (`id_prestito`),
+  CONSTRAINT `fk_richieste_prestiti` FOREIGN KEY (`id_prestito`) REFERENCES `prestiti` (`id_prestito`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1097,9 +1084,10 @@ CREATE TABLE `richieste_bibliotecario` (
 LOCK TABLES `richieste_bibliotecario` WRITE;
 /*!40000 ALTER TABLE `richieste_bibliotecario` DISABLE KEYS */;
 INSERT INTO `richieste_bibliotecario` VALUES
-(1,'00000C','estensione_prestito',84,'2026-01-14 19:43:28','2026-01-16','in_attesa',NULL),
-(2,'00000C','estensione_prestito',55,'2026-01-14 22:31:03','2026-01-12','in_attesa',NULL),
-(3,'00000C','estensione_prestito',39,'2026-01-14 22:31:04','2026-02-09','in_attesa',NULL);
+(1,1,'estensione_prestito','2026-01-16 08:18:07',NULL,'in_attesa',NULL),
+(2,2,'estensione_prestito','2026-01-16 08:18:07',NULL,'approvata',NULL),
+(3,4,'estensione_prestito','2025-12-30 10:00:00',NULL,'approvata',NULL),
+(4,4,'estensione_prestito','2026-01-16 08:23:10','2026-02-25','approvata',NULL);
 /*!40000 ALTER TABLE `richieste_bibliotecario` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1205,7 +1193,7 @@ CREATE TABLE `utente_badge` (
   KEY `codice_alfanumerico` (`codice_alfanumerico`),
   CONSTRAINT `utente_badge_ibfk_1` FOREIGN KEY (`id_badge`) REFERENCES `badge` (`id_badge`),
   CONSTRAINT `utente_badge_ibfk_2` FOREIGN KEY (`codice_alfanumerico`) REFERENCES `utenti` (`codice_alfanumerico`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1214,6 +1202,8 @@ CREATE TABLE `utente_badge` (
 
 LOCK TABLES `utente_badge` WRITE;
 /*!40000 ALTER TABLE `utente_badge` DISABLE KEYS */;
+INSERT INTO `utente_badge` VALUES
+(1,18,'00000C',1);
 /*!40000 ALTER TABLE `utente_badge` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1429,4 +1419,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-01-16  2:00:03
+-- Dump completed on 2026-01-16  9:31:57

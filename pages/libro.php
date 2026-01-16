@@ -33,6 +33,7 @@ if (!$isbn) {
     die("<h1>Errore</h1><p>ISBN non specificato.</p>");
 }
 
+// --- GESTIONE AZIONI POST ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     if (!$uid) {
@@ -40,6 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
          exit;
     }
 
+    // 1. PRENOTAZIONE COPIA
     if (isset($_POST['action']) && $_POST['action'] === 'prenota_copia') {
         $id_copia_target = filter_input(INPUT_POST, 'id_copia', FILTER_VALIDATE_INT);
 
@@ -47,7 +49,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             try {
                 $pdo->beginTransaction();
 
-                $stmt_loan_check = $pdo->prepare("SELECT 1 FROM prestiti p JOIN copie c ON p.id_copia = c.id_copia WHERE p.codice_alfanumerico = :uid AND c.isbn = :isbn AND p.data_restituzione IS NULL");
+                // A. Controllo se l'utente ha già UNA copia di questo libro in prestito (non restituita)
+                $stmt_loan_check = $pdo->prepare("
+                    SELECT 1 
+                    FROM prestiti p 
+                    JOIN copie c ON p.id_copia = c.id_copia 
+                    WHERE p.codice_alfanumerico = :uid 
+                    AND c.isbn = :isbn 
+                    AND p.data_restituzione IS NULL
+                ");
                 $stmt_loan_check->execute(['uid' => $uid, 'isbn' => $isbn]);
 
                 if ($stmt_loan_check->rowCount() > 0) {
@@ -56,18 +66,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     exit;
                 }
 
-                $stmt_res_check = $pdo->prepare("SELECT 1 FROM prenotazioni WHERE codice_alfanumerico = :uid AND id_copia = :id_copia AND data_assegnazione IS NULL");
-                $stmt_res_check->execute(['uid' => $uid, 'id_copia' => $id_copia_target]);
+                // B. Controllo se la SPECIFICA copia è libera (né in prestito a nessuno, né prenotata da nessuno)
+                $stmt_availability = $pdo->prepare("
+                    SELECT 
+                        (SELECT 1 FROM prestiti WHERE id_copia = :id_copia AND data_restituzione IS NULL) as is_loaned,
+                        (SELECT 1 FROM prenotazioni WHERE id_copia = :id_copia AND data_assegnazione IS NULL) as is_reserved
+                ");
+                $stmt_availability->execute(['id_copia' => $id_copia_target]);
+                $status = $stmt_availability->fetch(PDO::FETCH_ASSOC);
 
-                if ($stmt_res_check->rowCount() > 0) {
-                    $pdo->rollBack();
-                    header("Location: ./libro?isbn=" . $isbn . "&status=already_reserved_this");
-                    exit;
+                if ($status['is_loaned'] || $status['is_reserved']) {
+                    // Controlliamo se è prenotata proprio dall'utente corrente (caso raro refresh)
+                    $chk_self = $pdo->prepare("SELECT 1 FROM prenotazioni WHERE id_copia = ? AND codice_alfanumerico = ? AND data_assegnazione IS NULL");
+                    $chk_self->execute([$id_copia_target, $uid]);
+                    
+                    if ($chk_self->rowCount() > 0) {
+                        $pdo->rollBack();
+                        header("Location: ./libro?isbn=" . $isbn . "&status=already_reserved_this");
+                        exit;
+                    } else {
+                        $pdo->rollBack();
+                        header("Location: ./libro?isbn=" . $isbn . "&status=copy_taken"); // Qualcun altro l'ha presa
+                        exit;
+                    }
                 }
 
-                $stmt_cleanup = $pdo->prepare("DELETE p FROM prenotazioni p INNER JOIN copie c ON p.id_copia = c.id_copia WHERE p.codice_alfanumerico = :uid AND c.isbn = :isbn AND p.data_assegnazione IS NULL");
+                // C. Pulizia: Rimuovi eventuali altre prenotazioni attive di QUESTO utente per QUESTO isbn (switch copia)
+                $stmt_cleanup = $pdo->prepare("
+                    DELETE p FROM prenotazioni p 
+                    INNER JOIN copie c ON p.id_copia = c.id_copia 
+                    WHERE p.codice_alfanumerico = :uid 
+                    AND c.isbn = :isbn 
+                    AND p.data_assegnazione IS NULL
+                ");
                 $stmt_cleanup->execute(['uid' => $uid, 'isbn' => $isbn]);
 
+                // D. Inserisci la nuova prenotazione
                 $stmt_ins = $pdo->prepare("INSERT INTO prenotazioni (codice_alfanumerico, id_copia, data_prenotazione) VALUES (:uid, :id_copia, CURDATE())");
                 $stmt_ins->execute(['uid' => $uid, 'id_copia' => $id_copia_target]);
                 
@@ -77,12 +111,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             } catch (PDOException $e) {
                 if ($pdo->inTransaction()) $pdo->rollBack();
+                // Log $e->getMessage();
                 header("Location: ./libro?isbn=" . $isbn . "&status=error");
                 exit;
             }
         }
     }
 
+    // 2. RECENSIONI (Invariato nella logica, solo DB check)
     if (isset($_POST['submit_review'])) {
         $voto = filter_input(INPUT_POST, 'voto', FILTER_VALIDATE_INT);
         $raw_commento = $_POST['commento'] ?? '';
@@ -122,6 +158,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// --- MESSAGGI STATO ---
 if (isset($_GET['status'])) {
     switch ($_GET['status']) {
         case 'created': $server_message = "Recensione pubblicata con successo!"; break;
@@ -131,20 +168,34 @@ if (isset($_GET['status'])) {
         case 'toolong': $server_message = "Commento troppo lungo."; break;
         case 'invalid': $server_message = "Compila tutti i campi."; break;
         case 'error': $server_message = "Errore di sistema."; break;
-        case 'reserved_success': $server_message = "Prenotazione effettuata! Eventuali altre prenotazioni per questo libro sono state cancellate."; break;
-        case 'already_reserved_this': $server_message = "Sei già prenotato per questa specifica copia."; break;
-        case 'loan_active_error': $server_message = "Hai già questo libro in prestito! Restituiscilo prima di prenotarne un altro."; break;
+        case 'reserved_success': $server_message = "Prenotazione effettuata! Hai 48h per ritirarlo."; break;
+        case 'already_reserved_this': $server_message = "Hai già una prenotazione attiva per questa copia."; break;
+        case 'copy_taken': $server_message = "Ops! Questa copia è stata appena presa o prenotata da qualcun altro."; break;
+        case 'loan_active_error': $server_message = "Hai già questo libro in prestito! Restituiscilo prima di prenderne un altro."; break;
     }
 }
 
 try {
-    $stmt = $pdo->prepare("SELECT l.*, (SELECT editore FROM copie c WHERE c.isbn = l.isbn LIMIT 1) as editore_temp, (SELECT COUNT(*) FROM copie c LEFT JOIN prestiti p ON c.id_copia = p.id_copia AND p.data_restituzione IS NULL WHERE c.isbn = l.isbn AND p.id_prestito IS NULL) as numero_copie_disponibili FROM libri l WHERE l.isbn = ?");
+    // 1. INFO LIBRO & CONTEGGIO DISPONIBILITÀ (Esclude Prestiti attivi E Prenotazioni attive)
+    $stmt = $pdo->prepare("
+        SELECT l.*, 
+            (SELECT editore FROM copie c WHERE c.isbn = l.isbn LIMIT 1) as editore_temp, 
+            (SELECT COUNT(*) 
+             FROM copie c 
+             WHERE c.isbn = l.isbn 
+             AND c.id_copia NOT IN (SELECT id_copia FROM prestiti WHERE data_restituzione IS NULL)
+             AND c.id_copia NOT IN (SELECT id_copia FROM prenotazioni WHERE data_assegnazione IS NULL)
+            ) as numero_copie_disponibili 
+        FROM libri l 
+        WHERE l.isbn = ?
+    ");
     $stmt->execute([$isbn]);
     $libro = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($libro) {
         $libro['editore'] = $libro['editore_temp'] ?? 'N/D';
 
+        // Autori e Categorie
         $stmt = $pdo->prepare("SELECT a.nome, a.cognome FROM autori a JOIN autore_libro al ON al.id_autore = a.id_autore WHERE al.isbn = ?");
         $stmt->execute([$isbn]);
         $autori = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -153,19 +204,34 @@ try {
         $stmt->execute([$isbn]);
         $categorie = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
+        // Stats Recensioni
         $stmt = $pdo->prepare("SELECT CAST(AVG(voto) AS DECIMAL(3,1)) as media, COUNT(*) as totale FROM recensioni WHERE isbn = ?");
         $stmt->execute([$isbn]);
         $stats = $stmt->fetch(PDO::FETCH_ASSOC);
         $mediaVoto = $stats['media'] ? number_format((float)$stats['media'], 1) : 0;
         $totaleRecensioni = $stats['totale'];
 
+        // Recensione Utente e controllo "Ha Letto"
         if ($uid) {
-            $stmt = $pdo->prepare("SELECT r.*, u.username, u.codice_alfanumerico as id_recensore, (SELECT 1 FROM prestiti p JOIN copie c ON p.id_copia = c.id_copia WHERE p.codice_alfanumerico = u.codice_alfanumerico AND c.isbn = r.isbn LIMIT 1) as ha_letto FROM recensioni r JOIN utenti u ON r.codice_alfanumerico = u.codice_alfanumerico WHERE r.isbn = ? AND r.codice_alfanumerico = ?");
+            $stmt = $pdo->prepare("
+                SELECT r.*, u.username, u.codice_alfanumerico as id_recensore, 
+                (SELECT 1 FROM prestiti p JOIN copie c ON p.id_copia = c.id_copia WHERE p.codice_alfanumerico = u.codice_alfanumerico AND c.isbn = r.isbn LIMIT 1) as ha_letto 
+                FROM recensioni r 
+                JOIN utenti u ON r.codice_alfanumerico = u.codice_alfanumerico 
+                WHERE r.isbn = ? AND r.codice_alfanumerico = ?
+            ");
             $stmt->execute([$isbn, $uid]);
             $mia_recensione = $stmt->fetch(PDO::FETCH_ASSOC);
         }
 
-        $sqlAltri = "SELECT r.*, u.username, u.codice_alfanumerico as id_recensore, (SELECT 1 FROM prestiti p JOIN copie c ON p.id_copia = c.id_copia WHERE p.codice_alfanumerico = u.codice_alfanumerico AND c.isbn = r.isbn LIMIT 1) as ha_letto FROM recensioni r JOIN utenti u ON r.codice_alfanumerico = u.codice_alfanumerico WHERE r.isbn = ? ";
+        // Recensioni Altri
+        $sqlAltri = "
+            SELECT r.*, u.username, u.codice_alfanumerico as id_recensore, 
+            (SELECT 1 FROM prestiti p JOIN copie c ON p.id_copia = c.id_copia WHERE p.codice_alfanumerico = u.codice_alfanumerico AND c.isbn = r.isbn LIMIT 1) as ha_letto 
+            FROM recensioni r 
+            JOIN utenti u ON r.codice_alfanumerico = u.codice_alfanumerico 
+            WHERE r.isbn = ? 
+        ";
         if ($uid) { $sqlAltri .= " AND r.codice_alfanumerico != ? "; }
         $sqlAltri .= " ORDER BY r.data_commento DESC";
         
@@ -174,10 +240,28 @@ try {
         else $stmt->execute([$isbn]);
         $recensioni_altri = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        // Biblioteche
         $stmt_bib = $pdo->query("SELECT id, nome, indirizzo, lat, lon, orari FROM biblioteche");
         $lista_biblioteche = $stmt_bib->fetchAll(PDO::FETCH_ASSOC);
 
-        $sqlCopie = "SELECT c.id_copia, c.condizione, c.anno_edizione, c.id_biblioteca, b.nome as nome_biblioteca, b.indirizzo as indirizzo_biblioteca, b.lat, b.lon, (CASE WHEN p.id_prestito IS NOT NULL THEN 1 ELSE 0 END) as in_prestito, (SELECT COUNT(*) FROM prestiti p2 WHERE p2.id_copia = c.id_copia AND p2.codice_alfanumerico = :uid AND p2.data_restituzione IS NULL) as user_has_loan, (SELECT COUNT(*) FROM prenotazioni r2 WHERE r2.id_copia = c.id_copia AND r2.codice_alfanumerico = :uid AND r2.data_assegnazione IS NULL) as user_has_res FROM copie c JOIN biblioteche b ON c.id_biblioteca = b.id LEFT JOIN prestiti p ON c.id_copia = p.id_copia AND p.data_restituzione IS NULL WHERE c.isbn = :isbn ORDER BY in_prestito ASC, c.condizione DESC, b.nome ASC";
+        // Lista Copie Dettagliata
+        // La colonna 'in_prestito' vale 1 se c'è un prestito attivo O una prenotazione attiva
+        $sqlCopie = "
+            SELECT 
+                c.id_copia, c.condizione, c.anno_edizione, c.id_biblioteca, 
+                b.nome as nome_biblioteca, b.indirizzo as indirizzo_biblioteca, b.lat, b.lon, 
+                (CASE 
+                    WHEN EXISTS (SELECT 1 FROM prestiti p WHERE p.id_copia = c.id_copia AND p.data_restituzione IS NULL) THEN 1
+                    WHEN EXISTS (SELECT 1 FROM prenotazioni pren WHERE pren.id_copia = c.id_copia AND pren.data_assegnazione IS NULL) THEN 1
+                    ELSE 0 
+                END) as in_prestito, 
+                (SELECT COUNT(*) FROM prestiti p2 WHERE p2.id_copia = c.id_copia AND p2.codice_alfanumerico = :uid AND p2.data_restituzione IS NULL) as user_has_loan, 
+                (SELECT COUNT(*) FROM prenotazioni r2 WHERE r2.id_copia = c.id_copia AND r2.codice_alfanumerico = :uid AND r2.data_assegnazione IS NULL) as user_has_res 
+            FROM copie c 
+            JOIN biblioteche b ON c.id_biblioteca = b.id 
+            WHERE c.isbn = :isbn 
+            ORDER BY in_prestito ASC, c.condizione DESC, b.nome ASC
+        ";
         $stmt_c = $pdo->prepare($sqlCopie);
         $stmt_c->execute(['isbn' => $isbn, 'uid' => $query_uid]);
         $elenco_copie_dettagliato = $stmt_c->fetchAll(PDO::FETCH_ASSOC);
@@ -216,78 +300,24 @@ function getPfpPath($userId) {
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
-    /* ==========================================================================
-       SEZIONE: LAYOUT GENERALE E STICKY HEADER
-       ========================================================================== */
-    
-    /* [sticky_limit_wrapper]
-       Contenitore padre che avvolge tutto il contenuto (libro, mappa e lista copie)
-       Serve a definire fin dove l'elemento sticky può scorrere.
-    */
+    /* STILI LAYOUT E MAPPA (Invariati) */
     .sticky_limit_wrapper { position: relative; }
-
-    /* [sticky_header_wrapper]
-       La barra superiore che contiene il libro e la mappa.
-       'position: sticky' la fa rimanere incollata in alto durante lo scroll.
-       'pointer-events: none' serve a far passare i click attraverso gli spazi vuoti.
-    */
     .sticky_header_wrapper {
         position: -webkit-sticky; position: sticky; top: 0; z-index: 800; 
         background-color: #fcfcfc; border-bottom: 1px solid #ddd; padding: 20px 0;
         box-shadow: 0 4px 10px rgba(0,0,0,0.05); pointer-events: none;
     }
-
-    /* [book_map_row]
-       Contenitore Flexbox che affianca la colonna del libro (sinistra) e la mappa (destra).
-    */
     .book_map_row { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; width: 100%; max-width: 98vw; margin: 0 auto; }
-
-    /* ==========================================================================
-       SEZIONE: DETTAGLI LIBRO (Colonna Sinistra)
-       ========================================================================== */
-
-    /* [col_libro]
-       Colonna di sinistra contenente l'immagine e i dettagli del libro.
-       'pointer-events: auto' riabilita i click disabilitati dal wrapper sticky.
-    */
     .col_libro { flex: 1 1 500px; min-width: 300px; pointer-events: auto; }
-
-    /* [book_hero_card] Card principale del libro */
     .book_hero_card { margin-bottom: 0; height: auto; background: transparent; box-shadow: none; }
-
-    /* [book_desc_text] Testo della trama. Ha una max-height e overflow per gestire trame lunghe */
     .book_desc_text { max-height: 250px; overflow-y: auto; padding-right: 5px; scrollbar-width: thin; }
-
-    /* ==========================================================================
-       SEZIONE: MAPPA (Colonna Destra)
-       ========================================================================== */
-
-    /* [col_mappa]
-       Colonna di destra contenente il box della mappa Leaflet.
-    */
     .col_mappa { flex: 1 1 400px; min-width: 300px; display: flex; flex-direction: column; pointer-events: auto; }
-
-    /* [mappa_wrapper] Box bianco che racchiude il div #map */
     .mappa_wrapper { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; height: 100%; min-height: 450px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-
-    /* [map] L'elemento HTML dove Leaflet renderizza la mappa */
     #map { flex-grow: 1; width: 100%; border-radius: 4px; min-height: 350px; }
     
-    /* ==========================================================================
-       SEZIONE: LISTA COPIE (Sotto Mappa e Libro)
-       ========================================================================== */
-
-    /* [copies_container] Contenitore generale della lista copie */
     .copies_container { max-width: 1100px; margin: 40px auto; padding: 0 20px; min-height: 200px; }
-
-    /* [copy_banner]
-       La singola riga/banner che rappresenta una copia fisica del libro.
-       Contiene immagine, titolo, condizione e pulsante prenota.
-    */
     .copy_banner { display: flex; align-items: center; background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 15px; transition: all 0.2s ease; cursor: pointer; gap: 20px; position: relative; z-index: 5; }
     .copy_banner:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.08); border-color: #bbb; }
-    
-    /* [active-highlight] Classe aggiunta via JS quando si clicca un banner */
     .copy_banner.active-highlight { border: 2px solid #3498db; background-color: #f0f8ff; }
 
     .copy_img { width: 60px; height: 85px; object-fit: cover; border-radius: 4px; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
@@ -295,40 +325,27 @@ function getPfpPath($userId) {
     .copy_title { font-weight: bold; font-size: 1.1rem; margin-bottom: 4px; color: #2c3e50; }
     .copy_meta { font-size: 0.9rem; color: #555; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
 
-    /* [cond-bar-wrapper] La barra grafica a segmenti per la condizione (0-3) */
     .cond-bar-wrapper { display: flex; gap: 2px; align-items: center; background: #eee; padding: 2px; border-radius: 3px; }
     .cond-segment { width: 10px; height: 10px; border-radius: 1px; background-color: #ddd; }
 
     .copy_library_info { margin-top: 5px; font-size: 0.95rem; color: #333; }
     .copy_actions { flex-shrink: 0; position: relative; }
-
-    /* [btn_prenota] Pulsante per prenotare la copia */
     .btn_prenota { background-color: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.2s; min-width: 120px; }
     .btn_prenota:hover { background-color: #2980b9; }
-    
-    /* [btn_disabled] Stile per pulsante disabilitato (es. già prenotato) */
     .btn_disabled { background-color: #bdc3c7; color: #7f8c8d; cursor: not-allowed; }
     .btn_disabled:hover { background-color: #bdc3c7; }
 
-    /* [badge_read] Il badge verde "Letto" nelle recensioni */
     .badge_read { display: inline-flex; align-items: center; gap: 5px; font-size: 0.8em; font-weight: 600; color: #27ae60; background-color: #eafaf1; padding: 2px 8px; border-radius: 12px; margin-left: 10px; border: 1px solid #27ae60; }
     .badge_read svg { width: 14px; height: 14px; fill: #27ae60; }
 
-    /* [load_more_btn] Pulsante "Mostra altre copie" */
     .load_more_btn { display: block; width: 200px; margin: 20px auto; padding: 10px; background: #eee; border: 1px solid #ccc; text-align: center; border-radius: 20px; cursor: pointer; font-weight: bold; color: #555; }
     .load_more_btn:hover { background: #ddd; }
 
-    /* ==========================================================================
-       SEZIONE: TOOLTIP E POPUP
-       ========================================================================== */
-
-    /* Tooltip personalizzato che appare sui pulsanti disabilitati */
     .tooltip-wrapper { position: relative; display: inline-block; }
     .tooltip-wrapper:hover .custom-tooltip { visibility: visible; opacity: 1; }
     .custom-tooltip { visibility: hidden; width: 160px; background-color: #333; color: #fff; text-align: center; border-radius: 6px; padding: 8px; position: absolute; z-index: 100; bottom: 125%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; font-size: 0.8rem; font-weight: normal; pointer-events: none; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
     .custom-tooltip::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #333 transparent transparent transparent; }
 
-    /* Override Z-Index per popup Leaflet e controlli mappa */
     .leaflet-pane.leaflet-popup-pane { z-index: 10000 !important; }
     .leaflet-control-resetmap { background: white; padding: 6px 10px; border-radius: 4px; border: 1px solid #888; cursor: pointer; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); margin-top: 5px; }
     .leaflet-control-resetmap:hover { background: #f0f0f0; }
@@ -394,7 +411,7 @@ $title = $libro['titolo'] ?? 'Libro';
                                 <h3 style="margin-top:0; margin-bottom:10px; font-size:1.1rem; color:#333;">Disponibilità in zona</h3>
                                 <p style="font-size: 0.85em; margin-bottom: 10px; color:#666;">
                                     <span style="color: green; font-weight: bold;">&#9679;</span> Disponibile &nbsp;
-                                    <span style="color: #FFD700; font-weight: bold; text-shadow: 0px 0px 1px #999;">&#9679;</span> In prestito &nbsp;
+                                    <span style="color: #FFD700; font-weight: bold; text-shadow: 0px 0px 1px #999;">&#9679;</span> In uso / Prenotato &nbsp;
                                     <span style="color: red; font-weight: bold;">&#9679;</span> Non disp.
                                 </p>
                                 <div id="map"></div>
@@ -535,7 +552,7 @@ $title = $libro['titolo'] ?? 'Libro';
         
         for (let i = displayedCount; i < nextLimit; i++) {
             const copy = allCopies[i];
-            const isLoaned = copy.in_prestito == 1;
+            const isUnavailable = copy.in_prestito == 1; // 1 significa IN PRESTITO oppure PRENOTATO da altri
             const isUserLoan = copy.user_has_loan == 1;
             const isUserRes = copy.user_has_res == 1;
             
@@ -562,12 +579,15 @@ $title = $libro['titolo'] ?? 'Libro';
                 btnDisabledAttr = "disabled";
                 tooltipText = "Hai già una prenotazione attiva per questa copia";
             } 
-            else if (isLoaned) {
-                btnText = "Prenota (Coda)";
+            else if (isUnavailable) {
+                btnText = "Non disponibile";
+                btnClass += " btn_disabled";
+                btnDisabledAttr = "disabled";
+                tooltipText = "Copia attualmente in prestito o già prenotata";
             }
 
-            const statusBadge = isLoaned 
-                ? '<span style="color:#f39c12; font-weight:bold; margin-right:10px;">&#9679; In Prestito</span>'
+            const statusBadge = isUnavailable 
+                ? '<span style="color:#f39c12; font-weight:bold; margin-right:10px;">&#9679; In Uso / Prenotato</span>'
                 : '<span style="color:#27ae60; font-weight:bold; margin-right:10px;">&#9679; Disponibile</span>';
 
             const condBar = renderCondBar(parseInt(copy.condizione));
@@ -618,6 +638,7 @@ $title = $libro['titolo'] ?? 'Libro';
         if (displayedCount >= total) { btn.style.display = 'none'; } else { btn.style.display = 'block'; }
     }
 
+    // MAPPA E UTILS (Invariati)
     function highlightMarker(bibId) { const marker = libraryMarkers[bibId]; if(!marker) return; marker.setZIndexOffset(2000); if(marker._icon) { marker._icon.style.transition = "transform 0.2s"; marker._icon.style.transform += " scale(1.2)"; } }
     function resetMarker(bibId) { const marker = libraryMarkers[bibId]; if(!marker) return; if(marker._icon) { marker._icon.style.transform = marker._icon.style.transform.replace(" scale(1.2)", ""); } marker.setZIndexOffset(marker.options.zIndexOffset || 0); }
     function activateMarker(bibId) { const marker = libraryMarkers[bibId]; if(!marker) return; map.setView(marker.getLatLng(), 14); marker.openPopup(); if(marker._icon) { marker._icon.style.transform += " scale(1.3)"; } }
@@ -657,7 +678,7 @@ $title = $libro['titolo'] ?? 'Libro';
             let statoTesto = '<span style="color:red; font-weight:bold;">Non disponibile</span>';
             let zIndex = 0; 
             if (idsGreen.some(id => id == bib.id)) { icona = greenIcon; statoTesto = '<span style="color:green; font-weight:bold;">Disponibile qui</span>'; zIndex = 1000; } 
-            else if (idsLoaned.some(id => id == bib.id)) { icona = yellowIcon; statoTesto = '<span style="color:#FFD700; font-weight:bold;">In prestito (Prenotabile)</span>'; zIndex = 500; }
+            else if (idsLoaned.some(id => id == bib.id)) { icona = yellowIcon; statoTesto = '<span style="color:#FFD700; font-weight:bold;">In uso / Prenotato</span>'; zIndex = 500; }
             const marker = L.marker([bib.lat, bib.lon], { icon: icona, zIndexOffset: zIndex }).addTo(map);
             libraryMarkers[bib.id] = marker;
             const popupContent = `<div style="font-family: sans-serif; min-width: 200px;"><strong style="font-size:14px;">${bib.nome}</strong><br><small>${bib.indirizzo}</small><br><div style="margin: 8px 0;">${statoTesto}</div><hr style="margin:5px 0; border:0; border-top:1px solid #eee;"><div style="font-size:12px; line-height:1.4;">${bib.orari ? bib.orari : orariStandard}</div></div>`;
