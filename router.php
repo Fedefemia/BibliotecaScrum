@@ -30,6 +30,9 @@ $whitelist = [
     '/admin/dashboard-report' => 'pages/admin/D_report.php',
     '/admin/dashboard-recensioni' => 'pages/admin/D_recensioni.php',
     '/cover-fetcher'=> 'pages/admin/coverFetcher.php',
+    '/admin/dashboard-report' => 'pages/admin/D_report.php',
+    '/admin/pdf' => 'pages/admin/export_pdf.php',
+    '/admin/xml' => 'pages/admin/export_xml.php',
     
     //bibliotecario
     '/bibliotecario/dashboard-gestioneprestiti' => 'pages/bibliotecario/D_gestioneprestiti.php',
