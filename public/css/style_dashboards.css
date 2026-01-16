@@ -1,6 +1,6 @@
 .dashboard_cards_con {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(10, 1fr);
     grid-template-rows: repeat(2, 1fr);
     grid-column-gap: 10px;
     grid-row-gap: 10px;
@@ -57,13 +57,16 @@
     margin-bottom: 10px;
 }
 
-.dashboard_card_1 { grid-area: 1 / 1 / 2 / 2; }
-.dashboard_card_2 { grid-area: 1 / 2 / 2 / 4; }
-.dashboard_card_3 { grid-area: 1 / 4 / 2 / 6; }
-.dashboard_card_4 { grid-area: 1 / 6 / 2 / 7; }
+
+.dashboard_card_1 { grid-area: 1 / 1 / 2 / 3; }
+.dashboard_card_2 { grid-area: 1 / 3 / 2 / 6; }
+.dashboard_card_3 { grid-area: 1 / 6 / 2 / 9; }
+.dashboard_card_4 { grid-area: 1 / 9 / 2 / 11; }
 .dashboard_card_5 { grid-area: 2 / 1 / 3 / 3; }
 .dashboard_card_6 { grid-area: 2 / 3 / 3 / 5; }
 .dashboard_card_7 { grid-area: 2 / 5 / 3 / 7; }
+.dashboard_card_8 { grid-area: 2 / 7 / 3 / 9; }
+.dashboard_card_9 { grid-area: 2 / 9 / 3 / 11; }
 
 
 .dashboard_card_2_1 { grid-area: 1 / 1 / 2 / 2; }

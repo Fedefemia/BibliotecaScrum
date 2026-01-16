@@ -241,10 +241,19 @@ body {
 =============================== */
 @media (max-width: 768px) {
 
-    body {
-        padding: 0;
+    html {
+        overflow-x: hidden;
     }
 
+    body {
+        padding: 0;
+        margin: 0;
+    }
+
+    .contents {
+        padding: 0;
+        margin: 0;
+    }
 
     /* ===============================
        --- NAVBAR ---
@@ -294,6 +303,7 @@ body {
         justify-content: space-between;
         border-top: 1px solid var(--color_accent_medium);
         padding: 8px 8px 0 8px;
+        flex-direction: row-reverse;
     }
 
     .navbar_rigth_rigth, .navbar_rigth_left {

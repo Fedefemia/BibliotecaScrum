@@ -20,7 +20,7 @@ try {
     $total = (int) ($stmCnt->fetchColumn() ?: 0);
 
     // fetch page
-    $stm = $pdo->prepare("SELECT * FROM badge ORDER BY nome ASC LIMIT :lim OFFSET :off");
+    $stm = $pdo->prepare("SELECT * FROM badge ORDER BY root ASC LIMIT :lim OFFSET :off");
     $stm->bindValue(':lim', $perPage, PDO::PARAM_INT);
     $stm->bindValue(':off', $offset, PDO::PARAM_INT);
     $stm->execute();

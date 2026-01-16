@@ -8,6 +8,19 @@ require_once 'db_config.php';
 require_once './src/includes/codiceFiscaleMethods.php';
 require_once './phpmailer.php';
 
+// --- CARICAMENTO COMUNI DAL FILE JSON ---
+$pathComuni = './src/comuni.json';
+$listaComuni = [];
+if (file_exists($pathComuni)) {
+    $jsonContent = file_get_contents($pathComuni);
+    $listaComuni = json_decode($jsonContent, true);
+    // Ordina alfabeticamente per nome per comodità nella datalist
+    usort($listaComuni, function($a, $b) {
+        return strcmp($a['nome'], $b['nome']);
+    });
+}
+// ----------------------------------------
+
 $registratiConCodice = isset($_GET['mode']) && $_GET['mode'] === 'manuale';
 $tipologia = $registratiConCodice ? 'manuale' : 'automatico';
 
@@ -22,7 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     $data = $_POST['data_nascita'] ?? '';
     $sesso = $_POST['sesso'] ?? '';
-    $codice_comune = strtoupper(trim($_POST['comune_nascita'] ?? ''));
+    // Qui riceviamo il CODICE dal campo hidden, non il nome
+    $codice_comune = strtoupper(trim($_POST['comune_nascita'] ?? '')); 
     $cf_input = strtoupper(trim($_POST['codice_fiscale'] ?? ''));
 
     if (!isset($pdo)) {
@@ -44,13 +58,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $cf_finale = $cf_input;
             } else {
                 if (strlen($codice_comune) !== 4)
-                    throw new Exception("Il codice catastale deve avere 4 caratteri.");
+                    throw new Exception("Seleziona un comune valido dalla lista per calcolare il codice catastale.");
+                
                 if ($nome && $cognome && $data && $sesso && $codice_comune) {
                     $cf_finale = generateCodiceFiscale($nome, $cognome, $data, $sesso, $codice_comune);
                     if (!$cf_finale)
                         throw new Exception("Errore nel calcolo del codice fiscale.");
                 } else {
-                    throw new Exception("Compila correttamente Data, Sesso e Codice Comune per calcolare il CF.");
+                    throw new Exception("Compila correttamente Data, Sesso e Comune per calcolare il CF.");
                 }
             }
 
@@ -161,8 +176,23 @@ $page_css = "./public/css/style_forms.css";
         <?php } else { ?>
             <div class="form_row">
                 <div>
-                    <label class="form_2_label" for="comune_nascita">Comune di Nascita:</label>
-                    <input class="form_2_input_string" placeholder="Comune di Nascita" required type="text" id="comune_nascita" name="comune_nascita">
+                    <label class="form_2_label" for="input_comune_visuale">Comune di Nascita:</label>
+                    
+                    <input class="form_2_input_string" 
+                           list="lista_comuni_data" 
+                           id="input_comune_visuale" 
+                           placeholder="Cerca comune..." 
+                           required 
+                           autocomplete="off"
+                           onchange="aggiornaCodiceComune(this)">
+                    
+                    <datalist id="lista_comuni_data">
+                        <?php foreach ($listaComuni as $comune): ?>
+                            <option value="<?php echo htmlspecialchars($comune['nome']); ?>"></option>
+                        <?php endforeach; ?>
+                    </datalist>
+
+                    <input type="hidden" id="comune_nascita" name="comune_nascita">
                 </div>
                 <div>
                     <label class="form_2_label" for="data_nascita">Data di Nascita:</label>
@@ -200,13 +230,32 @@ $page_css = "./public/css/style_forms.css";
 </html>
 
 <script>
+// Passiamo l'array PHP a JavaScript
+const comuniData = <?php echo json_encode($listaComuni); ?>;
+
 function redirectConCodice(conCodice) {
     if (conCodice) {
-        // Vai alla modalità manuale (con codice fiscale)
         window.location.href = '?mode=manuale';
     } else {
-        // Vai alla modalità automatica (senza codice fiscale)
         window.location.href = '?';
+    }
+}
+
+function aggiornaCodiceComune(inputElement) {
+    const nomeSelezionato = inputElement.value;
+    const hiddenInput = document.getElementById('comune_nascita');
+    
+    // Cerca il comune nell'array
+    const comuneTrovato = comuniData.find(c => c.nome.toLowerCase() === nomeSelezionato.toLowerCase());
+    
+    if (comuneTrovato) {
+        // Se trovato, imposta il codice nel campo nascosto
+        hiddenInput.value = comuneTrovato.codice;
+        // Opzionale: feedback visivo o log
+        // console.log("Codice impostato: " + comuneTrovato.codice);
+    } else {
+        // Se non trovato (utente ha scritto un nome non valido), resetta il codice
+        hiddenInput.value = "";
     }
 }
 </script>

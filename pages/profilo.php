@@ -19,7 +19,10 @@ $uid = $_SESSION['codice_utente'] ?? null;
 
 if (!$uid) { header("Location: ./login"); exit; }
 if (!isset($pdo)) { die('Errore connessione DB.'); }
-//
+
+/* -----------------------------------------------------------
+   GESTIONE AJAX (Username & Email)
+----------------------------------------------------------- */
 if (isset($_POST['ajax_username']) && $uid) {
     header('Content-Type: application/json');
     $new_user = trim($_POST['ajax_username']);
@@ -247,7 +250,7 @@ $stm = $pdo->prepare("
 $stm->execute([$uid]);
 $libri_letti = $stm->fetchAll(PDO::FETCH_ASSOC);
 
-/* ---- COBRA STATISTICHE AGGIORNATE CON MEDIA CORRETTA ---- */
+/* ---- STATISTICHE AGGIORNATE CON MEDIA CORRETTA ---- */
 $totale_libri_letti = count($libri_letti);
 $stm = $pdo->prepare("SELECT MIN(data_restituzione) as inizio, MAX(data_restituzione) as fine FROM prestiti WHERE codice_alfanumerico = ? AND data_restituzione IS NOT NULL");
 $stm->execute([$uid]);

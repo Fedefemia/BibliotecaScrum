@@ -29,7 +29,7 @@ $whitelist = [
     '/admin/dashboard-utenti' => 'pages/admin/D_utenti.php',
     '/admin/dashboard-report' => 'pages/admin/D_report.php',
     '/admin/dashboard-recensioni' => 'pages/admin/D_recensioni.php',
-    '/cover-fetcher'=> 'pages/admin/coverFetcher.php',
+    '/cover-fetcher'=> 'coverFetcher.php',
     '/admin/dashboard-report' => 'pages/admin/D_report.php',
     '/admin/pdf' => 'pages/admin/export_pdf.php',
     '/admin/xml' => 'pages/admin/export_xml.php',
@@ -38,6 +38,7 @@ $whitelist = [
     '/bibliotecario/dashboard-gestioneprestiti' => 'pages/bibliotecario/D_gestioneprestiti.php',
     '/bibliotecario/dashboard-aggiuntaprestiti' => 'pages/bibliotecario/D_aggiuntaprestiti.php',
     '/bibliotecario/dashboard-richieste' => 'pages/bibliotecario/D_richieste.php',
+    '/bibliotecario/gestione-multe' => 'pages/bibliotecario/gestione-multe.php',
 
 ];
 
