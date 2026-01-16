@@ -98,7 +98,7 @@ if (isset($_SESSION['codice_utente']) && isset($pdo)) {
 
             <?php if (isset($_SESSION['logged']) && $_SESSION['logged'] === true) { ?>
                 <div class="dropdown">
-                    <div onclick="toggleNotifiche()" style="cursor: pointer; display: flex; align-items: center; position: relative;">
+                    <div onclick="toggleNotifiche()"">
                         <img src="<?= $path ?>public/assets/icon_notification.png" alt="notifica" class="notifica_icon">
                         
                         <?php if (count($lista_notifiche) > 0): ?>
@@ -215,6 +215,7 @@ if (isset($_SESSION['codice_utente']) && isset($pdo)) {
         }
     }
 
+    /*
     window.onclick = function(event) {
         if (!event.target.matches('.navbar_pfp')) {
             var dropdowns = document.getElementsByClassName("dropdown_content");
@@ -225,5 +226,11 @@ if (isset($_SESSION['codice_utente']) && isset($pdo)) {
                 }
             }
         }
-    }
+    }*/
 </script>
+
+<style>
+    .show {
+        display: block;
+    }
+</style>
