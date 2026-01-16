@@ -388,15 +388,19 @@ require_once './src/includes/navbar.php';
             modal.style.display = "none";
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const overlay = document.getElementById('loading_overlay');
-            document.querySelectorAll('.trigger_loader').forEach(btn => {
-                btn.addEventListener('click', () => overlay.style.display = 'flex');
-            });
-            document.querySelectorAll('.form_spam_protect').forEach(form => {
-                form.addEventListener('submit', () => overlay.style.display = 'flex');
-            });
-        });
+        function hideLoader() {
+            const loader = document.getElementById('loading_overlay');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', hideLoader);
+        window.addEventListener('load', hideLoader);
+        setTimeout(hideLoader, 3000);
     </script>
 
 <?php require_once './src/includes/footer.php'; ?>

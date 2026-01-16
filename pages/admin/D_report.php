@@ -180,341 +180,196 @@ if (isset($pdo) && $pdo instanceof PDO) {
     }
 }
 
-$title = "Dashboard Analitica";
+// ---------------- HTML HEADER ----------------
 $path = "../";
+$title = "Reportistica - Dashboard";
+$page_css = "../public/css/style_dashboards.css";
 require_once './src/includes/header.php';
 require_once './src/includes/navbar.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <div class="dashboard_container">
+
+        <div class="page_header">
+            <h1 class="page_title">Dashboard Analitica</h1>
+            <div class="header_actions">
+                <button class="general_button_dark" onclick="window.print()">
+                    Stampa Report
+                </button>
+            </div>
+        </div>
+
+        <div class="report_grid_kpi">
+            <div class="kpi_card">
+                <div class="kpi_header">
+                    <span class="kpi_label">Titoli in Catalogo</span>
+                    <span class="kpi_icon">📚</span>
+                </div>
+                <div class="kpi_value"><?= $kpi['totale_titoli'] ?></div>
+            </div>
+
+            <div class="kpi_card">
+                <div class="kpi_header">
+                    <span class="kpi_label">Copie Fisiche</span>
+                    <span class="kpi_icon">📦</span>
+                </div>
+                <div class="kpi_value"><?= $kpi['copie_fisiche'] ?></div>
+            </div>
+
+            <div class="kpi_card kpi_border_accent">
+                <div class="kpi_header">
+                    <span class="kpi_label">Prestiti in Corso</span>
+                    <span class="kpi_icon">📖</span>
+                </div>
+                <div class="kpi_value"><?= $kpi['prestiti_attivi'] ?></div>
+            </div>
+
+            <div class="kpi_card kpi_border_warning">
+                <div class="kpi_header">
+                    <span class="kpi_label">Scadono Oggi</span>
+                    <span class="kpi_icon">⚠️</span>
+                </div>
+                <div class="kpi_value"><?= $kpi['scadenza_oggi'] ?></div>
+            </div>
+        </div>
+
+        <div class="report_grid_charts">
+            <div class="chart_card">
+                <div class="chart_header_row">
+                    <h3 class="chart_title">Stato Copie</h3>
+                </div>
+                <div class="chart_box">
+                    <canvas id="pieDispo"></canvas>
+                </div>
+            </div>
+
+            <div class="chart_card">
+                <div class="chart_header_row">
+                    <h3 class="chart_title">Andamento Prestiti</h3>
+                </div>
+                <div class="chart_box">
+                    <canvas id="lineTrend"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="report_grid_charts">
+            <div class="chart_card">
+                <div class="chart_header_row">
+                    <h3 class="chart_title">Categorie Top</h3>
+                </div>
+                <div class="chart_box">
+                    <canvas id="barCategorie"></canvas>
+                </div>
+            </div>
+
+            <div class="chart_card">
+                <div class="chart_header_row">
+                    <h3 class="chart_title">Utenza</h3>
+                </div>
+                <div class="chart_box">
+                    <canvas id="doughnutRuoli"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="chart_card mt-large">
+            <div class="chart_header_row">
+                <h3 class="chart_title">Top 10 Libri più richiesti</h3>
+            </div>
+            <div class="chart_box_large">
+                <canvas id="barLibri"></canvas>
+            </div>
+        </div>
+
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        :root {
-            --bg-main: #faf7f0;
-            --bg-card: #ffffff;
-            --bg-accent: #eae3d2;
-            --text-main: #333;
-            --text-muted: #666;
-            --accent-primary: #3f5135;
-            --accent-secondary: #8b9a7c;
-            --accent-warning: #f1c40f;
-            --accent-danger: #c0392b;
-        }
-        body { background-color: var(--bg-main); font-family: 'Instrument Sans', sans-serif; color: var(--text-main); }
-        .navbar { min-height: 60px; padding: 0.75rem 1rem; }
-        .navbar .nav-link { padding: 0.5rem 1rem; font-weight: 600; color: #333; }
-        .navbar .nav-link.active { background-color: #4e73df; color: white; border-radius: 0.5rem; }
-        .card { background-color: var(--bg-card); border-radius: 18px; border: 1px solid #eee; box-shadow: 0 6px 18px rgba(0,0,0,0.05); }
-        .kpi-card { border-left: 5px solid var(--accent-primary); transition: transform 0.25s ease, box-shadow 0.25s ease; }
-        .kpi-card:hover { transform: translateY(-6px); box-shadow: 0 10px 22px rgba(0,0,0,0.08); }
-        .kpi-card .text-xs { font-size: 0.75rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; color: var(--accent-primary); }
-        .kpi-card i { color: var(--accent-primary); opacity: 0.25; }
-        .nav-pills { background-color: var(--bg-accent); border-radius: 14px; }
-        .nav-pills .nav-link { color: var(--text-main); font-weight: 600; border-radius: 10px; padding: 8px 18px; }
-        .nav-pills .nav-link.active { background-color: var(--accent-primary); color: #fff; }
-        h2, h3, h4, h5, h6 { font-family: "Young Serif", serif; color: #2c2c2c; }
-        .card h6 { font-family: "Instrument Sans", sans-serif; font-weight: 700; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 0.05em; }
-        .chart-container { position: relative; height: 260px; width: 100%; }
-        .border-warning { border-color: var(--accent-warning) !important; }
-        .list-group-item { background-color: transparent; border: none; padding: 12px 0; }
-        .list-group-item .badge { background-color: var(--bg-accent); color: var(--text-main); font-weight: 600; }
-        .table { font-family: "Instrument Sans", sans-serif; }
-        .table td { border: none; padding: 8px 4px; }
-        .table tr:not(:last-child) { border-bottom: 1px solid #eee; }
-        .btn-primary { background-color: var(--accent-primary); border: none; border-radius: 30px; font-weight: 600; }
-        .btn-primary:hover { background-color: #2f3f29; }
-        .text-muted { color: var(--text-muted) !important; }
-    </style>
-</head>
-<body>
+    <script>
+        // Configurazione Globale Font (preso da style_global)
+        Chart.defaults.font.family = "'Instrument Sans', sans-serif";
+        Chart.defaults.color = '#333';
 
-<div class="container-fluid py-4">
-    <div class="d-flex justify-content-end align-items-center mb-4 px-2 gap-2">
-        <a href="../admin/pdf" class="btn btn-danger btn-sm rounded-pill px-4 shadow-sm">
-            <i class="bi bi-file-earmark-pdf me-2"></i>Esporta PDF
-        </a>
-        <a href="../admin/xml" class="btn btn-warning btn-sm rounded-pill px-4 shadow-sm">
-            <i class="bi bi-file-earmark-code me-2"></i>Esporta XML
-        </a>
-    </div>
+        // 1. Stato copie fisiche
+        new Chart(document.getElementById('pieDispo'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Disponibili','In Prestito'],
+                datasets: [{
+                    data: [<?= $statoCopie['Disponibili'] ?>, <?= $statoCopie['In_Prestito'] ?>],
+                    backgroundColor: ['#aac99a', '#3f5135'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } }
+            }
+        });
 
-    <div class="row g-3 mb-4">
-        <?php
-        $metrics = [
-                ['label' => 'Titoli (Opere)', 'val' => 'totale_titoli', 'color' => '#4e73df', 'icon' => 'bi-journal-text'],
-                ['label' => 'Copie (Fisiche)', 'val' => 'copie_fisiche', 'color' => '#6610f2', 'icon' => 'bi-layers'],
-                ['label' => 'Prestiti Attivi', 'val' => 'prestiti_attivi', 'color' => '#1cc88a', 'icon' => 'bi-arrow-repeat'],
-                ['label' => 'Scadenze Oggi', 'val' => 'scadenza_oggi', 'color' => '#f6c23e', 'icon' => 'bi-bell'],
-                ['label' => 'Ritardi', 'val' => 'prestiti_scaduti', 'color' => '#e74a3b', 'icon' => 'bi-exclamation-triangle'],
-                ['label' => 'Utenti', 'val' => 'utenti_totali', 'color' => '#36b9cc', 'icon' => 'bi-people'],
-                ['label' => 'Multe', 'val' => 'multe_totali', 'color' => '#5a5c69', 'icon' => 'bi-cash']
-        ];
-        foreach($metrics as $m): ?>
-            <div class="col-6 col-md-4 col-xl">
-                <div class="card kpi-card h-100" style="border-color: <?= $m['color'] ?>;">
-                    <div class="card-body py-3">
-                        <div class="text-xs mb-1" style="color: <?= $m['color'] ?>;"><?= $m['label'] ?></div>
-                        <div class="d-flex align-items-center justify-content-between">
-                            <span class="h4 mb-0 fw-bold"><?= $kpi[$m['val']] ?></span>
-                            <i class="bi <?= $m['icon'] ?> opacity-25 fs-3"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        <?php endforeach; ?>
-    </div>
+        // 2. Trend Prestiti
+        new Chart(document.getElementById('lineTrend'), {
+            type: 'line',
+            data: {
+                labels: <?= json_encode(array_column($trendPrestiti, 'mese')) ?>,
+                datasets: [{
+                    label: 'Prestiti',
+                    data: <?= json_encode(array_column($trendPrestiti, 'totale')) ?>,
+                    borderColor: '#3f5135',
+                    backgroundColor: 'rgba(63, 81, 53, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: { maintainAspectRatio: false }
+        });
 
-    <ul class="nav nav-pills bg-white p-2 rounded shadow-sm mb-4" id="dashTabs">
-        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-attivita">Attività Prestiti</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-utenza">Utenza</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-patrimonio">Patrimonio</button></li>
-        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-alert">Scadenze e ritardi</button></li>
-    </ul>
+        // 3. Categorie
+        new Chart(document.getElementById('barCategorie'), {
+            type: 'bar',
+            indexAxis: 'y',
+            data: {
+                labels: <?= json_encode(array_column($catStoricoPrestiti, 'categoria')) ?>,
+                datasets: [{
+                    label: 'Prestiti',
+                    data: <?= json_encode(array_column($catStoricoPrestiti, 'conteggio')) ?>,
+                    backgroundColor: '#c5e0b7',
+                    borderRadius: 4
+                }]
+            },
+            options: { maintainAspectRatio: false }
+        });
 
-    <div class="tab-content">
-        <div class="tab-pane fade show active" id="tab-attivita">
-            <div class="row g-4">
-                <div class="col-lg-4">
-                    <div class="card p-4 h-100">
-                        <h6 class="fw-bold mb-4">Volume Prestiti</h6>
-                        <div class="chart-container"><canvas id="linePrestiti"></canvas></div>
-                    </div>
-                </div>
+        // 4. Ruoli
+        new Chart(document.getElementById('doughnutRuoli'), {
+            type: 'doughnut',
+            data: {
+                labels: <?= json_encode($ruoliLabels) ?>,
+                datasets: [{
+                    data: <?= json_encode($ruoliValori) ?>,
+                    backgroundColor: ['#3f5135', '#819e71', '#aac99a', '#f8f4e9']
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'right' } }
+            }
+        });
 
-                <div class="col-lg-4">
-                    <div class="card p-4 h-100">
-                        <h6 class="fw-bold mb-4 text-center">Categorie più prestate</h6>
-                        <div class="chart-container"><canvas id="piePrestitiCat"></canvas></div>
-                    </div>
-                </div>
+        // 5. Top Libri
+        new Chart(document.getElementById('barLibri'), {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode(array_map(fn($l)=>strlen($l['titolo'])>20?substr($l['titolo'],0,20).'...':$l['titolo'], $topLibri)) ?>,
+                datasets: [{
+                    label: 'N. Prestiti',
+                    data: <?= json_encode(array_column($topLibri, 'n_prestiti')) ?>,
+                    backgroundColor: '#3f5135',
+                    borderRadius: 4
+                }]
+            },
+            options: { maintainAspectRatio: false }
+        });
+    </script>
 
-                <div class="col-lg-4">
-                    <div class="card p-4 h-100">
-                        <h6 class="fw-bold mb-3 text-center">Ultimi 10 Prestiti</h6>
-                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                            <table class="table table-sm table-hover small mb-0">
-                                <thead>
-                                <tr>
-                                    <th>Titolo</th>
-                                    <th>Utente</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php foreach ($ultimiPrestiti as $up): ?>
-                                    <tr>
-                                        <td><?= $up['titolo'] ?></td>
-                                        <td><?= $up['nome'] . ' ' . $up['cognome'] ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-pane fade" id="tab-utenza">
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="card p-4"><h6>Ruoli Sistema</h6><div class="chart-container"><canvas id="barRuoli"></canvas></div></div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-4"><h6>Nuovi Iscritti (30gg)</h6><div class="chart-container"><canvas id="areaUtenti"></canvas></div></div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card p-4"><h6>Top Lettori</h6>
-                        <table class="table table-sm small">
-                            <tbody><?php foreach($topUtenti as $u): ?><tr><td><?= $u['nome'].' '.$u['cognome'] ?></td><td class="text-end fw-bold"><?= $u['tot'] ?></td></tr><?php endforeach; ?></tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="tab-pane fade" id="tab-patrimonio">
-            <div class="row g-4">
-                <div class="col-md-4"><div class="card p-4"><h6>Composizione Catalogo</h6><div class="chart-container"><canvas id="pieCat"></canvas></div></div></div>
-                <div class="col-md-4"><div class="card p-4"><h6>Stato Fisico Copie</h6><div class="chart-container"><canvas id="pieDispo"></canvas></div></div></div>
-                <div class="col-md-4"><div class="card p-4"><h6>I 10 Libri più richiesti</h6><div class="chart-container"><canvas id="barLibri"></canvas></div></div></div>
-            </div>
-        </div>
-
-        <div class="tab-pane fade" id="tab-alert">
-            <div class="row g-4">
-                <div class="col-lg-4">
-                    <div class="card p-4 h-100">
-                        <h6 class="fw-bold mb-3 text-warning">Prestiti in Scadenza</h6>
-                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                            <table class="table table-sm table-hover small mb-0">
-                                <thead>
-                                <tr>
-                                    <th>Titolo</th>
-                                    <th>Utente</th>
-                                    <th>Scadenza</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php foreach ($scadenzeProssime as $s): ?>
-                                    <tr>
-                                        <td><?= $s['titolo'] ?></td>
-                                        <td><?= $s['email'] ?></td>
-                                        <td><?= date('d/m/Y', strtotime($s['data_scadenza'])) ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card p-4 h-100">
-                        <h6 class="fw-bold mb-3 text-danger">Prestiti Scaduti</h6>
-                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                            <table class="table table-sm table-hover small mb-0">
-                                <thead>
-                                <tr>
-                                    <th>Titolo</th>
-                                    <th>Utente</th>
-                                    <th>Ritardo (gg)</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php foreach ($prestitiScaduti as $ps): ?>
-                                    <tr>
-                                        <td><?= $ps['titolo'] ?></td>
-                                        <td><?= $ps['nome'].' '.$ps['cognome'] ?></td>
-                                        <td><?= $ps['ritardo'] ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card p-4 h-100">
-                        <h6 class="fw-bold mb-3 text-dark">Multe Attive</h6>
-                        <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
-                            <table class="table table-sm table-hover small mb-0">
-                                <thead>
-                                <tr>
-                                    <th>Utente</th>
-                                    <th>Prestito</th>
-                                    <th>Importo (€)</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <?php foreach ($multeAttive as $multa): ?>
-                                    <tr>
-                                        <td><?= $multa['nome'].' '.$multa['cognome'] ?></td>
-                                        <td><?= $multa['titolo'] ?></td>
-                                        <td><?= number_format($multa['importo'], 2, ',', '.') ?></td>
-                                    </tr>
-                                <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    Chart.defaults.font.family = "'Inter', sans-serif";
-    Chart.defaults.color = '#858796';
-
-    // Refresh grafici quando cambio tab
-    document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(tab => {
-        tab.addEventListener('shown.bs.tab', () => window.dispatchEvent(new Event('resize')));
-    });
-
-    // 1. Linea Prestiti
-    new Chart(document.getElementById('linePrestiti'), {
-        type: 'line',
-        data: {
-            labels: <?= json_encode(array_column($trendPrestiti, 'mese')) ?>,
-            datasets: [{
-                label: 'Prestiti',
-                data: <?= json_encode(array_column($trendPrestiti, 'totale')) ?>,
-                borderColor: '#4e73df',
-                backgroundColor: 'rgba(78,115,223,0.05)',
-                fill: true,
-                tension: 0.3
-            }]
-        },
-        options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-
-    // 2. Categorie più prestate (Doughnut)
-    new Chart(document.getElementById('piePrestitiCat'), {
-        type: 'doughnut',
-        data: {
-            labels: <?= json_encode(array_column($catStoricoPrestiti, 'categoria')) ?>,
-            datasets: [{
-                data: <?= json_encode(array_column($catStoricoPrestiti, 'conteggio')) ?>,
-                backgroundColor: ['#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b','#858796']
-            }]
-        },
-        options: { maintainAspectRatio: false, cutout: '65%', plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } } }
-    });
-
-    // 3. Ruoli utenti
-    new Chart(document.getElementById('barRuoli'), {
-        type: 'bar',
-        data: { labels: <?= json_encode($ruoliLabels) ?>, datasets: [{ data: <?= json_encode($ruoliValori) ?>, backgroundColor: '#4e73df' }] },
-        options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-
-    // 4. Composizione catalogo
-    new Chart(document.getElementById('pieCat'), {
-        type: 'pie',
-        data: {
-            labels: <?= json_encode(array_column($distribuzioneCat, 'categoria')) ?>,
-            datasets: [{ data: <?= json_encode(array_column($distribuzioneCat, 'conteggio')) ?>, backgroundColor: ['#4e73df','#1cc88a','#36b9cc','#f6c23e','#e74a3b'] }]
-        },
-        options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-    });
-
-    // 5. Stato copie fisiche
-    new Chart(document.getElementById('pieDispo'), {
-        type: 'doughnut',
-        data: {
-            labels: ['Disponibili','In Prestito'],
-            datasets: [{ data: [<?= $statoCopie['Disponibili'] ?>,<?= $statoCopie['In_Prestito'] ?>], backgroundColor: ['#1cc88a','#f6c23e'] }]
-        },
-        options: { maintainAspectRatio: false }
-    });
-
-    // 6. Nuovi utenti ultimi 30 giorni
-    new Chart(document.getElementById('areaUtenti'), {
-        type: 'line',
-        data: { labels: <?= json_encode(array_column($trendUtenti,'giorno')) ?>, datasets: [{ data: <?= json_encode(array_column($trendUtenti,'nuovi')) ?>, borderColor: '#6f42c1', tension: 0.4 }] },
-        options: { maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-
-    // 7. Top libri
-    new Chart(document.getElementById('barLibri'), {
-        type: 'bar',
-        data: {
-            labels: <?= json_encode(array_map(fn($l)=>strlen($l['titolo'])>15?substr($l['titolo'],0,15).'...':$l['titolo'],$topLibri)) ?>,
-            datasets: [{ data: <?= json_encode(array_column($topLibri,'n_prestiti')) ?>, backgroundColor: '#36b9cc' }]
-        },
-        options: { indexAxis: 'y', maintainAspectRatio: false, plugins: { legend: { display: false } } }
-    });
-</script>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <?php require_once './src/includes/footer.php'; ?>
-</body>
-</html>
