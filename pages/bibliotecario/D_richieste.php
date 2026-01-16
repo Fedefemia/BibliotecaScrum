@@ -49,6 +49,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 case 'approva':
                     $stmt = $pdo->prepare("UPDATE richieste_bibliotecario SET stato = 'approvata' WHERE id_richiesta = ?");
                     $stmt->execute([$id_richiesta]);
+                    $stmt = $pdo->prepare("
+                    UPDATE prestiti 
+                    SET data_scadenza = DATE_ADD(data_scadenza, INTERVAL 7 DAY)
+                    WHERE prestito_id = ?
+                ");
+                    $stmt->execute([/*aggiungere prestito id a richieste*/]);
                     break;
 
                 case 'rifiuta':
