@@ -221,7 +221,7 @@ foreach ($scadenzeProssime as $s) {
 }
 $html .= "</table>";
 
-// Scrivi HTML nel PDF
+
 $pdf->writeHTML($html, true, false, true, false, '');
 
 // Nome dinamico e download automatico
