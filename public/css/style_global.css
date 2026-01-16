@@ -73,7 +73,7 @@ a {
 .instrument-sans {
     font-family: "Instrument Sans", sans-serif;
     font-optical-sizing: auto;
-    font-weight: 500;
+    font-weight: 400;
     font-style: normal;
 }
 
@@ -89,8 +89,6 @@ a {
 .text_underline {
     text-decoration: underline;
 }
-
-
 
 /* ===============================
    --- BODY ---
@@ -186,16 +184,9 @@ body {
 
 .navbar_pfp {
     border-radius: 50%;
-    border: solid 2px var(--color_accent_dark);
+    border: solid 1px var(--color_accent_dark);
     outline: solid 2px var(--color_accent_ligth);
     outline-offset: 1px;
-    width: 40px;
-    height: 40px;
-    object-fit: cover;
-    object-position: center;
-    aspect-ratio: 1 / 1;
-    display: block;
-    cursor: pointer;
 }
 
 .search_container {
@@ -236,6 +227,7 @@ body {
     padding-right: 8px;
 }
 
+
 .navbar_search_mobile_link {
     display: none;
 }
@@ -263,7 +255,6 @@ body {
         padding: 0;
         margin: 0;
     }
-
 
     /* ===============================
        --- NAVBAR ---
@@ -329,11 +320,10 @@ body {
         margin: 0;
         padding: 0 5px;
         text-align: center;
-        margin-right: 10px;
     }
 
     .navbar_icon {
-        height: 36px;
+        height: 30px;
     }
 
     .navbar_link {
@@ -341,70 +331,8 @@ body {
     }
 
     .navbar_pfp, .navbar_link_img {
-        width: 36px;
-        height: 36px;
+        height: 25px;
     }
-}
-
-
-/* ==============================
-   --- DROPDOWN ---
-============================== */
-.dropdown {
-    position: relative;
-    display: inline-block;
-}
-
-.dropdown_content {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 55px;
-    background-color: #eae3d2;
-    min-width: 180px;
-    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-    z-index: 1000;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #e0e0e0;
-}
-
-.dropdown_content a,
-.dropdown_content button {
-    display: block;
-    width: 100%;
-    padding: 14px 20px;
-    text-align: left;
-    border: none;
-    background: none;
-    background-color: transparent;
-    cursor: pointer;
-    font-family: 'Instrument Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--color_text_black);
-    text-decoration: none;
-    box-sizing: border-box;
-    margin: 0;
-    outline: none;
-}
-
-.dropdown_content a:hover,
-.dropdown_content button:hover {
-    background-color: var(--color_accent_ligth_high);
-    color: black;
-}
-
-.dropdown_content a {
-    border-bottom: 1px solid #f0f0f0;
-}
-.dropdown_content form {
-    margin: 0;
-    padding: 0;
-}
-
-.show {
-    display: block;
 }
 
 
@@ -535,10 +463,9 @@ body {
 }
 
 
-
-/* ===============================
-   --- BOTTONI DI BASE ---
-=============================== */
+    /* ===============================
+       --- BOTTONI DI BASE ---
+    =============================== */
 .general_button_dark {
     display: inline-flex;
     align-items: center;

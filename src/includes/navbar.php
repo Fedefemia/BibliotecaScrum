@@ -76,6 +76,199 @@ if (isset($_SESSION['codice_utente']) && isset($pdo)) {
 }
 ?>
 
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    .navbar_icon {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+        cursor: pointer;
+        display: block;
+    }
+
+    .navbar_pfp {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: center;
+        aspect-ratio: 1 / 1;
+        border: 2px solid #3f5135;
+        display: block;
+        cursor: pointer;
+    }
+
+    #navbar_pfp {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        position: relative;
+    }
+
+    .dropdown {
+        position: relative;
+        display: inline-block;
+        margin-left: 15px; 
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 55px;
+        background-color: #fff; /* Sfondo bianco più pulito */
+        min-width: 180px;
+        box-shadow: 0px 4px 20px rgba(0,0,0,0.15); /* Ombra più morbida */
+        z-index: 1000;
+        border-radius: 12px; /* Arrotondamento più moderno */
+        overflow: hidden;
+        border: 1px solid #f0f0f0;
+        /* APPLICA FONT GLOBALE AL DROPDOWN */
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* STILI SPECIFICI NOTIFICHE */
+    .dropdown-content.notifications {
+        min-width: 360px; 
+        right: 0; 
+    }
+
+    /* HEADER */
+    .notifica-header-title {
+        display: block;
+        padding: 12px 16px;
+        font-size: 15px;
+        font-weight: 600;
+        color: #3f5135;
+        background-color: #fcfbf5;
+        border-bottom: 1px solid #ececec;
+    }
+
+    /* --- LAYOUT RIGA NOTIFICA (FLEX) --- */
+    .notifica-row {
+        display: flex;
+        align-items: flex-start; 
+        justify-content: space-between;
+        border-bottom: 1px solid #f0f0f0;
+        background-color: #fff;
+        transition: background-color 0.2s;
+    }
+    
+    .notifica-row:hover {
+        background-color: #f9f9f9;
+    }
+
+    /* CONTENUTO TESTUALE (LINK) */
+    .notifica-link-content {
+        flex-grow: 1; 
+        padding: 14px 10px 14px 16px;
+        text-decoration: none;
+        color: #333;
+        display: block;
+    }
+
+    /* PULSANTE X (CHIUDI) */
+    .form-close-notifica {
+        margin: 0;
+        padding: 12px 10px; 
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    .btn-close-notifica {
+        background: none;
+        border: none;
+        color: #aaa;
+        font-size: 18px;
+        cursor: pointer;
+        padding: 5px;
+        line-height: 1;
+        transition: color 0.2s;
+    }
+    .btn-close-notifica:hover {
+        color: #dc3545; 
+    }
+
+    /* --- FOOTER (Mostra tutte + Pulisci) --- */
+    .notifica-footer {
+        display: flex;
+        justify-content: space-between; 
+        align-items: center;
+        background-color: #fafafa;
+        padding: 8px 16px;
+        border-top: 1px solid #ececec;
+    }
+
+    .link-mostra-tutte {
+        font-weight: 600;
+        color: #3f5135;
+        text-decoration: none;
+        font-size: 13px;
+        padding: 5px 0;
+    }
+    .link-mostra-tutte:hover {
+        text-decoration: underline;
+    }
+
+    /* PULSANTE PULISCI TUTTO */
+    .btn-clean-all {
+        background: none;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        color: #555;
+        cursor: pointer;
+        font-size: 12px;
+        padding: 4px 10px;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-family: inherit;
+        font-weight: 500;
+    }
+    .btn-clean-all:hover {
+        background-color: #3f5135;
+        color: #fff;
+        border-color: #3f5135;
+    }
+
+    /* TESTO INTERNO NOTIFICA */
+    .n-titolo { font-weight: 600; font-size: 14px; display: block; margin-bottom: 4px; color: #111; }
+    .n-preview { font-size: 13px; color: #666; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 250px; line-height: 1.4; }
+    .n-data { font-size: 11px; color: #999; display: block; margin-top: 6px; font-weight: 500; }
+
+    /* UNIFORMAZIONE DROPDOWN PROFILE */
+    .dropdown-content a, 
+    .dropdown-content button {
+        font-family: 'Inter', sans-serif;
+    }
+    
+    /* Stili generici bottoni e link nel dropdown */
+    .dropdown-content > a,
+    .dropdown-content > form > button {
+        display: block;
+        width: 100%;
+        padding: 12px 20px;
+        text-align: left;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-size: 14px;
+        color: #333;
+        text-decoration: none;
+        box-sizing: border-box;
+    }
+    .dropdown-content > a:hover,
+    .dropdown-content > form > button:hover {
+        background-color: #f5f5f5;
+    }
+
+    .show { display: block; }
+</style>
+
 <nav class="navbar">
     <div class="navbar_left">
         <a href="<?= $path ?>" class="navbar_link_img instrument-sans-semibold" id="navbar_logo">
@@ -86,7 +279,7 @@ if (isset($_SESSION['codice_utente']) && isset($pdo)) {
                 <button type="submit" class="search_icon_button">
                     <img src="<?= $path ?>public/assets/icon_search_dark.png" alt="Cerca" class="navbar_search_icon">
                 </button>
-                <input type="text" placeholder="Carca..." name="search"
+                <input type="text" placeholder="Search.." name="search"
                     class="navbar_search_input instrument-sans-semibold"
                     value="<?= isset($_GET['search']) ? $_GET['search'] : '' ?>">
             </form>
@@ -168,8 +361,8 @@ if (isset($_SESSION['codice_utente']) && isset($pdo)) {
                         <img src="<?= $pfpPath ?>" alt="pfp" class="navbar_pfp">
                     </div>
 
-                    <div id="navbarDropdown" class="dropdown_content">
-                        <a href="<?= $path ?>profilo">Profilo</a>
+                    <div id="navbarDropdown" class="dropdown-content">
+                        <a href="./profilo">Profilo</a>
                         
                         <?php if (checkAccess('amministratore') || checkAccess('bibliotecario')) { ?>
                             <a href="<?= $path ?>dashboard">Dashboard</a>
@@ -183,7 +376,7 @@ if (isset($_SESSION['codice_utente']) && isset($pdo)) {
                 </div>
 
             <?php } else { ?>
-                <a href="<?= $path ?>login" class="navbar_link instrument-sans-semibold text_underline">Accedi</a>
+                <a href="./login" class="navbar_link instrument-sans-semibold text_underline" style="margin-left: 15px;">Accedi</a>
             <?php } ?>
 
         </div>
@@ -216,8 +409,8 @@ if (isset($_SESSION['codice_utente']) && isset($pdo)) {
     }
 
     window.onclick = function(event) {
-        if (!event.target.matches('.navbar_pfp')) {
-            var dropdowns = document.getElementsByClassName("dropdown_content");
+        if (!event.target.closest('.dropdown') && !event.target.matches('.navbar_pfp') && !event.target.matches('.navbar_icon')) {
+            var dropdowns = document.getElementsByClassName("dropdown-content");
             for (var i = 0; i < dropdowns.length; i++) {
                 var openDropdown = dropdowns[i];
                 if (openDropdown.classList.contains('show')) {
