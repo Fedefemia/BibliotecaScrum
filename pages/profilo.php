@@ -281,6 +281,45 @@ if ($range_date['inizio']) {
     // Calcolo media mensile
     $media_mensile = round($totale_libri_letti / $mesi_totali, 1);
 }
+$stm = $pdo->prepare("
+    SELECT p.id_prestito, c.isbn, p.data_restituzione
+    FROM prestiti p
+    JOIN copie c ON p.id_copia = c.id_copia
+    WHERE p.codice_alfanumerico = ? AND p.data_restituzione IS NOT NULL
+    ORDER BY p.data_restituzione DESC
+");
+$stm->execute([$uid]);
+$libri_letti = $stm->fetchAll(PDO::FETCH_ASSOC);
+
+// CBR TOTALE LIBRI LETTI (TUTTE LE COPIE)
+$totale_libri_letti = count($libri_letti);
+
+// CBR RANGE DATE PER CALCOLO MEDIA MENSILE
+$stm = $pdo->prepare("
+    SELECT MIN(data_restituzione) as inizio, MAX(data_restituzione) as fine
+    FROM prestiti
+    WHERE codice_alfanumerico = ? AND data_restituzione IS NOT NULL
+");
+$stm->execute([$uid]);
+$range_date = $stm->fetch(PDO::FETCH_ASSOC);
+
+$media_mensile = 0;
+$mesi_totali = 1;
+
+if ($range_date['inizio']) {
+    $d1 = new DateTime($range_date['inizio']);
+    $d2 = new DateTime($range_date['fine'] ?? 'now'); // usa la data max se disponibile
+    $d2->setTime(23, 59, 59);
+
+    // Calcolo mesi totali considerando mese iniziale fino a quello finale
+    $mesi_totali = ($d2->format('Y') - $d1->format('Y')) * 12 + ($d2->format('n') - $d1->format('n')) + 1;
+
+    // Assicura almeno 1 mese per evitare divisione per zero
+    $mesi_totali = max($mesi_totali, 1);
+
+    // Calcolo media mensile
+    $media_mensile = round($totale_libri_letti / $mesi_totali, 1);
+}
 
 
 // CBR STORICO ULTIMI 6 MESI (TUTTE LE COPIE LETTE)
