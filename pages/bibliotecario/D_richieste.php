@@ -222,12 +222,13 @@ require_once './src/includes/navbar.php';
     </div>
 </div>
 
-<style>
-    /* Piccoli aggiustamenti stilistici per la tabella */
-    .table td { vertical-align: middle; }
-    .badge { font-size: 0.85em; padding: 0.5em 0.8em; }
-    .btn-sm { margin-left: 2px; }
-    .text-muted { color: #6c757d !important; }
-</style>
+
+    <style>
+        th, td {
+            padding: 15px;
+            border: solid 1px black;
+        }
+    </style>
+
 
 <?php require_once './src/includes/footer.php'; ?>
