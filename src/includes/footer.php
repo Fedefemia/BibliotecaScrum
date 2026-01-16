@@ -10,11 +10,11 @@
 
         <div class="footer_rigth instrument-sans-semibold">
             <div class="footer_links">
-                <a href="./contatti" class="footer_link">Contatti</a>
+                <a href="<?= $path ?>contatti" class="footer_link">Contatti</a>
                 <span class="footer_separator">-</span>
-                <a href="./privacy" class="footer_link">Privacy Policy</a>
+                <a href="<?= $path ?>privacy" class="footer_link">Privacy Policy</a>
                 <span class="footer_separator">-</span>
-                <a href="./terms" class="footer_link">Terms & Conditions</a>
+                <a href="<?= $path ?>terms" class="footer_link">Terms & Conditions</a>
             </div>
             <img src="<?= $path ?>public/assets/logo_ligth.png" alt="Icona Libro" class="footer_icon">
         </div>
