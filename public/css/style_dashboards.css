@@ -168,7 +168,7 @@
 }
 
 .admin_table td {
-    padding: 0 5px;
+    padding: 5px 10px;
     border-bottom: 1px solid var(--color_background_ligth);
     vertical-align: middle;
     color: var(--color_text_black);
@@ -453,3 +453,133 @@
     font-size: 1.2rem;
 }
 @keyframes fadeIn { from {opacity: 0} to {opacity: 1} }
+
+
+
+/* =========================================
+   --- REPORT DASHBOARD STYLES ---
+   ========================================= */
+
+/* Griglia responsive per i KPI */
+.report_grid_kpi {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-bottom: 60px;
+}
+
+/* Griglia per i grafici*/
+.report_grid_charts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* Card KPI specifica */
+.kpi_card {
+    background-color: var(--color_background_dark);
+    border-radius: 18px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(63, 81, 53, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+}
+
+.kpi_card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(63, 81, 53, 0.15);
+}
+
+.kpi_header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.kpi_label {
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color_accent_dark);
+}
+
+.kpi_value {
+    font-family: 'Young Serif', serif;
+    font-size: 2rem;
+    color: var(--color_text_black);
+    font-weight: 500;
+}
+
+.kpi_icon {
+    font-size: 1.5rem;
+    color: var(--color_accent_medium);
+    opacity: 0.5;
+}
+
+/* Contenitore Grafici */
+.chart_card {
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    border: 1px solid var(--color_background_dark);
+    display: flex;
+    flex-direction: column;
+}
+
+.chart_header_row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid var(--color_background_dark);
+    padding-bottom: 10px;
+}
+
+.chart_title {
+    font-family: 'Young Serif', serif;
+    font-size: 1.4rem;
+    color: var(--color_accent_dark);
+    margin: 0;
+}
+
+/* Navigazione Tab Report (stile pills) */
+.report_nav {
+    display: flex;
+    gap: 10px;
+    background-color: var(--color_background_dark);
+    padding: 5px;
+    border-radius: 12px;
+    width: fit-content;
+}
+
+.report_nav_btn {
+    border: none;
+    background: transparent;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-weight: 600;
+    color: var(--color_text_black);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.report_nav_btn.active {
+    background-color: var(--color_accent_dark);
+    color: var(--color_accent_ligth);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Utilità Layout */
+.w-100 { width: 100%; }
+.h-100 { height: 100%; }
+.mt-4 { margin-top: 1.5rem; }
+.text-center { text-align: center; }
