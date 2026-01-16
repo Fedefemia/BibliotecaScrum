@@ -42,15 +42,14 @@ try {
 }
 ?>
 
-<?php require_once './src/includes/header.php'; ?>
-<?php require_once './src/includes/navbar.php'; ?>
-
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Contatti - Rete Biblioteche Vicentine</title>
+<?php
+// ---------------- HTML HEADER ----------------
+$title = "Contatti - Biblioteca Scrum";
+$path = "./";
+$page_css = "./public/css/style_index.css";
+require './src/includes/header.php';
+require './src/includes/navbar.php';
+?>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -70,31 +69,26 @@ try {
             background: #f0f0f0;
         }
     </style>
-</head>
-
-<body>
-
-<header>
-    <h1>Contatti</h1>
-    <p>Rete Biblioteche Vicentine</p>
+<header class="index_hero">
+    <img src="./public/assets/icone_categorie/Location.png" alt="Logo" class="hero_icon">
+    <h1 class="hero_title">Contatti</h1>
 </header>
 
-<main>
-
-    <div>
-        <h2>Informazioni di Contatto</h2>
+<div class="infos_card_row instrument-sans">
+    <div class="infos_card_row_div1 infos_card_row_card">
         <p><strong>Telefono:</strong> +39 0444 908 111</p>
-        <p><strong>Email:</strong> <a href="mailto:info@rbv.biblioteche.it">info@rbv.biblioteche.it</a></p>
     </div>
-
-    <div>
-        <h2>Mappa delle Biblioteche della Provincia</h2>
-        <p><em>Clicca su un marker per vedere informazioni e orari.</em></p>
-
-        <div id="map" style="height: 600px; width: 90%; margin:auto;"></div>
+    <div class="infos_card_row_div2 infos_card_row_card">
+        <p><strong>Email:</strong> <a href="mailto:info@rbv.biblioteche.it" style="color: inherit; text-decoration: underline;">info@rbv.biblioteche.it</a></p>
     </div>
+</div>
 
-</main>
+<div class="map_section">
+    <h2 class="map_title">Mappa delle Biblioteche</h2>
+    <p class="map_subtitle"><em>Clicca su un marker per vedere informazioni e orari</em></p>
+
+    <div id="map"></div>
+</div>
 
 <script>
     // Biblioteche dal DB
@@ -161,8 +155,5 @@ try {
         marker.bindPopup(popup);
     });
 </script>
-
-</body>
-</html>
 
 <?php require_once './src/includes/footer.php'; ?>
