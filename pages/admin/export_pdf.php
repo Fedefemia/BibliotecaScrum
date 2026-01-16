@@ -208,7 +208,7 @@ foreach ($catStoricoPrestiti as $c) {
 }
 $html .= "</table>";
 
-// Prestiti prossimi 2 giorni
+
 $html .= "<h2>Prestiti in Scadenza (Prossimi 2 giorni)</h2>
 <table border='1' cellpadding='4'>
 <tr><th>Titolo</th><th>Utente (email)</th><th>Scadenza</th></tr>";
