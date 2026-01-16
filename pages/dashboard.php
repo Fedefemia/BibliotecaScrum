@@ -24,7 +24,7 @@ $messaggio_db = "";
 
             <a href="bibliotecario/dashboard-richieste" class="dashboard_card dashboard_card_1">
                 <img src="<?= $path ?>/public/assets/icone_categorie/Richieste.png" alt="Icon">
-                <h1>Dashboard richieste</h1>
+                <h1>Richieste</h1>
             </a>
 
             <a href="bibliotecario/dashboard-aggiuntaprestiti" class="dashboard_card dashboard_card_2">
@@ -44,22 +44,22 @@ $messaggio_db = "";
 
             <a href="admin/dashboard-biblioteche" class="dashboard_card dashboard_card_5">
                 <img src="<?= $path ?>/public/assets/icone_categorie/Classico.png" alt="Icon">
-                <h1>Dashboard biblioteche</h1>
+                <h1>Gestione Biblioteche</h1>
             </a>
 
             <a href="admin/dashboard-libri" class="dashboard_card dashboard_card_6">
                 <img src="<?= $path ?>/public/assets/icone_categorie/Libro.png" alt="Icon">
-                <h1>Dashboard libri</h1>
+                <h1>Catalogo Libri</h1>
             </a>
 
             <a href="admin/dashboard-utenti" class="dashboard_card dashboard_card_7">
                 <img src="<?= $path ?>/public/assets/icone_categorie/Utenti.png" alt="Icon">
-                <h1>Dashboard utenti</h1>
+                <h1>Dashboard Utenti</h1>
             </a>
 
             <a href="admin/dashboard-recensioni" class="dashboard_card dashboard_card_8">
                 <img src="<?= $path ?>/public/assets/icone_categorie/Recensione.png" alt="Icon">
-                <h1>Dashboard recensioni</h1>
+                <h1>Dashboard Recensioni</h1>
             </a>
 
             <a href="admin/dashboard-report" class="dashboard_card dashboard_card_9">
