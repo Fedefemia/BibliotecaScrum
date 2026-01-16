@@ -12,7 +12,6 @@ $badge = null;
 $possessori = [];
 $mia_assegnazione = null;
 
-$lista_biblioteche = [];
 $id = isset($_GET['id']) ? intval($_GET['id']) : null;
 $uid = $_SESSION['codice_utente'] ?? null;
 $query_uid = $uid ? $uid : 'GUEST';
@@ -83,7 +82,6 @@ if (!$messaggio_db) {
             $stmt2->execute([$id]);
             $possessori = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 
-            // assegnazione dell'utente corrente
             if ($uid) {
                 $stm3 = $pdo->prepare("SELECT livello FROM utente_badge WHERE id_badge = ? AND codice_alfanumerico = ?");
                 $stm3->execute([$id, $uid]);
@@ -91,20 +89,16 @@ if (!$messaggio_db) {
             }
         }
 
-        // Carico lista biblioteche
-        $stmtB = $pdo->query("SELECT id, nome FROM biblioteche ORDER BY nome");
-        $lista_biblioteche = $stmtB->fetchAll(PDO::FETCH_ASSOC);
-
     } catch (PDOException $e) {
         $messaggio_db = "Errore database: " . $e->getMessage();
     }
 }
 
 function badgeIconHtml($badge) {
-    $icon = $badge['icona'] ?? '';
+    $icon = $badge['icona'] ?? null;
     $path = __DIR__ . "/../public/badges/" . $icon;
     $webPath = "./public/badges/" . $icon;
-    if ($icon && file_exists($path)) {
+    if ($icon) {
         // uso la classe già presente per le cover dei libri così erediti gli stili esistenti
         return '<img src="' . htmlspecialchars($webPath) . '" alt="' . htmlspecialchars($badge['nome']) . '" class="book_hero_cover">';
     }
