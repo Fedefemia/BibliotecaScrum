@@ -37,7 +37,7 @@ $messaggio_db = "";
                 <h1>Gestione Prestiti</h1>
             </a>
 
-            <a href="admin/dashboard-report" class="dashboard_card dashboard_card_4">
+            <a href="#" class="dashboard_card dashboard_card_4">
                 <img src="<?= $path ?>/public/assets/icone_categorie/Multe.png" alt="Icon">
                 <h1>Multe</h1>
             </a>
@@ -65,6 +65,11 @@ $messaggio_db = "";
             <a href="admin/dashboard-report" class="dashboard_card dashboard_card_9">
                 <img src="<?= $path ?>/public/assets/icone_categorie/Statistiche.png" alt="Icon">
                 <h1>Statistiche</h1>
+            </a>
+
+            <a href="#" class="dashboard_card dashboard_card_10">
+                <img src="<?= $path ?>/public/assets/icone_categorie/Raccomandazione.png" alt="Icon">
+                <h1>Badge</h1>
             </a>
             
         </div>
