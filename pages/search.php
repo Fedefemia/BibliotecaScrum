@@ -76,259 +76,209 @@ require_once './src/includes/header.php';
 require_once './src/includes/navbar.php';
 ?>
 
-    <div class="page_contents">
+<div class="page_contents instrument-sans">
 
-    <div class="search_section_con instrument-sans">
-        <div class="search_section_form">
-            <div class="search_section_form_left">
-                <img src="<?= $path ?>public/assets/icon_search_dark.png" class="search_section_form_icon" alt="">
-                <h2>Filtri di Ricerca</h2>
+    <div class="search_header_container">
+        <div class="search_header_top">
+            <div class="search_title_block">
+                <img src="<?= $path ?>public/assets/icon_search_dark.png" class="search_icon_large" alt="">
+                <h2 class="young-serif-regular">Filtri di Ricerca</h2>
             </div>
 
-            <!-- Pulsanti per selezionare la sezione da visualizzare -->
-            <div class="search_buttons_container">
-                <button type="button" id="btn_books" class="general_button_dark section_btn active">Libri</button>
-                <button type="button" id="btn_users" class="general_button_dark section_btn">Utenti</button>
+            <div class="search_tabs">
+                <button type="button" id="btn_books" class="general_button_dark search_tab active">Libri</button>
+                <button type="button" id="btn_users" class="general_button_dark search_tab">Utenti</button>
             </div>
         </div>
 
-        <div class="search_section_form">
-
-            <!-- Form filtri -->
+        <div class="search_filters_block">
             <form id="filter_form">
-                <div id="filters_books">
-                    <h3>Libri</h3>
-                    <label><input type="checkbox" name="filtra_titolo" checked> Titolo libro</label><br>
-                    <label><input type="checkbox" name="filtra_autore_nome" checked> Nome autore</label><br>
-                    <label><input type="checkbox" name="filtra_autore_cognome" checked> Cognome autore</label><br>
+                <div id="filters_books" class="filter_group">
+                    <h3>Filtra Libri</h3>
+                    <div class="checkbox_wrapper">
+                        <label><input type="checkbox" name="filtra_titolo" checked> Titolo</label>
+                        <label><input type="checkbox" name="filtra_autore_nome" checked> Nome autore</label>
+                        <label><input type="checkbox" name="filtra_autore_cognome" checked> Cognome autore</label>
+                    </div>
                 </div>
-                <div id="filters_users">
-                    <h3>Utenti</h3>
-                    <label><input type="checkbox" name="filtra_username" checked> Username utente</label><br>
-                    <label><input type="checkbox" name="filtra_user_nome" checked> Nome utente</label><br>
-                    <label><input type="checkbox" name="filtra_user_cognome" checked> Cognome utente</label>
+                <div id="filters_users" class="filter_group">
+                    <h3>Filtra Utenti</h3>
+                    <div class="checkbox_wrapper">
+                        <label><input type="checkbox" name="filtra_username" checked> Username</label>
+                        <label><input type="checkbox" name="filtra_user_nome" checked> Nome</label>
+                        <label><input type="checkbox" name="filtra_user_cognome" checked> Cognome</label>
+                    </div>
                 </div>
             </form>
         </div>
     </div>
 
-
     <hr class="section_divider">
 
-    <!-- SEZIONE LIBRI -->
-    <div id="section_books" class="instrument-sans">
-        <h1>Risultati Libri</h1>
-        <p>Trovati <strong id="results_count_books"><?= count($books) ?></strong> libri per
-            <strong><?= $search_query ?></strong></p>
-        <div id="results_container_books">
+    <div id="section_books">
+        <h1 class="young-serif-regular section_title">Risultati Libri</h1>
+        <p class="results_meta">Trovati <strong id="results_count_books"><?= count($books) ?></strong> libri per "<strong><?= htmlspecialchars($search_query) ?></strong>"</p>
+
+        <div id="results_container_books" class="results_grid">
             <?php foreach ($books as $isbn => $book): ?>
-                <div class="book_card"
+                <div class="result_card book_card"
                      data-titolo="<?= $book['titolo'] ?>"
                      data-autore_nome="<?= $book['autore_nome'] ?>"
-                     data-autore_cognome="<?= $book['autore_cognome'] ?>"
-                     style="margin-bottom:10px; display:flex; align-items:center;">
-                    <img src="public/bookCover<?= $book['isbn'] ?? 'src/assets/placeholder' ?>.jpg" alt="Copertina"
-                         style="width:50px;height:70px;margin-right:10px;">
-                    <div>
-                        <h3 class="book_titolo"><?= highlight_text($book['titolo'], $search_query) ?></h3>
-                        <p class="book_autore_nome"><strong>Nome
-                                autore:</strong> <?= highlight_text($book['autore_nome'], $search_query) ?></p>
-                        <p class="book_autore_cognome"><strong>Cognome
-                                autore:</strong> <?= highlight_text($book['autore_cognome'], $search_query) ?></p>
-                        <a href="./libro?isbn=<?= urlencode($isbn) ?>">Dettagli</a>
+                     data-autore_cognome="<?= $book['autore_cognome'] ?>">
+
+                    <div class="card_image_wrapper">
+                        <img src="public/bookCover<?= $book['isbn'] ?? 'src/assets/placeholder' ?>.jpg" alt="Copertina">
+                    </div>
+
+                    <div class="card_content">
+                        <h3 class="card_title"><?= highlight_text($book['titolo'], $search_query) ?></h3>
+                        <p class="card_info">
+                            <span>Autore:</span>
+                            <?= highlight_text($book['autore_nome'] . ' ' . $book['autore_cognome'], $search_query) ?>
+                        </p>
+                        <a href="./libro?isbn=<?= urlencode($isbn) ?>" class="card_link">Dettagli &rarr;</a>
                     </div>
                 </div>
             <?php endforeach; ?>
         </div>
 
-        <form id="filter_form">
-            <div id="filters_books">
-                <h3>Libri</h3>
-                <label><input type="checkbox" name="filtra_isbn" checked> Codice ISBN</label><br>
-                <label><input type="checkbox" name="filtra_titolo" checked> Titolo libro</label><br>
-                <label><input type="checkbox" name="filtra_autore_nome" checked> Nome autore</label><br>
-                <label><input type="checkbox" name="filtra_autore_cognome" checked> Cognome autore</label><br>
-            </div>
-            <div id="filters_users">
-                <h3>Utenti</h3>
-                <label><input type="checkbox" name="filtra_username" checked> Username utente</label><br>
-                <label><input type="checkbox" name="filtra_user_nome" checked> Nome utente</label><br>
-                <label><input type="checkbox" name="filtra_user_cognome" checked> Cognome utente</label>
-            </div>
-        </form>
+        <div class="spacer_large"></div>
 
-        <hr>
+        <h2 class="young-serif-regular section_title">Risultati Autori</h2>
+        <p class="results_meta">Trovati <strong id="results_count_authors"><?= count($authors) ?></strong> autori</p>
 
-        <h2>Risultati Autori</h2>
-        <p>Trovati <strong id="results_count_authors"><?= count($authors) ?></strong> autori per
-            <strong><?= $search_query ?></strong></p>
-        <div id="results_container_authors">
-            <?php foreach ($authors as $isbn => $book): ?>
-                <div class="author_card"
-                     data-autore_nome="<?= $book['autore_nome'] ?>"
-                     data-autore_cognome="<?= $book['autore_cognome'] ?>"
-                     style="margin-bottom:10px; display:flex; align-items:center;">
-                    <img src="public/bookCover<?= $book['isbn'] ?? 'src/assets/placeholder' ?>.jpg" alt="Copertina"
-                         style="width:50px;height:70px;margin-right:10px;">
-                    <div>
-                        <p class="author_nome"><strong>Nome
-                                autore:</strong> <?= highlight_text($book['autore_nome'], $search_query) ?></p>
-                        <p class="author_cognome"><strong>Cognome
-                                autore:</strong> <?= highlight_text($book['autore_cognome'], $search_query) ?></p>
-                        <p><strong>Libro:</strong> <?= $book['titolo'] ?></p>
-                        <a href="./libro?isbn=<?= urlencode($isbn) ?>">Dettagli</a>
+        <div id="results_container_authors" class="results_grid">
+            <?php foreach ($authors as $isbn => $author_book): ?>
+                <div class="result_card author_card"
+                     data-autore_nome="<?= $author_book['autore_nome'] ?>"
+                     data-autore_cognome="<?= $author_book['autore_cognome'] ?>">
+
+                    <div class="card_image_wrapper">
+                        <img src="public/bookCover<?= $author_book['isbn'] ?? 'src/assets/placeholder' ?>.jpg" alt="Copertina">
                     </div>
-                <?php endforeach; ?>
-            </div>
 
-            <hr>
-
-            <h2>Risultati per Autore</h2>
-            <p>Trovati <strong id="results_count_authors"><?= count($authors) ?></strong> libri tramite ricerca autore</p>
-            <div id="results_container_authors">
-                <?php foreach ($authors as $isbn => $book): ?>
-                    <div class="author_card"
-                         data-autore_nome="<?= $book['autore_nome'] ?>"
-                         data-autore_cognome="<?= $book['autore_cognome'] ?>"
-                         style="margin-bottom:15px; display:flex; align-items:center;">
-                        <img src="public/bookCover<?= $book['isbn'] ?>.jpg" onerror="this.src='src/assets/placeholder.jpg'" alt="Copertina" style="width:40px;height:60px;margin-right:10px;">
-                        <div>
-                            <p class="author_nome" style="margin:0;"><strong>Nome:</strong> <?= highlight_text($book['autore_nome'], $search_query) ?></p>
-                            <p class="author_cognome" style="margin:0;"><strong>Cognome:</strong> <?= highlight_text($book['autore_cognome'], $search_query) ?></p>
-                            <p style="margin:0; font-size:0.9em;">Libro: <em><?= $book['titolo'] ?></em></p>
-                            <a href="./libro?isbn=<?= urlencode($isbn) ?>">Vai al libro</a>
-                        </div>
+                    <div class="card_content">
+                        <h3 class="card_title">
+                            <?= highlight_text($author_book['autore_nome'] . ' ' . $author_book['autore_cognome'], $search_query) ?>
+                        </h3>
+                        <p class="card_info">Trovato nel libro: <em><?= $author_book['titolo'] ?></em></p>
+                        <a href="./libro?isbn=<?= urlencode($author_book['isbn']) ?>" class="card_link">Vedi opera &rarr;</a>
                     </div>
-                <?php endforeach; ?>
-            </div>
-        </div>
-
-    <!-- SEZIONE UTENTI -->
-    <div id="section_users" style="display:none;">
-        <h1>Risultati Utenti</h1>
-        <p>Trovati <strong id="results_count_users"><?= count($users) ?></strong> utenti per
-            <strong><?= $search_query ?></strong></p>
-        <div id="results_container_users">
-            <?php foreach ($users as $user): ?>
-                <div class="user_card"
-                     data-username="<?= $user['username'] ?>"
-                     data-user_nome="<?= $user['nome'] ?>"
-                     data-user_cognome="<?= $user['cognome'] ?>"
-                     style="margin-bottom:10px;">
-                    <p class="user_username">
-                        <strong>Username:</strong> <?= highlight_text($user['username'], $search_query) ?></p>
-                    <p class="user_user_nome"><strong>Nome:</strong> <?= highlight_text($user['nome'], $search_query) ?>
-                    </p>
-                    <p class="user_user_cognome">
-                        <strong>Cognome:</strong> <?= highlight_text($user['cognome'], $search_query) ?></p>
-                    <a href="/profilo?username=<?= urlencode($user['username']) ?>">Visualizza profilo</a>
                 </div>
             <?php endforeach; ?>
         </div>
-
     </div>
 
-    <script>
-        const btnBooks = document.getElementById('btn_books');
-        const btnUsers = document.getElementById('btn_users');
-        const sectionBooks = document.getElementById('section_books');
-        const sectionUsers = document.getElementById('section_users');
-        const filtersBooks = document.getElementById('filters_books');
-        const filtersUsers = document.getElementById('filters_users');
-        const checkboxes = document.querySelectorAll('#filter_form input[type=checkbox]');
-        const searchQuery = '<?= addslashes($search_query) ?>'.toLowerCase();
+    <div id="section_users" style="display:none;">
+        <h1 class="young-serif-regular section_title">Risultati Utenti</h1>
+        <p class="results_meta">Trovati <strong id="results_count_users"><?= count($users) ?></strong> utenti</p>
 
-        // Gestione persistenza sezione
-        if (document.referrer && !document.referrer.includes('search')) {
-            sessionStorage.setItem('activeSearchSection', 'books');
-        }
-        const savedSection = sessionStorage.getItem('activeSearchSection') || 'books';
+        <div id="results_container_users" class="results_grid">
+            <?php foreach ($users as $user): ?>
+                <div class="result_card user_card"
+                     data-username="<?= $user['username'] ?>"
+                     data-user_nome="<?= $user['nome'] ?>"
+                     data-user_cognome="<?= $user['cognome'] ?>">
 
-        function showBooks() {
-            sectionBooks.style.display = 'block';
-            sectionUsers.style.display = 'none';
-            filtersBooks.style.display = 'block';
-            filtersUsers.style.display = 'none';
-            btnBooks.classList.add('active');
-            btnUsers.classList.remove('active');
-            sessionStorage.setItem('activeSearchSection', 'books');
-        }
+                    <div class="card_content full_width">
+                        <h3 class="card_title">@<?= highlight_text($user['username'], $search_query) ?></h3>
+                        <p class="card_info">
+                            <?= highlight_text($user['nome'], $search_query) ?>
+                            <?= highlight_text($user['cognome'], $search_query) ?>
+                        </p>
+                        <a href="#" class="card_link_subtle">Vedi Profilo</a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
 
-        function showUsers() {
-            sectionBooks.style.display = 'none';
-            sectionUsers.style.display = 'block';
-            filtersBooks.style.display = 'none';
-            filtersUsers.style.display = 'block';
-            btnBooks.classList.remove('active');
-            btnUsers.classList.add('active');
-            sessionStorage.setItem('activeSearchSection', 'users');
-        }
+</div>
 
-        if (savedSection === 'users') showUsers(); else showBooks();
+<script>
+    const btnBooks = document.getElementById('btn_books');
+    const btnUsers = document.getElementById('btn_users');
+    const sectionBooks = document.getElementById('section_books');
+    const sectionUsers = document.getElementById('section_users');
+    const filtersBooks = document.getElementById('filters_books');
+    const filtersUsers = document.getElementById('filters_users');
+    const checkboxes = document.querySelectorAll('#filter_form input[type=checkbox]');
 
-        btnBooks.addEventListener('click', showBooks);
-        btnUsers.addEventListener('click', showUsers);
+    const rawSearchQuery = "<?= addslashes($search_query) ?>";
+    const searchQuery = rawSearchQuery.toLowerCase();
 
-        function highlightJS(text, search) {
-            if (!search) return text;
-            const regex = new RegExp(`(${search})`, 'gi');
-            return text.replace(regex, '<mark>$1</mark>');
-        }
+    // Gestione persistenza sezione
+    if (document.referrer && !document.referrer.includes('search')) {
+        sessionStorage.setItem('activeSearchSection', 'books');
+    }
+    const savedSection = sessionStorage.getItem('activeSearchSection') || 'books';
 
-        function filterResults() {
-            const activeFiltersBooks = Array.from(checkboxes)
-                .filter(cb => cb.checked && cb.closest('#filters_books'))
-                .map(cb => cb.name.replace('filtra_', ''));
+    function showBooks() {
+        sectionBooks.style.display = 'block';
+        sectionUsers.style.display = 'none';
+        filtersBooks.style.display = 'block';
+        filtersUsers.style.display = 'none';
+        btnBooks.classList.add('active');
+        btnUsers.classList.remove('active');
+        sessionStorage.setItem('activeSearchSection', 'books');
+    }
 
-            const activeFiltersUsers = Array.from(checkboxes)
-                .filter(cb => cb.checked && cb.closest('#filters_users'))
-                .map(cb => cb.name.replace('filtra_', ''));
+    function showUsers() {
+        sectionBooks.style.display = 'none';
+        sectionUsers.style.display = 'block';
+        filtersBooks.style.display = 'none';
+        filtersUsers.style.display = 'block';
+        btnBooks.classList.remove('active');
+        btnUsers.classList.add('active');
+        sessionStorage.setItem('activeSearchSection', 'users');
+    }
 
-            // --- Filtro Libri ---
-            let visibleBooks = 0;
-            document.querySelectorAll('.book_card').forEach(card => {
-                const show = activeFiltersBooks.some(field =>
-                    (card.dataset[field] || '').toLowerCase().includes(searchQuery)
-                );
-                card.style.display = show ? 'flex' : 'none';
-                if (show) {
-                    visibleBooks++;
-                    card.querySelectorAll('.book_isbn, .book_titolo, .book_autore_nome, .book_autore_cognome').forEach(el => {
-                        const field = el.className.replace('book_', '');
-                        if (activeFiltersBooks.includes(field)) {
-                            let originalText = card.dataset[field] || '';
-                            el.innerHTML = (field === 'isbn' ? 'ISBN: ' : '') + highlightJS(originalText, searchQuery);
-                        }
-                    });
-                }
-            });
-            document.getElementById('results_count_books').textContent = visibleBooks;
+    if (savedSection === 'users') showUsers(); else showBooks();
 
-            // --- Filtro Autori ---
-            let visibleAuthors = 0;
-            document.querySelectorAll('.author_card').forEach(card => {
-                const show = activeFiltersBooks.some(field =>
-                    field.includes('autore') && (card.dataset[field] || '').toLowerCase().includes(searchQuery)
-                );
-                card.style.display = show ? 'flex' : 'none';
-                if (show) visibleAuthors++;
-            });
-            document.getElementById('results_count_authors').textContent = visibleAuthors;
+    btnBooks.addEventListener('click', showBooks);
+    btnUsers.addEventListener('click', showUsers);
 
-            // --- Filtro Utenti ---
-            let visibleUsers = 0;
-            document.querySelectorAll('.user_card').forEach(card => {
-                const show = activeFiltersUsers.some(field =>
-                    (card.dataset[field] || '').toLowerCase().includes(searchQuery)
-                );
-                card.style.display = show ? 'block' : 'none';
-                if (show) visibleUsers++;
-            });
-            document.getElementById('results_count_users').textContent = visibleUsers;
-        }
+    // LOGICA FILTRI
+    function filterResults() {
+        const activeFiltersBooks = Array.from(document.querySelectorAll('#filters_books input:checked')).map(cb => cb.name.replace('filtra_', ''));
+        const activeFiltersUsers = Array.from(document.querySelectorAll('#filters_users input:checked')).map(cb => cb.name.replace('filtra_', ''));
 
-        checkboxes.forEach(cb => cb.addEventListener('change', filterResults));
-        filterResults(); // Esecuzione al caricamento
-    </script>
+        // Filtro Libri
+        let visibleBooks = 0;
+        document.querySelectorAll('.book_card').forEach(card => {
+            const show = activeFiltersBooks.some(field =>
+                (card.dataset[field] || '').toLowerCase().includes(searchQuery)
+            );
+            card.style.display = show ? 'flex' : 'none';
+            if (show) visibleBooks++;
+        });
+        document.getElementById('results_count_books').textContent = visibleBooks;
+
+        // Filtro Autori
+        let visibleAuthors = 0;
+        document.querySelectorAll('.author_card').forEach(card => {
+            const show = activeFiltersBooks.some(field =>
+                field.includes('autore') && (card.dataset[field] || '').toLowerCase().includes(searchQuery)
+            );
+            card.style.display = show ? 'flex' : 'none';
+            if (show) visibleAuthors++;
+        });
+        document.getElementById('results_count_authors').textContent = visibleAuthors;
+
+        // Filtro Utenti
+        let visibleUsers = 0;
+        document.querySelectorAll('.user_card').forEach(card => {
+            const show = activeFiltersUsers.some(field =>
+                (card.dataset[field] || '').toLowerCase().includes(searchQuery)
+            );
+            card.style.display = show ? 'flex' : 'none';
+            if (show) visibleUsers++;
+        });
+        document.getElementById('results_count_users').textContent = visibleUsers;
+    }
+
+    checkboxes.forEach(cb => cb.addEventListener('change', filterResults));
+    filterResults();
+</script>
 
 <?php require './src/includes/footer.php'; ?>
