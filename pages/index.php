@@ -15,19 +15,17 @@ $codice = $_SESSION['codice_utente'] ?? null;
 
 // ---------------- 1. LOGICA CONSIGLIATI (SOLO SE LOGGATO) ----------------
 $consigliati = [];
+$consigliati = [];
 if ($codice) {
-    // Questa query cerca libri basati su generi e autori dei prestiti passati
-    // Esclude i libri già letti e ne prende 6 casuali
     $queryConsigliati = "
         SELECT DISTINCT l.isbn, 
                (SELECT CAST(AVG(voto) AS DECIMAL(3,1)) FROM recensioni WHERE isbn = l.isbn) as media_voto,
-               -- Determiniamo la motivazione (Priorità al Genere, poi Autore)
                CASE 
                   WHEN lc.id_categoria IN (
                       SELECT lc2.id_categoria FROM prestiti p2 
                       JOIN copie c2 ON p2.id_copia = c2.id_copia 
                       JOIN libro_categoria lc2 ON c2.isbn = lc2.isbn 
-                      WHERE p2.codice_alfanumerico = :cod 
+                      WHERE p2.codice_alfanumerico = :cod
                   ) THEN 'Perché ami questo genere'
                   WHEN al.id_autore IN (
                       SELECT al2.id_autore FROM prestiti p3 
@@ -49,6 +47,7 @@ if ($codice) {
             SELECT c6.isbn FROM prestiti p6 
             JOIN copie c6 ON p6.id_copia = c6.id_copia 
             WHERE p6.codice_alfanumerico = :cod
+              AND p6.data_restituzione IS NULL
         )
         ORDER BY RAND()
         LIMIT 6
@@ -58,6 +57,7 @@ if ($codice) {
     $stmtCons->execute(['cod' => $codice]);
     $consigliati = $stmtCons->fetchAll(PDO::FETCH_ASSOC);
 }
+
 
 // ---------------- 2. POPOLARI (Con Media Voto) ----------------
 $stmt = $pdo->query("
@@ -138,7 +138,7 @@ require './src/includes/navbar.php';
     <div class="index_wrapper">
         <header class="index_hero">
             <img src="./public/assets/icon.png" alt="Logo" class="hero_icon">
-            <h1 class="hero_title young-serif-regular">Scrum Library</h1>
+            <h1 class="hero_title">Scrum Library</h1>
         </header>
 
         <div class="page_contents">
@@ -147,7 +147,7 @@ require './src/includes/navbar.php';
                 <section class="index_section">
                     <div class="section_header">
                         <img src="./public/assets/logo_ligth.png" class="section_icon" alt="icon">
-                        <h2 class="section_title young-serif-regular">I tuoi prestiti</h2>
+                        <h2 class="section_title">I tuoi prestiti</h2>
                     </div>
                     <div class="books_grid">
                         <?php foreach ($prestiti_attivi as $libro): ?>
@@ -167,8 +167,8 @@ require './src/includes/navbar.php';
             <?php if ($codice && !empty($consigliati)): ?>
                 <section class="index_section">
                     <div class="section_header">
-                        <img src="./public/assets/icone_categorie/Raccomandazione.png" class="section_icon" alt="icon">
-                        <h2 class="section_title young-serif-regular">Consigliati per te</h2>
+                        <img src="./public/assets/icone_categorie/Icon_LibriPopolari.png" class="section_icon" alt="icon">
+                        <h2 class="section_title">Consigliati per te</h2>
                     </div>
                     <div class="books_grid">
                         <?php foreach ($consigliati as $libro): ?>
@@ -191,7 +191,7 @@ require './src/includes/navbar.php';
             <section class="index_section">
                 <div class="section_header">
                     <img src="<?= $path ?>public/assets/icone_categorie/Icon_LibriPopolari.png" class="section_icon" alt="icon">
-                    <h2 class="section_title young-serif-regular">Libri Popolari</h2>
+                    <h2 class="section_title">Libri Popolari</h2>
                 </div>
                 <div class="books_grid">
                     <?php foreach ($popolari as $libro): ?>
@@ -212,7 +212,7 @@ require './src/includes/navbar.php';
                     <section class="index_section">
                         <div class="section_header">
                             <img src="<?= $path ?>public/assets/icone_categorie/<?=$catName ?>.png" class="section_icon" alt="icon" onerror="this.src='<?= $path ?>public/assets/logo_ligth.png'">
-                            <h2 class="section_title young-serif-regular"><?= htmlspecialchars($catName) ?></h2>
+                            <h2 class="section_title"><?= htmlspecialchars($catName) ?></h2>
                         </div>
                         <div class="books_grid">
                             <?php foreach ($libriCat as $libro): ?>
