@@ -37,7 +37,7 @@ $messaggio_db = "";
                 <h1>Gestione Prestiti</h1>
             </a>
 
-            <a href="#" class="dashboard_card dashboard_card_4">
+            <a href="admin/dashboard-multe" class="dashboard_card dashboard_card_4">
                 <img src="<?= $path ?>/public/assets/icone_categorie/Multe.png" alt="Icon">
                 <h1>Multe</h1>
             </a>

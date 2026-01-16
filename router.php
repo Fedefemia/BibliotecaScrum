@@ -33,7 +33,7 @@ $whitelist = [
     '/cover-fetcher'=> 'coverFetcher.php',
     '/admin/pdf' => 'pages/admin/export_pdf.php',
     '/admin/xml' => 'pages/admin/export_xml.php',
-    '/admin/multe' => 'pages/admin/multe.php',
+    '/admin/dashboard-multe' => 'pages/admin/D_multe.php',
     
     //bibliotecario
     '/bibliotecario/dashboard-gestioneprestiti' => 'pages/bibliotecario/D_gestioneprestiti.php',

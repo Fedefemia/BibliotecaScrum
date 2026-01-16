@@ -353,7 +353,7 @@ require $baseDir . '/src/includes/navbar.php';
                                     <?= nl2br(htmlspecialchars($n['messaggio'])) ?>
                                 </div>
                                 <?php if (!empty($n['link_riferimento'])): ?>
-                                    <a href="<?= htmlspecialchars($n['link_riferimento']) ?>" class="n-link-ref">Vai al dettaglio &rarr;</a>
+                                    <a href="<?php $path ?>profilo" class="n-link-ref">Vai al dettaglio &rarr;</a>
                                 <?php endif; ?>
                             </div>
                         </div>
