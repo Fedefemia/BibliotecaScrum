@@ -342,17 +342,12 @@ function badgeIconHtmlProfile(array $badge) {
     $localPath = "../public/assets/badge/" . $icon;
     $webPath = "./public/assets/badge/" . $icon;
     if ($icon) {
-        return '<img src="' . htmlspecialchars($webPath) . '" alt="' . htmlspecialchars($badge['nome']) . '" style="width:72px;height:72px;object-fit:contain;border-radius:8px;">';
+        return '<img src="' . htmlspecialchars($webPath) . '" alt="' . htmlspecialchars($badge['nome']) . '" class="badge-img">';
     }
     // Non uso SVG inline qui per sicurezza — fallback lettera
     $letter = strtoupper(substr($badge['nome'] ?? 'B', 0, 1));
-    return '<div style="width:72px;height:72px;border-radius:10px;background:#f3f3f3;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;color:#666;">' .
-            htmlspecialchars($letter) . '</div>';
+    return '<div class="badge-placeholder">' . htmlspecialchars($letter) . '</div>';
 }
-
-
-require './src/includes/header.php';
-require './src/includes/navbar.php';
 
 /* ----- FUNZIONI UTILI ----- */
 function getCoverPath(string $isbn): string {
@@ -371,534 +366,341 @@ function formatCounter($dateTarget) {
 }
 ?>
 
+<?php
+$title = "Area Personale";
+$path = "./";
+$page_css = "./public/css/style_profilo.css";
+require './src/includes/header.php';
+require './src/includes/navbar.php';
+?>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Libre+Barcode+39+Text&display=swap" rel="stylesheet">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-        <style>
-            body { font-family: 'Poppins', sans-serif; }
-            .grid { display: flex; flex-wrap: wrap; gap: 25px; }
-            .book-item { display: flex; flex-direction: column; width: 120px; align-items: center; gap: 5px; }
-            .card.cover-only { width: 120px; display: block; text-decoration: none; color: #333; margin-bottom: 0; }
-            .card.cover-only img { width: 120px; height: 180px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: transform 0.2s; }
-            .card.cover-only:hover img { transform: translateY(-3px); }
-            .book-meta { font-size: 0.75rem; text-align: center; line-height: 1.3; font-weight: 500; width: 100%; }
-            .mini-actions { width: 100%; display: flex; justify-content: center; gap: 5px; margin-top: 5px; }
-            .btn-mini { padding: 4px 8px; border: none; border-radius: 4px; font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: background 0.2s; width: 100%; }
-            .btn-mini-danger { background-color: #e74c3c; color: white; }
-            .btn-mini-action { background-color: #3498db; color: white; }
-            .btn-mini-pending { background-color: #f39c12; color: white; cursor: default; }
-            .btn-mini-limit { background-color: #7f8c8d; color: white; cursor: not-allowed; }
-
-            .info_column { display: flex; flex-direction: column; width: auto; justify-content: flex-start; align-items: center; gap: 10px; }
-            .info_line { display: flex; flex-direction: row; width: 100%; justify-content: space-between; align-items: flex-start; gap: 20px; padding-top: 20px; }
-            .pfp-wrapper { position: relative; width: 240px; height: 240px; border-radius: 50%; border: 5px solid #3f5135; overflow: hidden; cursor: pointer; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-            .info_pfp { width: 100%; height: 100%; object-fit: cover; display: block; }
-            .pfp-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.6); display: flex; flex-direction: column; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; color: #fff; }
-            .pfp-wrapper:hover .pfp-overlay { opacity: 1; }
-            .pfp-icon { font-size: 24px; margin-bottom: 5px; }
-            .pfp-text { font-size: 14px; font-weight: 500; text-transform: uppercase; letter-spacing: 1px; }
-            .extend_all { width: 100%; height: 100%; justify-content: space-between; align-items: flex-start; }
-            .section { width: 100%; height: auto; display: flex; flex-direction: column; margin-bottom: 30px; }
-            .edit-container-wrapper { margin-top: 10px; width: 260px; display: flex; flex-direction: column; gap: 8px; }
-            .edit-row { width: 100%; display: flex; align-items: center; }
-            .edit-input { flex: 1; min-width: 0; padding: 8px; border: 1px solid #ccc; border-radius: 4px; color: #333; font-family: 'Poppins', sans-serif; font-size: 1em; transition: all 0.3s ease; }
-            .edit-input:disabled { background: #eee; color: #666; border: 1px solid transparent; }
-            .btn-slide { width: 0; padding: 0; opacity: 0; margin-left: 0; overflow: hidden; white-space: nowrap; background-color: #3f5135; color: white; border: none; border-radius: 4px; font-size: 0.9em; cursor: pointer; transition: all 0.4s ease; }
-            .edit-row.changed .btn-slide { width: 80px; padding: 8px 0; opacity: 1; margin-left: 5px; }
-            .email-expand-box { max-height: 0; opacity: 0; overflow: hidden; transition: all 0.5s ease; display: flex; gap: 5px; width: 100%; }
-            .email-expand-box.open { max-height: 50px; opacity: 1; margin-top: -3px; }
-            .otp-locked { background-color: #e0e0e0; color: #999; cursor: not-allowed; border-color: #ddd; }
-            .btn-action-email { background-color: #3f5135; color: white; border: none; border-radius: 4px; padding: 8px; cursor: pointer; font-family: 'Poppins', sans-serif; width: 80px; transition: background 0.3s; }
-            .btn-action-email:hover { background-color: #2c3a24; }
-            .btn-success-anim { background-color: #27ae60 !important; }
-
-            /* STYLE MULTE COMPATTO */
-            .fine-container {
-                width: 100%;
-                margin-top: 20px;
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-            .fine-card {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                background: #fff5f5;
-                border: 1px solid #feb2b2;
-                border-left: 4px solid #c0392b;
-                padding: 10px;
-                border-radius: 6px;
-                width: 100%;
-                box-sizing: border-box;
-                transition: transform 0.2s;
-            }
-            .fine-card:hover { transform: translateY(-2px); box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-
-            .fine-info {
-                display: flex;
-                flex-direction: column;
-                overflow: hidden;
-                margin-right: 10px;
-            }
-
-            .fine-title {
-                font-weight: 600;
-                font-size: 0.85rem;
-                color: #c0392b;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .fine-meta {
-                font-size: 0.75rem;
-                color: #666;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .fine-actions {
-                display: flex;
-                flex-direction: column;
-                align-items: flex-end;
-                gap: 4px;
-                flex-shrink: 0;
-            }
-
-            .fine-price { font-weight: 700; font-size: 0.95rem; color: #c0392b; }
-
-            .btn-pay {
-                background-color: #27ae60;
-                color: white;
-                border: none;
-                padding: 4px 10px;
-                border-radius: 4px;
-                font-size: 0.75rem;
-                font-weight: 600;
-                cursor: pointer;
-                transition: background 0.2s;
-            }
-            .btn-pay:hover { background-color: #219150; }
-
-            /* MODAL STYLES */
-            .modal-overlay { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); justify-content: center; align-items: center; backdrop-filter: blur(3px); }
-            .modal-content { background-color: white; padding: 25px; border-radius: 12px; width: 100%; max-width: 400px; text-align: center; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3); animation: slideUp 0.3s ease; }
-            @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-            .close-modal { position: absolute; top: 15px; right: 20px; font-size: 24px; font-weight: bold; color: #999; cursor: pointer; transition: color 0.2s; }
-            .close-modal:hover { color: #333; }
-            .btn-tessera { margin-top: 10px; padding: 10px 20px; background-color: #3f5135; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; font-family: 'Poppins', sans-serif; transition: background 0.3s; }
-            #tessera-card { font-family: 'Poppins', sans-serif; background-color: #ffffff; color: #000000; border: 2px solid #000; border-radius: 12px; width: 340px; height: 215px; margin: 25px auto; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.15); box-sizing: border-box; }
-            .tessera-header { font-size: 1.1em; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid #000; padding-bottom: 8px; width: 100%; text-align: center; }
-            .tessera-user { font-size: 1.3em; font-weight: 500; text-align: center; word-wrap: break-word; margin-top: 10px; }
-            .tessera-barcode { font-family: 'Libre Barcode 39 Text', cursive; font-size: 42px; color: #000; line-height: 1; white-space: nowrap; margin-bottom: 5px; }
-            .modal-actions { display: flex; justify-content: center; gap: 15px; margin-top: 15px; }
-            .btn-action { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; flex: 1; transition: all 0.2s ease; }
-            .btn-print { background-color: #3f5135; color: white; }
-            .btn-download { background-color: #f0f0f0; color: #333; }
-
-            .btn-modal-pay { background-color: #27ae60; color: white; }
-            .btn-modal-cancel { background-color: #e74c3c; color: white; }
-
-            #notification-banner { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: #222; color: white; padding: 14px 24px; border-radius: 6px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); display: flex; align-items: center; gap: 20px; transition: bottom 0.5s; z-index: 9999; min-width: 250px; justify-content: space-between; }
-            #notification-banner.show { bottom: 30px; }
-            .notification-text { font-size: 15px; font-weight: 500; }
-            .close-btn-banner { background: none; border: none; color: #bbb; font-size: 22px; cursor: pointer; padding: 0; line-height: 1; }
-        </style>
-
-        <div class="info_line">
-            <div class="info_column">
-                <?php
-                $pfpPath = 'public/pfp/' . htmlspecialchars($uid) . '.png';
-                if (!file_exists($pfpPath)) { $pfpPath = 'public/assets/base_pfp.png'; }
-                ?>
-                <form action="profilo" method="post" enctype="multipart/form-data" id="form-pfp">
-                    <input type="hidden" name="submit_pfp" value="1">
-                    <input type="file" name="pfp_upload" id="pfp_upload" accept="image/png, image/jpeg" style="display: none;" onchange="document.getElementById('form-pfp').submit()">
-                    <div class="pfp-wrapper" onclick="document.getElementById('pfp_upload').click()">
-                        <img class="info_pfp" alt="Pfp" src="<?= $pfpPath . '?v=' . time() ?>">
-                        <div class="pfp-overlay">
-                            <span class="pfp-icon">📷</span>
-                            <span class="pfp-text">Modifica</span>
-                        </div>
+    <div class="info_line">
+        <div class="info_column">
+            <?php
+            $pfpPath = 'public/pfp/' . htmlspecialchars($uid) . '.png';
+            if (!file_exists($pfpPath)) { $pfpPath = 'public/assets/base_pfp.png'; }
+            ?>
+            <form action="profilo" method="post" enctype="multipart/form-data" id="form-pfp">
+                <input type="hidden" name="submit_pfp" value="1">
+                <input type="file" name="pfp_upload" id="pfp_upload" accept="image/png, image/jpeg" style="display:none;" onchange="document.getElementById('form-pfp').submit()">
+                <div class="pfp-wrapper" onclick="document.getElementById('pfp_upload').click()">
+                    <img class="info_pfp" alt="Foto Profilo" src="<?= $pfpPath . '?v=' . time() ?>">
+                    <div class="pfp-overlay">
+                        <span class="pfp-text">Modifica</span>
                     </div>
-                </form>
-                <button class="btn-tessera" onclick="apriTessera()">Tessera Utente</button>
-
-                <div class="edit-container-wrapper">
-                    <div class="edit-row" id="row-username">
-                        <input type="text" id="inp-username" class="edit-input" value="<?= htmlspecialchars($utente['username'] ?? '') ?>" data-original="<?= htmlspecialchars($utente['username'] ?? '') ?>" placeholder="Username">
-                        <button type="button" id="btn-user" class="btn-slide" onclick="ajaxSaveUsername()">Salva</button>
-                    </div>
-                    <div class="edit-row">
-                        <input type="email" id="inp-email" class="edit-input" value="<?= htmlspecialchars($utente['email'] ?? '') ?>" data-original="<?= htmlspecialchars($utente['email'] ?? '') ?>" placeholder="Email" oninput="handleEmailInput(this)">
-                    </div>
-                    <form method="post" class="email-expand-box" id="box-email-otp">
-                        <input type="text" name="otp_code" id="inp-otp" class="edit-input otp-locked" placeholder="Codice" disabled autocomplete="off">
-                        <button type="button" id="btn-email-action" class="btn-action-email" onclick="handleEmailAction()">Invia</button>
-                        <input type="hidden" name="confirm_email_final" value="1">
-                    </form>
-                    <div class="edit-row" id="row-livello">
-                        <input type="number" min="0" max="2" id="inp-livello" class="edit-input" value="<?= $utente['livello_privato'] ?? '' ?>" data-original="<?= $utente['livello_privato'] ?? '' ?>" placeholder="Livello sicurezza">
-                        <button type="button" id="btn-livello" class="btn-slide" onclick="ajaxSaveLivello()">Salva</button>
-                    </div>
-                    <div class="edit-row"><input type="text" class="edit-input" disabled value="<?= htmlspecialchars($utente['nome'] ?? '') ?>"></div>
-                    <div class="edit-row"><input type="text" class="edit-input" disabled value="<?= htmlspecialchars($utente['cognome'] ?? '') ?>"></div>
-                    <div class="edit-row"><input type="text" class="edit-input" disabled value="<?= htmlspecialchars($utente['codice_fiscale'] ?? '') ?>"></div>
                 </div>
+            </form>
 
-                <?php if (!empty($multe_attive)): ?>
-                    <div class="fine-container">
-                        <h4 style="margin:0; color:#c0392b; font-size:0.9rem; border-bottom:1px solid #eee; padding-bottom:5px; width:100%;">
-                            Multe da saldare (<?= count($multe_attive) ?>)
-                        </h4>
-                        <?php foreach ($multe_attive as $m): ?>
-                            <div class="fine-card">
-                                <div class="fine-info">
-                                    <span class="fine-title" title="<?= htmlspecialchars($m['titolo']) ?>">
-                                        <?= htmlspecialchars($m['titolo']) ?>
-                                    </span>
-                                    <span class="fine-meta" title="<?= htmlspecialchars($m['causale']) ?>">
-                                        <?= htmlspecialchars($m['causale']) ?>
-                                    </span>
+            <button class="btn-tessera" onclick="apriTessera()">Visualizza Tessera</button>
+
+            <div class="edit-container-wrapper">
+                <div class="edit-row" id="row-username">
+                    <input type="text" id="inp-username" class="edit-input" value="<?= htmlspecialchars($utente['username'] ?? '') ?>" data-original="<?= htmlspecialchars($utente['username'] ?? '') ?>" placeholder="Username">
+                    <button type="button" id="btn-user" class="btn-slide" onclick="ajaxSaveUsername()">Salva</button>
+                </div>
+                <div class="edit-row">
+                    <input type="email" id="inp-email" class="edit-input" value="<?= htmlspecialchars($utente['email'] ?? '') ?>" data-original="<?= htmlspecialchars($utente['email'] ?? '') ?>" placeholder="Email" oninput="handleEmailInput(this)">
+                </div>
+                <form method="post" id="box-email-otp" style="display:none; width:100%;">
+                    <input type="text" name="otp_code" id="inp-otp" class="edit-input" placeholder="Codice verifica" disabled autocomplete="off">
+                    <button type="button" id="btn-email-action" class="btn-tessera" style="margin-top:10px;" onclick="handleEmailAction()">Invia Codice</button>
+                    <input type="hidden" name="confirm_email_final" value="1">
+                </form>
+                <div class="edit-row" id="row-livello">
+                    <input type="number" min="0" max="2" id="inp-livello" class="edit-input" value="<?= $utente['livello_privato'] ?? '' ?>" data-original="<?= $utente['livello_privato'] ?? '' ?>" placeholder="Livello privacy (0-2)">
+                    <button type="button" id="btn-livello" class="btn-slide" onclick="ajaxSaveLivello()">Salva</button>
+                </div>
+                <div class="edit-row"><input type="text" class="edit-input" disabled value="<?= htmlspecialchars($utente['nome'] ?? '') ?>"></div>
+                <div class="edit-row"><input type="text" class="edit-input" disabled value="<?= htmlspecialchars($utente['cognome'] ?? '') ?>"></div>
+                <div class="edit-row"><input type="text" class="edit-input" disabled value="<?= htmlspecialchars($utente['codice_fiscale'] ?? '') ?>"></div>
+            </div>
+
+            <?php if (!empty($multe_attive)): ?>
+                <div class="fine-container">
+                    <h4 class="fine-header-title">Da Saldare</h4>
+                    <?php foreach ($multe_attive as $m): ?>
+                        <div class="fine-card">
+                            <div class="fine-info">
+                                <span class="fine-title"><?= htmlspecialchars($m['titolo']) ?></span>
+                                <span class="fine-meta"><?= htmlspecialchars($m['causale']) ?></span>
+                            </div>
+                            <div style="text-align:right;">
+                                <div class="fine-price">€ <?= number_format($m['importo'], 2) ?></div>
+                                <button class="btn-pay" onclick="apriPagamento(<?= $m['id_multa'] ?>, '<?= number_format($m['importo'], 2) ?>')">Paga</button>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php endif; ?>
+        </div>
+
+        <div class="info_column extend_all">
+
+            <div class="section">
+                <h2>Panoramica</h2>
+                <div class="stats-grid">
+                    <div class="stat-card-total">
+                        <span class="stat-label">Libri Letti</span>
+                        <strong class="stat-value-total"><?= $totale_libri_letti ?></strong>
+                    </div>
+                    <div class="stat-card-monthly">
+                        <span class="stat-label">Media Mensile</span>
+                        <strong class="stat-value-monthly"><?= $media_mensile ?></strong>
+                    </div>
+                </div>
+                <?php if ($storico_stat): ?>
+                    <div class="chart-container">
+                        <?php foreach ($storico_stat as $s):
+                            $percentuale = ($max_libri_mese > 0) ? ($s['qta'] / $max_libri_mese) * 100 : 0;
+                            ?>
+                            <div class="chart-row">
+                                <div class="chart-label"><?= $s['mese'] ?></div>
+                                <div class="chart-bar-bg">
+                                    <div class="chart-bar-fill" style="width: <?= $percentuale ?>%;"></div>
                                 </div>
-                                <div class="fine-actions">
-                                    <span class="fine-price">€ <?= number_format($m['importo'], 2) ?></span>
-                                    <button class="btn-pay" onclick="apriPagamento(<?= $m['id_multa'] ?>, '<?= number_format($m['importo'], 2) ?>')">Paga</button>
-                                </div>
+                                <div class="chart-value"><?= $s['qta'] ?></div>
                             </div>
                         <?php endforeach; ?>
                     </div>
                 <?php endif; ?>
             </div>
 
-            <div class="info_column extend_all">
+            <div class="section">
+                <h2>Prestiti attivi</h2>
+                <div class="grid">
+                    <?php if ($prestiti_attivi): foreach ($prestiti_attivi as $libro):
+                        $scadenza_data = formatCounter($libro['data_scadenza']);
+                        $rinnovi_effettuati = $libro['num_rinnovi'] ?? 0;
+                        ?>
+                        <div class="book-item">
+                            <a href="./libro?isbn=<?= htmlspecialchars($libro['isbn']) ?>" class="card cover-only"><img src="<?= getCoverPath($libro['isbn']) ?>" alt="Cover"></a>
+                            <div class="book-meta">
+                                <div><?= $scadenza_data[0] ?></div>
+                            </div>
+                            <div class="mini-actions">
+                                <?php if ($libro['stato_richiesta'] == 'in_attesa'): ?>
+                                    <span class="link-mini link-pending">Richiesta inviata</span>
+                                <?php elseif ($rinnovi_effettuati >= 1): ?>
+                                    <span class="link-mini link-pending">Max rinnovi</span>
+                                <?php else: ?>
+                                    <form method="POST" action="profilo">
+                                        <input type="hidden" name="action" value="richiedi_estensione">
+                                        <input type="hidden" name="id_prestito" value="<?= $libro['id_prestito'] ?>">
+                                        <input type="hidden" name="scadenza_attuale" value="<?= $libro['data_scadenza'] ?>">
+                                        <button type="submit" class="link-mini link-action">Estendi prestito</button>
+                                    </form>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; else: ?>
+                        <p style="color:#888;">Nessun prestito in corso.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Prenotazioni</h2>
+                <div class="grid">
+                    <?php if ($prenotazioni): foreach ($prenotazioni as $libro):
+                        $queue_count = $libro['utenti_davanti'];
+                        $queue_msg = ($queue_count == 0) ? 'Prossimo disponibile' : "$queue_count persone prima di te";
+                        ?>
+                        <div class="book-item">
+                            <a href="./libro?isbn=<?= htmlspecialchars($libro['isbn']) ?>" class="card cover-only"><img src="<?= getCoverPath($libro['isbn']) ?>" alt="Cover"></a>
+                            <div class="book-meta">
+                                <div><?= $queue_msg ?></div>
+                            </div>
+                            <div class="mini-actions">
+                                <form method="POST" action="profilo">
+                                    <input type="hidden" name="action" value="annulla_prenotazione">
+                                    <input type="hidden" name="id_prenotazione" value="<?= $libro['id_prenotazione'] ?>">
+                                    <button type="submit" class="link-mini link-danger">Annulla</button>
+                                </form>
+                            </div>
+                        </div>
+                    <?php endforeach; else: ?>
+                        <p style="color:#888;">Nessuna prenotazione.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <?php if (!empty($badges)): ?>
                 <div class="section">
                     <h2>Badge</h2>
                     <div class="grid">
-                        <?php if (!empty($badges)): ?>
-                            <?php foreach ($badges as $b): ?>
-                                <div class="book-item">
-                                    <a href="./badge?id=<?= intval($b['id_badge']) ?>" class="card cover-only">
-                                        <?= badgeIconHtmlProfile($b) ?>
-                                    </a>
-                                    <div class="book-meta">
-                                        <div class="book_main_title" style="font-size:1rem; margin:0;">
-                                            <?= htmlspecialchars($b['nome']) ?>
-                                        </div>
-
-                                        <div class="book_authors" style="margin-top:6px; font-size:0.9rem;">
-                                            Livello: <strong><?= intval($b['livello']) ?></strong>
-                                            <?php if (!empty($b['target_numerico'])): ?>
-                                                &nbsp;•&nbsp; Target: <?= intval($b['target_numerico']) ?>
-                                            <?php endif; ?>
-                                        </div>
-
-                                        <?php if (!empty($b['descrizione'])): ?>
-                                            <div class="book_desc_text" style="margin-top:8px; font-size:0.9rem; max-height:48px; overflow:hidden;">
-                                                <?= nl2br(htmlspecialchars($b['descrizione'])) ?>
-                                            </div>
-                                        <?php endif; ?>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <h4 style="color:#888;">Nessun badge acquisito</h4>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <h2>Prestiti in corso</h2>
-                    <div class="grid">
-                        <?php if ($prestiti_attivi): foreach ($prestiti_attivi as $libro):
-                            $scadenza_data = formatCounter($libro['data_scadenza']);
-                            $rinnovi_effettuati = $libro['num_rinnovi'] ?? 0;
-                            ?>
+                        <?php foreach ($badges as $b): ?>
                             <div class="book-item">
-                                <a href="./libro?isbn=<?= htmlspecialchars($libro['isbn']) ?>" class="card cover-only"><img src="<?= getCoverPath($libro['isbn']) ?>" alt="Libro"></a>
-                                <div class="book-meta" style="color: <?= $scadenza_data[1] ?>;"><?= $scadenza_data[0] ?></div>
-                                <div class="mini-actions">
-                                    <?php if ($libro['stato_richiesta'] == 'in_attesa'): ?>
-                                        <button class="btn-mini btn-mini-pending" disabled>In attesa...</button>
-                                    <?php elseif ($rinnovi_effettuati >= 1): ?>
-                                        <button class="btn-mini btn-mini-limit" disabled title="Hai già esteso questo prestito">Limite raggiunto</button>
-                                    <?php else: ?>
-                                        <form method="POST" action="profilo" style="width:100%;">
-                                            <input type="hidden" name="action" value="richiedi_estensione">
-                                            <input type="hidden" name="id_prestito" value="<?= $libro['id_prestito'] ?>">
-                                            <input type="hidden" name="scadenza_attuale" value="<?= $libro['data_scadenza'] ?>">
-                                            <button type="submit" class="btn-mini btn-mini-action">Estendi (+)</button>
-                                        </form>
-                                    <?php endif; ?>
+                                <?= badgeIconHtmlProfile($b) ?>
+                                <div class="book-meta" style="text-align:center; margin-top:5px;">
+                                    <?= htmlspecialchars($b['nome']) ?>
                                 </div>
                             </div>
-                        <?php endforeach; else: ?>
-                            <h4 style="color:#888;">Nessun prestito attivo</h4>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
                     </div>
                 </div>
+            <?php endif; ?>
 
-                <div class="section">
-                    <h2>Prenotazioni</h2>
-                    <div class="grid">
-                        <?php if ($prenotazioni): foreach ($prenotazioni as $libro):
-                            $data_scadenza_pren = date('Y-m-d', strtotime($libro['data_prenotazione'] . ' + 2 days'));
-                            $scadenza_data = formatCounter($data_scadenza_pren);
-                            $queue_count = $libro['utenti_davanti'];
-                            $queue_msg = ($queue_count == 0) ? '<span style="color:#27ae60; font-weight:bold; font-size:0.75rem;">Sei il prossimo!</span>' : "<span style='color:#e67e22; font-weight:bold; font-size:0.75rem;'>$queue_count utenti davanti</span>";
-                            ?>
-                            <div class="book-item">
-                                <a href="./libro?isbn=<?= htmlspecialchars($libro['isbn']) ?>" class="card cover-only"><img src="<?= getCoverPath($libro['isbn']) ?>" alt="Libro"></a>
-                                <div class="book-meta" style="color: <?= $scadenza_data[1] ?>;"><?= $scadenza_data[0] ?></div>
-                                <div class="book-meta"><?= $queue_msg ?></div>
-                                <div class="mini-actions">
-                                    <form method="POST" action="profilo" style="width:100%;">
-                                        <input type="hidden" name="action" value="annulla_prenotazione">
-                                        <input type="hidden" name="id_prenotazione" value="<?= $libro['id_prenotazione'] ?>">
-                                        <button type="submit" class="btn-mini btn-mini-danger">Annulla</button>
-                                    </form>
-                                </div>
-                            </div>
-                        <?php endforeach; else: ?>
-                            <h4 style="color:#888;">Nessuna prenotazione attiva</h4>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <h2>Libri Letti</h2>
-                    <div class="grid">
-                        <?php if ($libri_letti): foreach ($libri_letti as $libro): ?>
-                            <div class="book-item">
-                                <a href="./libro?isbn=<?= htmlspecialchars($libro['isbn']) ?>" class="card cover-only"><img src="<?= getCoverPath($libro['isbn']) ?>" alt="Libro"></a>
-                            </div>
-                        <?php endforeach; else: ?>
-                            <h4 style="color:#888;">Nessun libro ancora letto</h4>
-                        <?php endif; ?>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <h2>Le Mie Statistiche</h2>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px;">
-                        <div style="background: #f4f7f2; padding: 15px; border-radius: 12px; border-left: 4px solid #3f5135;">
-                            <span style="display: block; font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Libri Totali</span>
-                            <div style="display: flex; align-items: baseline; gap: 8px;">
-                                <strong style="font-size: 2rem; color: #3f5135;"><?= $totale_libri_letti ?></strong>
-                                <span style="font-size: 0.9rem; color: #888;">Letti</span>
-                            </div>
+            <div class="section">
+                <h2>Storico letture</h2>
+                <div class="grid">
+                    <?php if ($libri_letti): foreach ($libri_letti as $libro): ?>
+                        <div class="book-item">
+                            <a href="./libro?isbn=<?= htmlspecialchars($libro['isbn']) ?>" class="card cover-only"><img src="<?= getCoverPath($libro['isbn']) ?>" alt="Cover"></a>
                         </div>
-                        <div style="background: #fef9f4; padding: 15px; border-radius: 12px; border-left: 4px solid #e67e22;">
-                            <span style="display: block; font-size: 0.8rem; color: #666; text-transform: uppercase; letter-spacing: 0.5px;">Media Mensile</span>
-                            <div style="display: flex; align-items: baseline; gap: 8px;">
-                                <strong style="font-size: 2rem; color: #e67e22;"><?= $media_mensile ?></strong>
-                                <span style="font-size: 0.9rem; color: #888;">Libri/mese</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="margin-top: 10px;">
-                        <h3 style="font-size: 1rem; margin-bottom: 20px; color: #333; font-weight: 600;">Attività Recente</h3>
-                        <?php if ($storico_stat): ?>
-                            <div style="display: flex; flex-direction: column; gap: 15px;">
-                                <?php foreach ($storico_stat as $s):
-                                    $percentuale = ($max_libri_mese > 0) ? ($s['qta'] / $max_libri_mese) * 100 : 0;
-                                    $percentuale = max($percentuale, 5);
-                                    ?>
-                                    <div style="display: flex; align-items: center; gap: 15px;">
-                                        <div style="width: 70px; font-size: 0.85rem; color: #666; text-align: right;"><?= $s['mese'] ?></div>
-                                        <div style="flex: 1; background: #f0f0f0; height: 12px; border-radius: 6px; overflow: hidden;">
-                                            <div style="width: <?= $percentuale ?>%; background: #3f5135; height: 100%; border-radius: 6px; transition: width 0.5s ease;"></div>
-                                        </div>
-                                        <div style="width: 60px; font-size: 0.85rem; color: #3f5135; font-weight: 600;"><?= $s['qta'] ?> <?= $s['qta'] == 1 ? 'Libro' : 'Libri' ?></div>
-                                    </div>
-                                <?php endforeach; ?>
-                            </div>
-                        <?php else: ?>
-                            <div style="text-align: center; padding: 20px; color: #888; background: #fafafa; border-radius: 12px;">Nessun dato storico disponibile per generare il grafico.</div>
-                        <?php endif; ?>
-                    </div>
+                    <?php endforeach; endif; ?>
                 </div>
+            </div>
 
+        </div>
+    </div>
+
+    <div id="modalTessera" class="modal-overlay">
+        <div class="modal-content">
+            <div id="tessera-card">
+                <div class="tessera-header">Biblioteca Scrum</div>
+                <div class="tessera-label">Nome</div>
+                <div class="tessera-value"><?= htmlspecialchars(($utente['nome'] ?? '') . ' ' . ($utente['cognome'] ?? '')) ?></div>
+                <div class="tessera-label">Codice</div>
+                <div class="tessera-value"><?= htmlspecialchars($utente['codice_alfanumerico'] ?? $uid) ?></div>
+                <div class="tessera-barcode">*<?= strtoupper(htmlspecialchars($utente['codice_alfanumerico'] ?? $uid)) ?>*</div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-action btn-print" onclick="chiudiTessera()">Chiudi</button>
+                <button class="btn-action btn-download" onclick="scaricaPNG()">Scarica</button>
             </div>
         </div>
+    </div>
 
-        <div id="modalTessera" class="modal-overlay">
-            <div class="modal-content">
-                <span class="close-modal" onclick="chiudiTessera()">&times;</span>
-                <div id="tessera-card">
-                    <div class="tessera-header">BibliotecaScrum</div>
-                    <div class="tessera-user"><?= htmlspecialchars(($utente['nome'] ?? '') . ' ' . ($utente['cognome'] ?? '')) ?></div>
-                    <div class="tessera-barcode">*<?= strtoupper(htmlspecialchars($utente['codice_alfanumerico'] ?? $uid)) ?>*</div>
-                </div>
+    <div id="modalPagamento" class="modal-overlay">
+        <div class="modal-content">
+            <h3 style="font-family:'Young Serif', serif; color:var(--color_text_dark_green); margin-bottom:20px;">Conferma Pagamento</h3>
+            <p style="margin-bottom:10px;">Importo da saldare</p>
+            <h2 style="font-family:'Young Serif', serif; font-size:2.5rem; margin:0 0 30px 0;">€ <span id="payAmountDisplay">0.00</span></h2>
+
+            <form method="POST" action="profilo">
+                <input type="hidden" name="action" value="paga_multa_user">
+                <input type="hidden" name="id_multa" id="payMultaId">
                 <div class="modal-actions">
-                    <button class="btn-action btn-download" onclick="scaricaPNG()">Scarica PNG</button>
-                    <button class="btn-action btn-print" onclick="stampa()">Stampa</button>
+                    <button type="button" class="btn-action btn-modal-cancel" onclick="chiudiPagamento()">Annulla</button>
+                    <button type="submit" class="btn-action btn-modal-pay">Conferma</button>
                 </div>
-            </div>
+            </form>
         </div>
+    </div>
 
-        <div id="modalPagamento" class="modal-overlay">
-            <div class="modal-content">
-                <span class="close-modal" onclick="chiudiPagamento()">&times;</span>
-                <h3 style="margin-top:0; color:#333;">Conferma Pagamento</h3>
-                <p style="margin:20px 0; color:#555;">Stai per pagare una multa di:</p>
-                <h2 style="color:#27ae60; margin:0;">€ <span id="payAmountDisplay">0.00</span></h2>
+    <div id="notification-banner" style="position:fixed; bottom:20px; right:20px; background:#fff; border-left:4px solid var(--color_text_dark_green); padding:15px 25px; box-shadow:0 5px 20px rgba(0,0,0,0.1); transform:translateY(100px); transition:transform 0.3s; z-index:3000;">
+        <span id="banner-msg">Notifica</span>
+    </div>
 
-                <p style="font-size:0.85em; color:#999; margin-top:20px;">
-                    Il pagamento sarà simulato e registrato immediatamente nel sistema.
-                </p>
+    <script>
+        /* Javascript Logica */
+        let timeoutId;
+        function showNotification(message) {
+            const banner = document.getElementById('notification-banner');
+            document.getElementById('banner-msg').innerText = message;
+            banner.style.transform = 'translateY(0)';
+            if (timeoutId) clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => { banner.style.transform = 'translateY(100px)'; }, 5000);
+        }
 
-                <form method="POST" action="profilo">
-                    <input type="hidden" name="action" value="paga_multa_user">
-                    <input type="hidden" name="id_multa" id="payMultaId">
-                    <div class="modal-actions">
-                        <button type="button" class="btn-action btn-modal-cancel" onclick="chiudiPagamento()">Annulla</button>
-                        <button type="submit" class="btn-action btn-modal-pay">Conferma Pagamento</button>
-                    </div>
-                </form>
-            </div>
-        </div>
+        // Iniezione messaggi PHP
+        <?php if(!empty($messaggio_alert)): ?>
+        setTimeout(() => { showNotification("<?= addslashes($messaggio_alert) ?>"); }, 500);
+        <?php endif; ?>
 
-        <div id="notification-banner">
-            <span id="banner-msg" class="notification-text">Notifica</span>
-            <button class="close-btn-banner" onclick="hideNotification()">&times;</button>
-        </div>
+        // Logica Username
+        const inpUser = document.getElementById('inp-username');
+        const rowUser = document.getElementById('row-username');
+        inpUser.addEventListener('input', function() {
+            if(this.value !== this.dataset.original) rowUser.classList.add('changed');
+            else rowUser.classList.remove('changed');
+        });
+        async function ajaxSaveUsername() {
+            const val = inpUser.value;
+            const formData = new FormData(); formData.append('ajax_username', val);
+            try {
+                let resp = await fetch(window.location.href, {method:'POST', body:formData});
+                let data = await resp.json();
+                showNotification(data.message);
+                if(data.status==='success') { inpUser.dataset.original = val; rowUser.classList.remove('changed'); }
+            } catch(e) { showNotification("Errore connessione"); }
+        }
 
-        <script>
-            let timeoutId;
-            function showNotification(message) {
-                const banner = document.getElementById('notification-banner');
-                const msgSpan = document.getElementById('banner-msg');
-                msgSpan.innerText = message;
-                banner.classList.add('show');
-                if (timeoutId) clearTimeout(timeoutId);
-                timeoutId = setTimeout(() => { hideNotification(); }, 5000);
+        // Logica Livello
+        const inpLiv = document.getElementById('inp-livello');
+        const rowLiv = document.getElementById('row-livello');
+        inpLiv.addEventListener('input', function() {
+            if(this.value !== this.dataset.original) rowLiv.classList.add('changed');
+            else rowLiv.classList.remove('changed');
+        });
+        async function ajaxSaveLivello() {
+            const val = inpLiv.value;
+            const formData = new FormData(); formData.append('ajax_livello', val);
+            try {
+                let resp = await fetch(window.location.href, {method:'POST', body:formData});
+                let data = await resp.json();
+                showNotification(data.message);
+                if(data.status==='success') { inpLiv.dataset.original = val; rowLiv.classList.remove('changed'); }
+            } catch(e) { showNotification("Errore connessione"); }
+        }
+
+        // Logica Email
+        function handleEmailInput(input) {
+            const box = document.getElementById('box-email-otp');
+            if(input.value !== input.dataset.original) {
+                box.style.display = 'block';
+                document.getElementById('btn-email-action').innerText = "Invia Codice";
+                document.getElementById('btn-email-action').type = "button";
+                document.getElementById('inp-otp').disabled = true;
+            } else {
+                box.style.display = 'none';
             }
-            function hideNotification() { document.getElementById('notification-banner').classList.remove('show'); }
-
-            const serverMessage = "<?= addslashes($messaggio_alert) ?>";
-            if (serverMessage.length > 0) { setTimeout(() => { showNotification(serverMessage); }, 500); }
-
-            // GESTIONE USERNAME AJAX
-            const inpUser = document.getElementById('inp-username');
-            const rowUser = document.getElementById('row-username');
-            const btnUser = document.getElementById('btn-user');
-            inpUser.addEventListener('input', function() {
-                if (this.value !== this.dataset.original) {
-                    rowUser.classList.add('changed');
-                    btnUser.innerText = "Salva"; btnUser.classList.remove('btn-success-anim');
-                } else { rowUser.classList.remove('changed'); }
-            });
-            async function ajaxSaveUsername() {
-                const newVal = inpUser.value;
+        }
+        async function handleEmailAction() {
+            const btn = document.getElementById('btn-email-action');
+            if(btn.type === 'button') {
                 const formData = new FormData();
-                formData.append('ajax_username', newVal);
+                formData.append('ajax_send_email_code', 1);
+                formData.append('email_dest', document.getElementById('inp-email').value);
+                btn.innerText = "Attendi...";
                 try {
-                    const response = await fetch(window.location.href, { method: 'POST', body: formData });
-                    const data = await response.json();
-                    if (data.status === 'success') {
-                        showNotification(data.message);
-                        btnUser.innerText = "Fatto!";
-                        btnUser.classList.add('btn-success-anim');
-                        inpUser.dataset.original = newVal;
-                        setTimeout(() => { rowUser.classList.remove('changed'); }, 1500);
-                    } else { showNotification(data.message); }
-                } catch (error) { showNotification("Errore di connessione."); }
+                    let resp = await fetch(window.location.href, {method:'POST', body:formData});
+                    let data = await resp.json();
+                    showNotification(data.message);
+                    if(data.status==='success') {
+                        document.getElementById('inp-otp').disabled = false;
+                        document.getElementById('inp-otp').focus();
+                        btn.innerText = "Conferma cambio";
+                        btn.type = "submit";
+                    } else { btn.innerText = "Invia Codice"; }
+                } catch(e) { showNotification("Errore invio"); }
             }
+        }
 
-            //GESTIONE LIVELLO PRIVATO
-            const inpLivello = document.getElementById("inp-livello");
-            const rowLivello = document.getElementById('row-livello');
-            const btnLivello = document.getElementById('btn-livello');
-            inpLivello.addEventListener('input', function() {
-                if (this.value !== this.dataset.original) {
-                    rowLivello.classList.add('changed');
-                    btnLivello.innerText = "Salva"; btnLivello.classList.remove('btn-success-anim');
-                } else { rowLivello.classList.remove('changed'); }
+        // Modals
+        const modalTessera = document.getElementById('modalTessera');
+        const modalPay = document.getElementById('modalPagamento');
+        function apriTessera() { modalTessera.style.display = 'flex'; }
+        function chiudiTessera() { modalTessera.style.display = 'none'; }
+        function apriPagamento(id, amount) {
+            document.getElementById('payMultaId').value = id;
+            document.getElementById('payAmountDisplay').innerText = amount;
+            modalPay.style.display = 'flex';
+        }
+        function chiudiPagamento() { modalPay.style.display = 'none'; }
+        window.onclick = function(e) {
+            if(e.target == modalTessera) chiudiTessera();
+            if(e.target == modalPay) chiudiPagamento();
+        }
+        function scaricaPNG() {
+            html2canvas(document.getElementById("tessera-card"), {scale: 3}).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Tessera.png';
+                link.href = canvas.toDataURL("image/png");
+                link.click();
             });
-            async function ajaxSaveLivello() {
-                const newVal = parseInt(inpLivello.value);
-                const formData = new FormData();
-                formData.append('ajax_livello', newVal);
-                try {
-                    const response = await fetch(window.location.href, { method: 'POST', body: formData });
-                    const data = await response.json();
-                    if (data.status === 'success') {
-                        showNotification(data.message);
-                        btnLivello.innerText = "Fatto!";
-                        btnLivello.classList.add('btn-success-anim');
-                        inpLivello.dataset.original = newVal;
-                        setTimeout(() => { rowLivello.classList.remove('changed'); }, 1500);
-                    } else { showNotification(data.message); }
-                } catch (error) { showNotification("Errore di connessione.");
-                alert(error)}
-            }
+        }
+    </script>
 
-            // GESTIONE EMAIL OTP
-            const boxEmailOtp = document.getElementById('box-email-otp');
-            const inpEmail = document.getElementById('inp-email');
-            const inpOtp = document.getElementById('inp-otp');
-            const btnEmailAction = document.getElementById('btn-email-action');
-            let emailStep = 1;
-            function handleEmailInput(input) {
-                if (input.value !== input.dataset.original) { boxEmailOtp.classList.add('open'); resetEmailState(); }
-                else { boxEmailOtp.classList.remove('open'); }
-            }
-            function resetEmailState() {
-                emailStep = 1; btnEmailAction.innerText = "Invia"; btnEmailAction.type = "button";
-                inpOtp.disabled = true; inpOtp.classList.add('otp-locked'); inpOtp.value = "";
-            }
-            async function handleEmailAction() {
-                if (emailStep === 1) {
-                    const formData = new FormData();
-                    formData.append('ajax_send_email_code', 1);
-                    formData.append('email_dest', inpEmail.value);
-                    btnEmailAction.innerText = "...";
-                    try {
-                        const response = await fetch(window.location.href, { method: 'POST', body: formData });
-                        const data = await response.json();
-                        if (data.status === 'success') {
-                            showNotification(data.message);
-                            emailStep = 2; inpOtp.disabled = false; inpOtp.classList.remove('otp-locked'); inpOtp.focus();
-                            btnEmailAction.innerText = "Conferma"; btnEmailAction.type = "submit";
-                        } else { showNotification(data.message); btnEmailAction.innerText = "Invia"; }
-                    } catch (e) { showNotification("Errore di rete."); btnEmailAction.innerText = "Invia"; }
-                }
-            }
-
-            // GESTIONE MODAL TESSERA
-            const modalTessera = document.getElementById('modalTessera');
-            function apriTessera() { modalTessera.style.display = 'flex'; }
-            function chiudiTessera() { modalTessera.style.display = 'none'; }
-            function stampa() { window.print(); }
-            function scaricaPNG() {
-                const elemento = document.getElementById("tessera-card");
-                html2canvas(elemento, { backgroundColor: "#ffffff", scale: 3 }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = 'Tessera_BibliotecaScrum.png';
-                    link.href = canvas.toDataURL("image/png");
-                    link.click();
-                });
-            }
-
-            // GESTIONE MODAL PAGAMENTO
-            const modalPay = document.getElementById('modalPagamento');
-            function apriPagamento(id, amount) {
-                document.getElementById('payMultaId').value = id;
-                document.getElementById('payAmountDisplay').innerText = amount;
-                modalPay.style.display = 'flex';
-            }
-            function chiudiPagamento() { modalPay.style.display = 'none'; }
-
-            // CHIUSURA MODAL CLICK ESTERNO
-            window.onclick = function(event) {
-                if (event.target == modalTessera) chiudiTessera();
-                if (event.target == modalPay) chiudiPagamento();
-            }
-        </script>
-
-    <?php require './src/includes/footer.php'; ?>
+<?php require './src/includes/footer.php'; ?>

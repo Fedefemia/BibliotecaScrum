@@ -1,0 +1,471 @@
+/* style_profilo.css */
+
+/* --- LAYOUT GENERALE --- */
+.info_line {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+    align-items: flex-start;
+}
+
+/* --- COLONNA SINISTRA (Sticky) --- */
+.info_column:first-child {
+    flex: 1 1 300px;
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+    position: sticky;
+    top: 20px;
+    border: 1px solid rgba(0,0,0,0.05);
+    text-align: center;
+}
+
+/* COLONNA DESTRA */
+.info_column.extend_all {
+    flex: 2 1 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 50px;
+}
+
+/* --- AVATAR & INPUTS --- */
+.pfp-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto 20px;
+    cursor: pointer;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid var(--color_accent_ligth);
+}
+
+.info_pfp {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.3s;
+}
+
+.pfp-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.pfp-text {
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.pfp-wrapper:hover .pfp-overlay { opacity: 1; }
+
+/* Input Styling */
+.edit-container-wrapper {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.edit-row {
+    position: relative;
+    width: 100%;
+}
+
+.edit-input {
+    width: 100%;
+    padding: 12px 0;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    background-color: transparent;
+    font-family: inherit;
+    font-size: 0.95rem;
+    color: var(--color_text_black);
+    transition: border-color 0.3s;
+    border-radius: 0;
+}
+
+.edit-input:focus {
+    border-color: var(--color_accent_dark);
+    outline: none;
+}
+
+.edit-input:disabled {
+    color: #888;
+    border-bottom: 1px dashed #eee;
+}
+
+/* Bottoni Slide (Salva) */
+.btn-slide {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 5px 15px;
+    background: var(--color_accent_dark);
+    color: var(--color_background_ligth);
+    border: none;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: none;
+}
+.edit-row.changed .btn-slide { display: block; }
+
+/* Bottone Tessera (nella sidebar) */
+.btn-tessera {
+    background-color: transparent;
+    color: var(--color_accent_dark);
+    border: 1px solid var(--color_accent_dark);
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-family: inherit;
+    margin-top: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btn-tessera:hover {
+    background-color: var(--color_accent_dark);
+    color: var(--color_background_ligth);
+}
+
+/* --- SEZIONE MULTE --- */
+.fine-container {
+    margin-top: 40px;
+    text-align: left;
+    border-top: 1px solid #eee;
+    padding-top: 20px;
+}
+.fine-header-title {
+    font-family: 'Young Serif', serif;
+    color: var(--color_text_dark_green);
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.fine-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+.fine-info { display: flex; flex-direction: column; gap: 4px; }
+.fine-title { font-weight: 600; font-size: 0.95rem; color: var(--color_text_black); }
+.fine-meta { font-size: 0.8rem; color: #888; }
+.fine-price { font-family: 'Young Serif', serif; color: var(--color_text_dark_green); font-size: 1.1rem; }
+
+.btn-pay {
+    background: var(--color_text_dark_green);
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 15px;
+}
+
+/* --- SEZIONI --- */
+.section h2 {
+    font-family: 'Young Serif', serif;
+    font-size: 2rem;
+    color: var(--color_text_dark_green);
+    margin-bottom: 30px;
+}
+
+/* --- GRIGLIA LIBRI --- */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 30px;
+    margin-bottom: 40px;
+}
+
+.book-item {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+}
+
+/* Card & Cover */
+.card {
+    display: block; /* Importante per i link */
+    width: 100%;
+    text-decoration: none;
+}
+.card.cover-only img {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+}
+.card.cover-only:hover img { transform: translateY(-3px); }
+
+/* Badge Img */
+.badge-img {
+    width: 100%;
+    aspect-ratio: 1/1; /* Badge spesso sono quadrati o tondi */
+    object-fit: contain;
+    transition: transform 0.3s ease;
+}
+
+.book-meta {
+    font-size: 0.8rem;
+    color: var(--color_text_black);
+    line-height: 1.4;
+}
+
+/* --- AZIONI MINI (Link testuali) --- */
+/* Questa è la parte che mancava o si è persa! */
+.mini-actions {
+    margin-top: 5px;
+}
+
+.link-mini {
+    display: block;
+    width: 100%;
+    font-size: 0.75rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    border: none;
+    background: none;
+    text-align: left;
+    padding: 0;
+    text-decoration: underline;
+    margin: 0;
+}
+
+.link-action {
+    color: var(--color_accent_dark);
+}
+.link-action:hover {
+    color: var(--color_text_dark_green);
+}
+
+.link-danger {
+    color: #888;
+}
+.link-danger:hover {
+    color: #d63031;
+}
+
+.link-pending {
+    color: #aaa;
+    text-decoration: none;
+    cursor: default;
+}
+
+/* Badge placeholder (se manca immagine) */
+.badge-placeholder {
+    width: 80px; height: 80px;
+    background: var(--color_background_ligth);
+    border: 1px solid var(--color_accent_ligth);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Young Serif', serif;
+    font-size: 1.5rem; color: var(--color_accent_dark);
+    margin: 0 auto;
+}
+
+/* --- STATISTICHE --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 40px;
+}
+.stat-card-total, .stat-card-monthly {
+    background: var(--color_background_dark);
+    padding: 25px;
+    border-radius: 12px;
+    text-align: left;
+}
+.stat-label {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #666;
+    display: block;
+    margin-bottom: 10px;
+}
+.stat-value-total, .stat-value-monthly {
+    font-family: 'Young Serif', serif;
+    font-size: 3rem;
+    color: var(--color_text_dark_green);
+    line-height: 1;
+}
+
+/* Grafico */
+.chart-container { margin-top: 20px; }
+.chart-row {
+    display: flex; align-items: center; margin-bottom: 15px; gap: 20px;
+}
+.chart-label { width: 60px; font-size: 0.8rem; color: #666; font-family: 'Instrument Sans', sans-serif; }
+.chart-bar-bg { flex: 1; height: 4px; background: #eee; border-radius: 2px; }
+.chart-bar-fill {
+    height: 100%;
+    background: var(--color_text_dark_green);
+    border-radius: 2px;
+}
+.chart-value { width: 30px; font-size: 0.8rem; color: #333; text-align: right; }
+
+/* --- MODALS --- */
+.modal-overlay {
+    display: none; position: fixed; z-index: 2000;
+    left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(8px);
+    justify-content: center; align-items: center;
+}
+.modal-content {
+    background-color: #fff;
+    padding: 40px;
+    border: 1px solid #eee;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+    max-width: 400px; width: 90%;
+    text-align: center;
+    border-radius: 24px;
+}
+
+/* Tessera Card Style */
+#tessera-card {
+    background: var(--color_background_ligth);
+    color: var(--color_text_black);
+    padding: 30px;
+    border: 1px solid var(--color_accent_ligth);
+    width: 320px;
+    margin: 20px auto;
+    text-align: left;
+    position: relative;
+    border-radius: 12px;
+}
+.tessera-header {
+    font-family: 'Young Serif', serif; font-size: 1.4rem;
+    margin-bottom: 30px; color: var(--color_text_dark_green);
+}
+.tessera-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 5px; }
+.tessera-value { font-family: 'Instrument Sans', sans-serif; font-size: 1.1rem; margin-bottom: 15px; color: #333; }
+.tessera-barcode {
+    font-family: monospace; font-size: 0.9rem; letter-spacing: 3px;
+    text-align: center; margin-top: 20px; color: #666;
+}
+
+/* Bottoni Modali */
+.modal-actions { margin-top: 30px; display: flex; gap: 10px; justify-content: center; }
+.btn-action {
+    padding: 12px 24px; border: none; cursor: pointer; border-radius: 8px;
+    font-family: inherit; font-size: 0.9rem; font-weight: 600;
+}
+.btn-download, .btn-modal-pay { background: var(--color_text_dark_green); color: #fff; }
+.btn-print, .btn-modal-cancel { background: transparent; color: #666; border: 1px solid #ddd; }
+
+
+/* ===============================
+   --- MEDIA QUERY (MOBILE) ---
+   Aggiungilo in fondo a style_profilo.css
+=============================== */
+
+@media (max-width: 768px) {
+
+    /* 1. Layout generale: colonna unica e meno spazio inutile */
+    .info_line {
+        flex-direction: column; /* Impila tutto verticalmente */
+        gap: 30px;
+        margin: 20px auto; /* Riduciamo i margini esterni */
+        padding: 0 15px; /* Un po' di respiro ai lati */
+    }
+
+    /* 2. Sidebar (Colonna Sinistra) */
+    .info_column:first-child {
+        position: relative; /* Niente più sticky che occupa spazio */
+        top: 0;
+        width: 100%; /* Occupa tutta la larghezza */
+        flex: 1 1 auto;
+        padding: 25px; /* Padding leggermente ridotto */
+        box-sizing: border-box; /* Fondamentale per non sforare */
+    }
+
+    /* 3. Contenuto Principale (Colonna Destra) */
+    .info_column.extend_all {
+        width: 100%;
+        flex: 1 1 auto;
+        gap: 35px; /* Riduciamo il gap tra le sezioni */
+    }
+
+    /* 4. Fix Critico: La Tessera */
+    /* Prima era fissa a 320px e rompeva i telefoni piccoli! */
+    #tessera-card {
+        width: 100% !important; /* Forza la larghezza fluida */
+        max-width: 320px; /* Non farla diventare gigante però */
+        margin: 20px auto;
+        box-sizing: border-box; /* Include il padding nella larghezza */
+    }
+
+    /* 5. Statistiche: una sotto l'altra per vederle bene */
+    .stats-grid {
+        grid-template-columns: 1fr; /* Una sola colonna */
+        gap: 15px;
+    }
+
+    .stat-value-total, .stat-value-monthly {
+        font-size: 2.5rem; /* Un po' più piccoli ma sempre leggibili */
+    }
+
+    /* 6. Griglia Libri */
+    .grid {
+        gap: 15px;
+        /* Celle un po' più piccole per farne stare almeno 2 affiancate */
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+
+    .section h2 {
+        font-size: 1.6rem; /* Titoli meno ingombranti */
+        margin-bottom: 20px;
+    }
+
+    /* 7. Multe e Liste */
+    .fine-card {
+        flex-wrap: wrap; /* Se non c'è spazio, va a capo */
+        gap: 10px;
+    }
+
+    .fine-info {
+        min-width: 100%; /* Il titolo prende tutta la riga se serve */
+        margin-bottom: 5px;
+    }
+
+    .btn-pay {
+        margin-left: auto; /* Sposta il bottone a destra */
+    }
+
+    /* 8. Modals (Popup) */
+    .modal-content {
+        width: 85%;
+        padding: 25px; /* Meno padding interno */
+        max-height: 90vh; /* Evita che sia più alto dello schermo */
+        overflow-y: auto; /* Scroll se serve */
+    }
+}
