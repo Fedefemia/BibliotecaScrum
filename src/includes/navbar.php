@@ -129,9 +129,10 @@ if(isset($_POST["logout"])){
 
             <?php
             if (isset($_SESSION['logged']) && $_SESSION['logged'] === true) {
-                $pfpPath = $path . 'public/pfp/' . $_SESSION['codice_utente'] . '.png';
-                if (!file_exists($pfpPath)) $pfpPath = $path . 'public/assets/base_pfp.png';
-                else $pfpPath .= '?v=' . time();
+                $pfpPath =  $path . 'public/pfp/' . $_SESSION['codice_utente'] . '.png';
+                //if (!file_exists($pfpPath)) $pfpPath = $path . 'public/assets/base_pfp.png';
+                //else $pfpPath .= '?v=' . time();
+                //Buggava la pfp
                 ?>
                 
                 <div class="dropdown">
