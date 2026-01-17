@@ -1,5 +1,3 @@
-/* style_profilo.css */
-
 /* --- LAYOUT GENERALE --- */
 .info_line {
     display: flex;
@@ -33,7 +31,7 @@
 }
 
 /* --- AVATAR & INPUTS --- */
-.pfp-wrapper {
+.pfp_wrapper {
     position: relative;
     width: 120px;
     height: 120px;
@@ -51,7 +49,7 @@
     transition: opacity 0.3s;
 }
 
-.pfp-overlay {
+.pfp_overlay {
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0, 0, 0, 0.5);
@@ -61,29 +59,29 @@
     opacity: 0;
     transition: opacity 0.3s;
 }
-.pfp-text {
+.pfp_text {
     color: #fff;
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 1px;
 }
-.pfp-wrapper:hover .pfp-overlay { opacity: 1; }
+.pfp_wrapper:hover .pfp_overlay { opacity: 1; }
 
 /* Input Styling */
-.edit-container-wrapper {
+.edit_container_wrapper {
     margin-top: 30px;
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
-.edit-row {
+.edit_row {
     position: relative;
     width: 100%;
 }
 
-.edit-input {
+.edit_input {
     width: 100%;
     padding: 12px 0;
     border: none;
@@ -96,18 +94,18 @@
     border-radius: 0;
 }
 
-.edit-input:focus {
+.edit_input:focus {
     border-color: var(--color_accent_dark);
     outline: none;
 }
 
-.edit-input:disabled {
+.edit_input:disabled {
     color: #888;
     border-bottom: 1px dashed #eee;
 }
 
 /* Bottoni Slide (Salva) */
-.btn-slide {
+.btn_slide {
     position: absolute;
     right: 0;
     top: 50%;
@@ -124,10 +122,10 @@
     letter-spacing: 0.5px;
     display: none;
 }
-.edit-row.changed .btn-slide { display: block; }
+.edit_row.changed .btn_slide { display: block; }
 
 /* Bottone Tessera (nella sidebar) */
-.btn-tessera {
+.btn_tessera {
     background-color: transparent;
     color: var(--color_accent_dark);
     border: 1px solid var(--color_accent_dark);
@@ -140,38 +138,38 @@
     cursor: pointer;
     transition: all 0.3s;
 }
-.btn-tessera:hover {
+.btn_tessera:hover {
     background-color: var(--color_accent_dark);
     color: var(--color_background_ligth);
 }
 
 /* --- SEZIONE MULTE --- */
-.fine-container {
+.fine_container {
     margin-top: 40px;
     text-align: left;
     border-top: 1px solid #eee;
     padding-top: 20px;
 }
-.fine-header-title {
+.fine_header_title {
     font-family: 'Young Serif', serif;
     color: var(--color_text_dark_green);
     font-size: 1.2rem;
     margin-bottom: 15px;
 }
 
-.fine-card {
+.fine_card {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 15px 0;
     border-bottom: 1px solid #f0f0f0;
 }
-.fine-info { display: flex; flex-direction: column; gap: 4px; }
-.fine-title { font-weight: 600; font-size: 0.95rem; color: var(--color_text_black); }
-.fine-meta { font-size: 0.8rem; color: #888; }
-.fine-price { font-family: 'Young Serif', serif; color: var(--color_text_dark_green); font-size: 1.1rem; }
+.fine_info { display: flex; flex-direction: column; gap: 4px; }
+.fine_title { font-weight: 600; font-size: 0.95rem; color: var(--color_text_black); }
+.fine_meta { font-size: 0.8rem; color: #888; }
+.fine_price { font-family: 'Young Serif', serif; color: var(--color_text_dark_green); font-size: 1.1rem; }
 
-.btn-pay {
+.btn_pay {
     background: var(--color_text_dark_green);
     color: #fff;
     border: none;
@@ -291,19 +289,19 @@
 }
 
 /* --- STATISTICHE --- */
-.stats-grid {
+.stats_grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 20px;
     margin-bottom: 40px;
 }
-.stat-card-total, .stat-card-monthly {
+.stat_card_total, .stat-card-monthly {
     background: var(--color_background_dark);
     padding: 25px;
     border-radius: 12px;
     text-align: left;
 }
-.stat-label {
+.stat_label {
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 1px;
@@ -311,7 +309,7 @@
     display: block;
     margin-bottom: 10px;
 }
-.stat-value-total, .stat-value-monthly {
+.stat_value_total, .stat_value_monthly {
     font-family: 'Young Serif', serif;
     font-size: 3rem;
     color: var(--color_text_dark_green);
@@ -319,18 +317,18 @@
 }
 
 /* Grafico */
-.chart-container { margin-top: 20px; }
-.chart-row {
+.chart_container { margin-top: 20px; }
+.chart_row {
     display: flex; align-items: center; margin-bottom: 15px; gap: 20px;
 }
-.chart-label { width: 60px; font-size: 0.8rem; color: #666; font-family: 'Instrument Sans', sans-serif; }
-.chart-bar-bg { flex: 1; height: 4px; background: #eee; border-radius: 2px; }
-.chart-bar-fill {
+.chart_label { width: 60px; font-size: 0.8rem; color: #666; font-family: 'Instrument Sans', sans-serif; }
+.chart_bar_bg { flex: 1; height: 4px; background: #eee; border-radius: 2px; }
+.chart_bar_fill {
     height: 100%;
     background: var(--color_text_dark_green);
     border-radius: 2px;
 }
-.chart-value { width: 30px; font-size: 0.8rem; color: #333; text-align: right; }
+.chart_value { width: 30px; font-size: 0.8rem; color: #333; text-align: right; }
 
 /* --- MODALS --- */
 .modal-overlay {
@@ -340,7 +338,7 @@
     backdrop-filter: blur(8px);
     justify-content: center; align-items: center;
 }
-.modal-content {
+.modal_content {
     background-color: #fff;
     padding: 40px;
     border: 1px solid #eee;
@@ -374,13 +372,13 @@
 }
 
 /* Bottoni Modali */
-.modal-actions { margin-top: 30px; display: flex; gap: 10px; justify-content: center; }
-.btn-action {
+.modal_actions { margin-top: 30px; display: flex; gap: 10px; justify-content: center; }
+.btn_action {
     padding: 12px 24px; border: none; cursor: pointer; border-radius: 8px;
     font-family: inherit; font-size: 0.9rem; font-weight: 600;
 }
-.btn-download, .btn-modal-pay { background: var(--color_text_dark_green); color: #fff; }
-.btn-print, .btn-modal-cancel { background: transparent; color: #666; border: 1px solid #ddd; }
+.btn_download, .btn_modal_pay { background: var(--color_text_dark_green); color: #fff; }
+.btn_print, .btn_modal_cancel { background: transparent; color: #666; border: 1px solid #ddd; }
 
 
 /* ===============================
@@ -390,82 +388,78 @@
 
 @media (max-width: 768px) {
 
-    /* 1. Layout generale: colonna unica e meno spazio inutile */
     .info_line {
-        flex-direction: column; /* Impila tutto verticalmente */
+        flex-direction: column;
         gap: 30px;
-        margin: 20px auto; /* Riduciamo i margini esterni */
-        padding: 0 15px; /* Un po' di respiro ai lati */
+        margin: 20px auto;
+        padding: 0 15px;
     }
 
     /* 2. Sidebar (Colonna Sinistra) */
     .info_column:first-child {
-        position: relative; /* Niente più sticky che occupa spazio */
+        position: relative;
         top: 0;
-        width: 100%; /* Occupa tutta la larghezza */
+        width: 100%;
         flex: 1 1 auto;
-        padding: 25px; /* Padding leggermente ridotto */
-        box-sizing: border-box; /* Fondamentale per non sforare */
+        padding: 25px;
+        box-sizing: border-box;
     }
 
     /* 3. Contenuto Principale (Colonna Destra) */
     .info_column.extend_all {
         width: 100%;
         flex: 1 1 auto;
-        gap: 35px; /* Riduciamo il gap tra le sezioni */
+        gap: 35px;
     }
 
-    /* 4. Fix Critico: La Tessera */
-    /* Prima era fissa a 320px e rompeva i telefoni piccoli! */
     #tessera-card {
-        width: 100% !important; /* Forza la larghezza fluida */
-        max-width: 320px; /* Non farla diventare gigante però */
+        width: 100% !important;
+        max-width: 320px;
         margin: 20px auto;
-        box-sizing: border-box; /* Include il padding nella larghezza */
+        box-sizing: border-box;
     }
 
-    /* 5. Statistiche: una sotto l'altra per vederle bene */
-    .stats-grid {
-        grid-template-columns: 1fr; /* Una sola colonna */
+    /* 5. Statistiche */
+    .stats_grid {
+        grid-template-columns: 1fr;
         gap: 15px;
     }
 
-    .stat-value-total, .stat-value-monthly {
-        font-size: 2.5rem; /* Un po' più piccoli ma sempre leggibili */
+    .stat_value_total, .stat_value_monthly {
+        font-size: 2.5rem;
     }
 
     /* 6. Griglia Libri */
     .grid {
         gap: 15px;
-        /* Celle un po' più piccole per farne stare almeno 2 affiancate */
         grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
     }
 
     .section h2 {
-        font-size: 1.6rem; /* Titoli meno ingombranti */
+        font-size: 1.6rem;
         margin-bottom: 20px;
     }
 
     /* 7. Multe e Liste */
-    .fine-card {
-        flex-wrap: wrap; /* Se non c'è spazio, va a capo */
+    .fine_card {
+        flex-wrap: wrap;
         gap: 10px;
     }
 
-    .fine-info {
-        min-width: 100%; /* Il titolo prende tutta la riga se serve */
+    .fine_info {
+        min-width: 100%;
         margin-bottom: 5px;
     }
 
     .btn-pay {
-        margin-left: auto; /* Sposta il bottone a destra */
+        margin-left: auto;
     }
 
     /* 8. Modals (Popup) */
-    .modal-content {
+    .modal_content {
         width: 85%;
-        padding: 25px; /* Meno padding interno */
-        max-height: 90vh; /* Evita che sia più alto dello schermo */
-        overflow-y: auto; /* Scroll se serve */
+        padding: 25px;
+        max-height: 90vh;
+        overflow-y: auto;
     }
 }

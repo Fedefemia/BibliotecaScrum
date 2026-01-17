@@ -384,50 +384,50 @@ require './src/includes/navbar.php';
             <form action="profilo" method="post" enctype="multipart/form-data" id="form-pfp">
                 <input type="hidden" name="submit_pfp" value="1">
                 <input type="file" name="pfp_upload" id="pfp_upload" accept="image/png, image/jpeg" style="display:none;" onchange="document.getElementById('form-pfp').submit()">
-                <div class="pfp-wrapper" onclick="document.getElementById('pfp_upload').click()">
+                <div class="pfp_wrapper" onclick="document.getElementById('pfp_upload').click()">
                     <img class="info_pfp" alt="Foto Profilo" src="<?= $pfpPath . '?v=' . time() ?>">
-                    <div class="pfp-overlay">
-                        <span class="pfp-text">Modifica</span>
+                    <div class="pfp_overlay">
+                        <span class="pfp_text">Modifica</span>
                     </div>
                 </div>
             </form>
 
-            <button class="btn-tessera" onclick="apriTessera()">Visualizza Tessera</button>
+            <button class="btn_tessera" onclick="apriTessera()">Visualizza Tessera</button>
 
             <div class="edit-container-wrapper">
-                <div class="edit-row" id="row-username">
-                    <input type="text" id="inp-username" class="edit-input" value="<?= htmlspecialchars($utente['username'] ?? '') ?>" data-original="<?= htmlspecialchars($utente['username'] ?? '') ?>" placeholder="Username">
-                    <button type="button" id="btn-user" class="btn-slide" onclick="ajaxSaveUsername()">Salva</button>
+                <div class="edit_row" id="row-username">
+                    <input type="text" id="inp-username" class="edit_input" value="<?= htmlspecialchars($utente['username'] ?? '') ?>" data-original="<?= htmlspecialchars($utente['username'] ?? '') ?>" placeholder="Username">
+                    <button type="button" id="btn-user" class="btn_slide" onclick="ajaxSaveUsername()">Salva</button>
                 </div>
-                <div class="edit-row">
-                    <input type="email" id="inp-email" class="edit-input" value="<?= htmlspecialchars($utente['email'] ?? '') ?>" data-original="<?= htmlspecialchars($utente['email'] ?? '') ?>" placeholder="Email" oninput="handleEmailInput(this)">
+                <div class="edit_row">
+                    <input type="email" id="inp-email" class="edit_input" value="<?= htmlspecialchars($utente['email'] ?? '') ?>" data-original="<?= htmlspecialchars($utente['email'] ?? '') ?>" placeholder="Email" oninput="handleEmailInput(this)">
                 </div>
                 <form method="post" id="box-email-otp" style="display:none; width:100%;">
-                    <input type="text" name="otp_code" id="inp-otp" class="edit-input" placeholder="Codice verifica" disabled autocomplete="off">
-                    <button type="button" id="btn-email-action" class="btn-tessera" style="margin-top:10px;" onclick="handleEmailAction()">Invia Codice</button>
+                    <input type="text" name="otp_code" id="inp-otp" class="edit_input" placeholder="Codice verifica" disabled autocomplete="off">
+                    <button type="button" id="btn-email-action" class="btn_tessera" style="margin-top:10px;" onclick="handleEmailAction()">Invia Codice</button>
                     <input type="hidden" name="confirm_email_final" value="1">
                 </form>
-                <div class="edit-row" id="row-livello">
-                    <input type="number" min="0" max="2" id="inp-livello" class="edit-input" value="<?= $utente['livello_privato'] ?? '' ?>" data-original="<?= $utente['livello_privato'] ?? '' ?>" placeholder="Livello privacy (0-2)">
-                    <button type="button" id="btn-livello" class="btn-slide" onclick="ajaxSaveLivello()">Salva</button>
+                <div class="edit_row" id="row-livello">
+                    <input type="number" min="0" max="2" id="inp-livello" class="edit_input" value="<?= $utente['livello_privato'] ?? '' ?>" data-original="<?= $utente['livello_privato'] ?? '' ?>" placeholder="Livello privacy (0-2)">
+                    <button type="button" id="btn-livello" class="btn_slide" onclick="ajaxSaveLivello()">Salva</button>
                 </div>
-                <div class="edit-row"><input type="text" class="edit-input" disabled value="<?= htmlspecialchars($utente['nome'] ?? '') ?>"></div>
-                <div class="edit-row"><input type="text" class="edit-input" disabled value="<?= htmlspecialchars($utente['cognome'] ?? '') ?>"></div>
-                <div class="edit-row"><input type="text" class="edit-input" disabled value="<?= htmlspecialchars($utente['codice_fiscale'] ?? '') ?>"></div>
+                <div class="edit_row"><input type="text" class="edit_input" disabled value="<?= htmlspecialchars($utente['nome'] ?? '') ?>"></div>
+                <div class="edit_row"><input type="text" class="edit_input" disabled value="<?= htmlspecialchars($utente['cognome'] ?? '') ?>"></div>
+                <div class="edit_row"><input type="text" class="edit_input" disabled value="<?= htmlspecialchars($utente['codice_fiscale'] ?? '') ?>"></div>
             </div>
 
             <?php if (!empty($multe_attive)): ?>
-                <div class="fine-container">
-                    <h4 class="fine-header-title">Da Saldare</h4>
+                <div class="fine_container">
+                    <h4 class="fine_header_title">Da Saldare</h4>
                     <?php foreach ($multe_attive as $m): ?>
-                        <div class="fine-card">
-                            <div class="fine-info">
-                                <span class="fine-title"><?= htmlspecialchars($m['titolo']) ?></span>
-                                <span class="fine-meta"><?= htmlspecialchars($m['causale']) ?></span>
+                        <div class="fine_card">
+                            <div class="fine_info">
+                                <span class="fine_title"><?= htmlspecialchars($m['titolo']) ?></span>
+                                <span class="fine_meta"><?= htmlspecialchars($m['causale']) ?></span>
                             </div>
                             <div style="text-align:right;">
-                                <div class="fine-price">€ <?= number_format($m['importo'], 2) ?></div>
-                                <button class="btn-pay" onclick="apriPagamento(<?= $m['id_multa'] ?>, '<?= number_format($m['importo'], 2) ?>')">Paga</button>
+                                <div class="fine_price">€ <?= number_format($m['importo'], 2) ?></div>
+                                <button class="btn_pay" onclick="apriPagamento(<?= $m['id_multa'] ?>, '<?= number_format($m['importo'], 2) ?>')">Paga</button>
                             </div>
                         </div>
                     <?php endforeach; ?>
@@ -439,27 +439,27 @@ require './src/includes/navbar.php';
 
             <div class="section">
                 <h2>Panoramica</h2>
-                <div class="stats-grid">
-                    <div class="stat-card-total">
-                        <span class="stat-label">Libri Letti</span>
-                        <strong class="stat-value-total"><?= $totale_libri_letti ?></strong>
+                <div class="stats_grid">
+                    <div class="stat_card_total">
+                        <span class="stat_label">Libri Letti</span>
+                        <strong class="stat_value_total"><?= $totale_libri_letti ?></strong>
                     </div>
                     <div class="stat-card-monthly">
-                        <span class="stat-label">Media Mensile</span>
-                        <strong class="stat-value-monthly"><?= $media_mensile ?></strong>
+                        <span class="stat_label">Media Mensile</span>
+                        <strong class="stat_value_monthly"><?= $media_mensile ?></strong>
                     </div>
                 </div>
                 <?php if ($storico_stat): ?>
-                    <div class="chart-container">
+                    <div class="chart_container">
                         <?php foreach ($storico_stat as $s):
                             $percentuale = ($max_libri_mese > 0) ? ($s['qta'] / $max_libri_mese) * 100 : 0;
                             ?>
-                            <div class="chart-row">
-                                <div class="chart-label"><?= $s['mese'] ?></div>
-                                <div class="chart-bar-bg">
-                                    <div class="chart-bar-fill" style="width: <?= $percentuale ?>%;"></div>
+                            <div class="chart_row">
+                                <div class="chart_label"><?= $s['mese'] ?></div>
+                                <div class="chart_bar_bg">
+                                    <div class="chart_bar_fill" style="width: <?= $percentuale ?>%;"></div>
                                 </div>
-                                <div class="chart-value"><?= $s['qta'] ?></div>
+                                <div class="chart_value"><?= $s['qta'] ?></div>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -556,7 +556,7 @@ require './src/includes/navbar.php';
     </div>
 
     <div id="modalTessera" class="modal-overlay">
-        <div class="modal-content">
+        <div class="modal_content">
             <div id="tessera-card">
                 <div class="tessera-header">Biblioteca Scrum</div>
                 <div class="tessera-label">Nome</div>
@@ -565,15 +565,15 @@ require './src/includes/navbar.php';
                 <div class="tessera-value"><?= htmlspecialchars($utente['codice_alfanumerico'] ?? $uid) ?></div>
                 <div class="tessera-barcode">*<?= strtoupper(htmlspecialchars($utente['codice_alfanumerico'] ?? $uid)) ?>*</div>
             </div>
-            <div class="modal-actions">
-                <button class="btn-action btn-print" onclick="chiudiTessera()">Chiudi</button>
-                <button class="btn-action btn-download" onclick="scaricaPNG()">Scarica</button>
+            <div class="modal_actions">
+                <button class="btn_action btn_print" onclick="chiudiTessera()">Chiudi</button>
+                <button class="btn_action btn_download" onclick="scaricaPNG()">Scarica</button>
             </div>
         </div>
     </div>
 
     <div id="modalPagamento" class="modal-overlay">
-        <div class="modal-content">
+        <div class="modal_content">
             <h3 style="font-family:'Young Serif', serif; color:var(--color_text_dark_green); margin-bottom:20px;">Conferma Pagamento</h3>
             <p style="margin-bottom:10px;">Importo da saldare</p>
             <h2 style="font-family:'Young Serif', serif; font-size:2.5rem; margin:0 0 30px 0;">€ <span id="payAmountDisplay">0.00</span></h2>
@@ -581,9 +581,9 @@ require './src/includes/navbar.php';
             <form method="POST" action="profilo">
                 <input type="hidden" name="action" value="paga_multa_user">
                 <input type="hidden" name="id_multa" id="payMultaId">
-                <div class="modal-actions">
-                    <button type="button" class="btn-action btn-modal-cancel" onclick="chiudiPagamento()">Annulla</button>
-                    <button type="submit" class="btn-action btn-modal-pay">Conferma</button>
+                <div class="modal_actions">
+                    <button type="button" class="btn_action btn_modal_cancel" onclick="chiudiPagamento()">Annulla</button>
+                    <button type="submit" class="btn_action btn_modal_pay">Conferma</button>
                 </div>
             </form>
         </div>
