@@ -384,7 +384,8 @@ require './src/includes/navbar.php';
             <form action="profilo" method="post" enctype="multipart/form-data" id="form-pfp">
                 <input type="hidden" name="submit_pfp" value="1">
                 <input type="file" name="pfp_upload" id="pfp_upload" accept="image/png, image/jpeg" style="display:none;" onchange="document.getElementById('form-pfp').submit()">
-                <div class="pfp_wrapper" onclick="document.getElementById('pfp_upload').click()">
+                <div class="pfp_wrapper" onclick="apriPfp()">
+                    <!--- document.getElementById('pfp_upload').click() --->
                     <img class="info_pfp" alt="Foto Profilo" src="<?= $pfpPath . '?v=' . time() ?>">
                     <div class="pfp_overlay">
                         <span class="pfp_text">Modifica</span>
@@ -555,6 +556,23 @@ require './src/includes/navbar.php';
         </div>
     </div>
 
+    <div id="modalPfp" class="modal-overlay">
+        <div class="modal_content_large">
+            <div class="">
+                <div class="tessera-header">Modifica Foto Profilo</div>
+                <div class="pfp_base_cons">
+                    <a href="">
+                        <img src="./src/DefaultPfp/1.png" alt="">
+                    </a>
+                </div>
+            </div>
+            <div class="modal_actions">
+                <button class="btn_action btn_print" onclick="chiudiPfp()">Chiudi</button>
+                <button class="btn_action btn_download" onclick="scaricaPNG()">Scarica</button>
+            </div>
+        </div>
+    </div>
+
     <div id="modalTessera" class="modal-overlay">
         <div class="modal_content">
             <div id="tessera-card">
@@ -679,10 +697,13 @@ require './src/includes/navbar.php';
         }
 
         // Modals
+        const modalPfp = document.getElementById('modalPfp');
         const modalTessera = document.getElementById('modalTessera');
         const modalPay = document.getElementById('modalPagamento');
         function apriTessera() { modalTessera.style.display = 'flex'; }
         function chiudiTessera() { modalTessera.style.display = 'none'; }
+        function apriPfp() { modalPfp.style.display = 'flex'; }
+        function chiudiPfp() { modalPfp.style.display = 'none'; }
         function apriPagamento(id, amount) {
             document.getElementById('payMultaId').value = id;
             document.getElementById('payAmountDisplay').innerText = amount;
@@ -691,6 +712,7 @@ require './src/includes/navbar.php';
         function chiudiPagamento() { modalPay.style.display = 'none'; }
         window.onclick = function(e) {
             if(e.target == modalTessera) chiudiTessera();
+            if(e.target == modalPfp) chiudiPfp();
             if(e.target == modalPay) chiudiPagamento();
         }
         function scaricaPNG() {
