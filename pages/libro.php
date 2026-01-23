@@ -394,134 +394,6 @@ require './src/includes/navbar.php';
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-    <style>
-        /* LIKE/DISLIKE BUTTONS */
-        .vote-buttons {
-            display: flex;
-            gap: 15px;
-            align-items: center;
-        }
-
-        .vote-btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background: transparent;
-            border: 1px solid #e0e0e0;
-            padding: 6px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            font-size: 0.95rem;
-            color: #666;
-        }
-
-        .vote-btn:hover:not(:disabled) {
-            background: #f5f5f5;
-            border-color: #ccc;
-        }
-
-        .vote-btn.active-like {
-            background: #e8f5e9;
-            border-color: #4caf50;
-            color: #4caf50;
-        }
-
-        .vote-btn.active-dislike {
-            background: #ffebee;
-            border-color: #f44336;
-            color: #f44336;
-        }
-
-        .vote-btn:disabled {
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-
-        .vote-count {
-            font-weight: 600;
-            min-width: 20px;
-        }
-        /* STILI LAYOUT E MAPPA */
-        .sticky_limit_wrapper { position: relative; }
-        .sticky_header_wrapper {
-            position: -webkit-sticky; position: sticky; top: 0; z-index: 800;
-            background-color: #fcfcfc; border-bottom: 1px solid #ddd; padding: 20px 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05); pointer-events: none;
-        }
-        .book_map_row { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; width: 100%; max-width: 98vw; margin: 0 auto; }
-        .col_libro { flex: 1 1 500px; min-width: 300px; pointer-events: auto; }
-        .book_hero_card { margin-bottom: 0; height: auto; background: transparent; box-shadow: none; }
-        .book_desc_text { max-height: 250px; overflow-y: auto; padding-right: 5px; scrollbar-width: thin; }
-        .col_mappa { flex: 1 1 400px; min-width: 300px; display: flex; flex-direction: column; pointer-events: auto; }
-        .mappa_wrapper { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 15px; height: 100%; min-height: 450px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; flex-direction: column; }
-        #map { flex-grow: 1; width: 100%; border-radius: 4px; min-height: 350px; }
-
-        .copies_container { max-width: 1100px; margin: 40px auto; padding: 0 20px; min-height: 200px; }
-        .copy_banner { display: flex; align-items: center; background: #fff; border: 1px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 15px; transition: all 0.2s ease; cursor: pointer; gap: 20px; position: relative; z-index: 5; }
-        .copy_banner:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.08); border-color: #bbb; }
-        .copy_banner.active-highlight { border: 2px solid #3498db; background-color: #f0f8ff; }
-
-        .copy_img { width: 60px; height: 85px; object-fit: cover; border-radius: 4px; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .copy_info { flex-grow: 1; }
-        .copy_title { font-weight: bold; font-size: 1.1rem; margin-bottom: 4px; color: #2c3e50; }
-        .copy_meta { font-size: 0.9rem; color: #555; display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
-
-        .cond-bar-wrapper { display: flex; gap: 2px; align-items: center; background: #eee; padding: 2px; border-radius: 3px; }
-        .cond-segment { width: 10px; height: 10px; border-radius: 1px; background-color: #ddd; }
-
-        .copy_library_info { margin-top: 5px; font-size: 0.95rem; color: #333; }
-        .copy_actions { flex-shrink: 0; position: relative; }
-        .btn_prenota { background-color: #3498db; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background 0.2s; min-width: 120px; }
-        .btn_prenota:hover { background-color: #2980b9; }
-        .btn_disabled { background-color: #bdc3c7; color: #7f8c8d; cursor: not-allowed; }
-
-        .badge_read { display: inline-flex; align-items: center; gap: 5px; font-size: 0.8em; font-weight: 600; color: #27ae60; background-color: #eafaf1; padding: 2px 8px; border-radius: 12px; margin-left: 10px; border: 1px solid #27ae60; }
-        .badge_read svg { width: 14px; height: 14px; fill: #27ae60; }
-
-        .load_more_btn { display: block; width: 200px; margin: 20px auto; padding: 10px; background: #eee; border: 1px solid #ccc; text-align: center; border-radius: 20px; cursor: pointer; font-weight: bold; color: #555; }
-        .load_more_btn:hover { background: #ddd; }
-
-        .tooltip-wrapper { position: relative; display: inline-block; }
-        .tooltip-wrapper:hover .custom-tooltip { visibility: visible; opacity: 1; }
-        .custom-tooltip { visibility: hidden; width: 160px; background-color: #333; color: #fff; text-align: center; border-radius: 6px; padding: 8px; position: absolute; z-index: 1000; bottom: 125%; left: 50%; transform: translateX(-50%); opacity: 0; transition: opacity 0.3s; font-size: 0.8rem; font-weight: normal; pointer-events: none; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
-        .custom-tooltip::after { content: ""; position: absolute; top: 100%; left: 50%; margin-left: -5px; border-width: 5px; border-style: solid; border-color: #333 transparent transparent transparent; }
-
-        .leaflet-pane.leaflet-popup-pane { z-index: 10000 !important; }
-        .leaflet-control-resetmap { background: white; padding: 6px 10px; border-radius: 4px; border: 1px solid #888; cursor: pointer; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.2); margin-top: 5px; }
-
-        /* REVIEWS SECTION */
-        .reviews_section { max-width: 1100px; margin: 60px auto; padding: 0 20px; }
-        .reviews_title { font-family: 'Young Serif', serif; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 30px; }
-        .review_card { display: flex; gap: 20px; background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 25px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); position: relative; }
-        .review_card.my-review { border-left: 5px solid #f39c12; background-color: #fffaf0; }
-        .review_pfp { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid #eee; flex-shrink: 0; }
-        .review_content_col { flex-grow: 1; }
-        .review_header_row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
-        .review_footer_row { cursor: default; display: flex; justify-content: space-between; align-items: flex-start; margin-top: 18px; }
-        .review_user { font-weight: bold; font-size: 1.1rem; color: #333; }
-        .review_date { font-size: 0.85rem; color: #999; }
-        .star_yellow { color: #f1c40f; font-size: 1.2rem; }
-        .star_grey { color: #ddd; font-size: 1.2rem; }
-        .review_body { margin-top: 12px; line-height: 1.6; color: #444; font-size: 1rem; }
-
-        .interactive-rating { margin-bottom: 15px; }
-        .star-input { font-size: 2rem; color: #ddd; cursor: pointer; transition: color 0.2s; }
-        .star-input.hover, .star-input.active { color: #f1c40f; }
-
-        .hidden { display: none; }
-        .btn_edit_circular { position: absolute; top: 15px; right: 15px; background: #eee; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
-        .btn_edit_circular:hover { background: #ddd; }
-        .icon_pencil { width: 18px; height: 18px; fill: #666; }
-
-        /* RELATED BOOKS */
-        .related_books_section { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
-        .related_books_list { display: flex; flex-wrap: nowrap; gap: 15px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: thin; }
-        .related_book_card { flex: 0 0 180px; border: 1px solid #eee; border-radius: 10px; padding: 12px; background: #fff; transition: all 0.2s; cursor: pointer; text-align: center; }
-        .related_book_card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.08); transform: translateY(-3px); }
-        .related_book_cover { width: 100%; height: 240px; object-fit: cover; border-radius: 6px; margin-bottom: 10px; }
-    </style>
-
     <div class="page_contents">
 
         <?php if ($messaggio_db || !$libro): ?>
@@ -558,7 +430,7 @@ require './src/includes/navbar.php';
                                         </div>
                                     <?php endif; ?>
                                     <div style="margin-bottom: 20px;">
-                                        <span class="media_voto_badge">★ <?= $mediaVoto ?>/5</span>
+                                        <span class="media_voto_badge young-serif-regular">★ <?= $mediaVoto ?>/5</span>
                                     </div>
                                     <div class="book_desc_box">
                                         <h3 class="book_desc_title">Trama</h3>
@@ -568,7 +440,7 @@ require './src/includes/navbar.php';
                             </div>
                         </div>
                         <div class="col_mappa">
-                            <div class="mappa_wrapper">
+                            <div class="mappa_wrapper young-serif-regular">
                                 <h3 style="margin-top:0; margin-bottom:10px; font-size:1.1rem; color:#333;">Disponibilità in zona</h3>
                                 <p style="font-size: 0.85em; margin-bottom: 10px; color:#666;">
                                     <span style="color: green; font-weight: bold;">&#9679;</span> Disponibile &nbsp;
@@ -585,7 +457,7 @@ require './src/includes/navbar.php';
                     <h2 style="font-family: 'Young Serif', serif; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px;">
                         Copie Disponibili (<?= count($elenco_copie_dettagliato) ?>)
                     </h2>
-                    <div id="copies-list-wrapper"></div>
+                    <div id="copies-list-wrapper" class="instrument-sans"></div>
                     <button id="load-more-copies" class="load_more_btn" style="display:none;" onclick="renderNextBatch()">Mostra altre copie</button>
                 </div>
             </div>
@@ -595,10 +467,10 @@ require './src/includes/navbar.php';
                     <h2 class="reviews_title">Chi ha letto questo ha letto anche...</h2>
                     <div class="related_books_list">
                         <?php foreach($consigliati as $r): ?>
-                            <div class="related_book_card" onclick="window.location='./libro?isbn=<?= $r['isbn'] ?>'">
+                            <div class="related_book_card young-serif-regular" onclick="window.location='./libro?isbn=<?= $r['isbn'] ?>'">
                                 <img src="<?= getCoverPath($r['isbn']) ?>" alt="cover" class="related_book_cover">
-                                <div class="copy_title" style="font-size:0.9rem;"><?= htmlspecialchars($r['titolo']) ?></div>
-                                <div style="font-size:0.8rem; color:#27ae60; font-weight:bold; margin-top:5px;"><?= $r['percent'] ?>% compatibilità</div>
+                                <div class="copy_title"><?= htmlspecialchars($r['titolo']) ?></div>
+                                <div class="copy_com instrument-sans"><?= $r['percent'] ?>% compatibilità</div>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -634,8 +506,8 @@ require './src/includes/navbar.php';
                                         </div>
                                         <textarea name="commento" class="form_field" required rows="4"><?= htmlspecialchars($mia_recensione['commento']) ?></textarea>
                                         <div style="margin-top:10px; display:flex; gap:10px;">
-                                            <button type="submit" name="submit_review" class="btn_prenota">Salva</button>
-                                            <button type="button" onclick="toggleEditMode()" class="btn_prenota" style="background:#ccc;">Annulla</button>
+                                            <button type="submit" name="submit_review" class=" general_button_dark">Salva</button>
+                                            <button type="button" onclick="toggleEditMode()" class="general_button_dark" style="background:#ccc;">Annulla</button>
                                         </div>
                                     </form>
                                 </div>
@@ -643,7 +515,7 @@ require './src/includes/navbar.php';
                         </div>
                     <?php else: ?>
                         <div class="review_card">
-                            <div class="review_content_col">
+                            <div class="review_content_col instrument-sans">
                                 <h3 class="young-serif-regular" style="margin-top:0;">Cosa ne pensi?</h3>
                                 <form method="POST">
                                     <input type="hidden" name="mode" value="insert">
@@ -652,7 +524,7 @@ require './src/includes/navbar.php';
                                         <?php for($i=1;$i<=5;$i++): ?><span class="star-input" data-value="<?= $i ?>">★</span><?php endfor; ?>
                                     </div>
                                     <textarea name="commento" class="form_field" required rows="4" placeholder="La tua opinione aiuta gli altri lettori..."></textarea>
-                                    <button type="submit" name="submit_review" class="btn_prenota" style="margin-top:10px;">Pubblica Recensione</button>
+                                    <button type="submit" name="submit_review" class="general_button_dark" style="margin-top:10px;">Pubblica Recensione</button>
                                 </form>
                             </div>
                         </div>
@@ -750,7 +622,7 @@ require './src/includes/navbar.php';
                 const isUserRes = copy.user_has_res == 1;
                 const qLen = parseInt(copy.queue_length) + 1;
 
-                let bText = "Prenota"; let bClass = "btn_prenota"; let bAttr = ""; let bStyle = ""; let tTip = "";
+                let bText = "Prenota"; let bClass = "general_button_dark"; let bAttr = ""; let bStyle = ""; let tTip = "";
 
                 if (isUserLoan) { bText = "In tuo possesso"; bClass += " btn_disabled"; bAttr = "disabled"; tTip = "Hai già questa copia"; }
                 else if (globalLoanBlock) { bText = "Hai già il libro"; bClass += " btn_disabled"; bAttr = "disabled"; tTip = "Hai già un'altra copia in prestito"; }
