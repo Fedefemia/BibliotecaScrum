@@ -7,7 +7,7 @@ require_once 'db_config.php';
 // ---------------- HTML HEADER ----------------
 $title = "Termini e Condizioni - Biblioteca Scrum";
 $path = "./";
-$page_css = "./public/css/style_index.css"; // Usa il CSS base se necessario
+$page_css = "./public/css/style_index.css";
 require './src/includes/header.php';
 require './src/includes/navbar.php';
 ?>

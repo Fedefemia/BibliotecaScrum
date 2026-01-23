@@ -654,127 +654,7 @@ require './src/includes/header.php';
 require './src/includes/navbar.php';
 ?>
     <style>
-        /* Stili per la nuova sezione badge */
-        .badge-grid-profile {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 50px; /* Aumentato considerevolmente */
-            margin-top: 30px;
-            margin-bottom: 30px;
-        }
 
-        .badge-card-profile {
-            background: #fff;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            padding: 25px;
-            text-align: center;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            height: 100%;
-            text-decoration: none;
-            color: inherit;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .badge-card-profile:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
-        }
-
-        .badge-card-profile.locked {
-            background-color: #f9f9f9;
-        }
-
-        .badge-card-profile.locked .badge-img-profile {
-            filter: grayscale(100%) opacity(0.6);
-        }
-
-        .badge-img-container-profile {
-            width: 120px;
-            height: 120px;
-            margin-bottom: 20px;
-        }
-
-        .badge-img-profile {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-            transition: filter 0.3s;
-        }
-
-        .badge-title-profile {
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-
-        .badge-desc-profile {
-            font-size: 0.9rem;
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            flex-grow: 1;
-        }
-
-        .progress-container-profile {
-            width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 10px;
-            height: 8px;
-            margin-top: 10px;
-            overflow: hidden;
-        }
-
-        .progress-bar-profile {
-            height: 100%;
-            background-color: #3f5135;
-            border-radius: 10px;
-        }
-
-        .progress-text-profile {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 8px;
-            font-weight: 600;
-        }
-
-        .status-badge-profile {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .status-unlocked {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .status-locked {
-            background-color: #e2e3e5;
-            color: #383d41;
-        }
-
-        .next-badge-info {
-            margin-top: auto;
-            width: 100%;
-            padding-top: 15px;
-            border-top: 1px solid #eee;
-        }
-        .next-badge-label {
-            font-size: 0.8rem;
-            color: #888;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
     </style>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&family=Libre+Barcode+39+Text&display=swap" rel="stylesheet">
@@ -932,66 +812,67 @@ require './src/includes/navbar.php';
 
             <div class="section">
                 <h2>I tuoi Badge</h2>
-                <div class="badge-grid-profile">
-                    <?php foreach ($badges_to_display as $b): ?>
-                        <?php
-                        $idBadge = intval($b['id_badge']);
-                        $isUnlocked = $b['is_unlocked'];
+                    <div class="badges_grid">
+                        <?php foreach ($badges_to_display as $b):
+                            $idBadge = intval($b['id_badge']);
+                            $isUnlocked = $b['is_unlocked'];
 
-                        $imgPath = $path . 'public/assets/badge/' . $idBadge . '.png';
+                            $imgPath = $path . 'public/assets/badge/' . $idBadge . '.png';
 
-                        $tipo = $b['tipo'] ?? '';
-                        $target = intval($b['target_numerico']);
-                        $currentVal = 0;
+                            $tipo = $b['tipo'] ?? '';
+                            $target = intval($b['target_numerico']);
 
-                        if (isset($user_stats[$tipo])) {
-                            $currentVal = $user_stats[$tipo];
-                        }
+                            $currentVal = isset($user_stats[$tipo]) ? intval($user_stats[$tipo]) : 0;
 
-                        // Logica per il prossimo badge
-                        $nextBadge = $b['next_badge'] ?? null;
-                        $progressPercent = 0;
-                        $nextTarget = 0;
+                            // Logica Next Badge
+                            $nextBadge = $b['next_badge'] ?? null;
+                            $progressPercent = 0;
+                            $nextTarget = 0;
+                            $showProgress = false;
 
-                        if ($nextBadge) {
-                            $nextTarget = intval($nextBadge['target_numerico']);
-                            if ($tipo === 'numero_multe') {
-                                // Per le multe non mostriamo la barra di progresso verso il prossimo
-                                // perché il target è inferiore al valore attuale
-                            } else {
-                                if ($nextTarget > 0) {
-                                    $progressPercent = min(100, ($currentVal / $nextTarget) * 100);
+                            if ($nextBadge) {
+                                $nextTarget = intval($nextBadge['target_numerico']);
+                                if ($tipo !== 'numero_multe' && $nextTarget > 0) {
+                                    $rawPercent = ($currentVal / $nextTarget) * 100;
+                                    $progressPercent = min(100, $rawPercent);
+                                    $showProgress = true;
                                 }
-                            }
-                        }
-                        ?>
-                    <!-- <a href="./badge?id=<?= $idBadge ?>" class="badge-card-profile <?= $isUnlocked ? '' : 'locked' ?>"> --->
-                        <a href="#badge_<?= $idBadge ?>" id="badge_<?= $idBadge ?>" class="badge-card-profile <?= $isUnlocked ? '' : 'locked' ?>">
-                            <?php if ($isUnlocked): ?>
-                                <div class="status-badge-profile status-unlocked">Sbloccato</div>
-                            <?php else: ?>
-                                <div class="status-badge-profile status-locked">Bloccato</div>
-                            <?php endif; ?>
+                            } ?>
 
-                            <div class="badge-img-container-profile">
-                                <img src="<?= $imgPath ?>" alt="<?= htmlspecialchars($b['nome']) ?>" class="badge-img-profile" onerror="this.style.display='none'">
-                            </div>
-                            <div class="badge-title-profile"><?= htmlspecialchars($b['nome']) ?></div>
-                            <div class="badge-desc-profile"><?= htmlspecialchars($b['descrizione']) ?></div>
+                            <div class="badge_card <?= $isUnlocked ? '' : 'locked' ?>" id="badge_<?= $idBadge ?>">
 
-                            <?php if ($nextBadge && $tipo !== 'numero_multe'): ?>
-                                <div class="next-badge-info">
-                                    <div class="next-badge-label">Prossimo: <?= htmlspecialchars($nextBadge['nome']) ?></div>
-                                    <div class="progress-container-profile">
-                                        <div class="progress-bar-profile" style="width: <?= $progressPercent ?>%;"></div>
-                                    </div>
-                                    <div class="progress-text-profile">
-                                        <?= $currentVal ?> / <?= $nextTarget ?> (<?= floor($progressPercent) ?>%)
-                                    </div>
+                                <div class="badge_status_pill <?= $isUnlocked ? 'unlocked' : 'locked' ?>">
+                                    <?= $isUnlocked ? 'Sbloccato' : 'Bloccato' ?>
                                 </div>
-                            <?php endif; ?>
-                        </a>
-                    <?php endforeach; ?>
+
+                                <div class="badge_image_wrapper">
+                                    <img src="<?= htmlspecialchars($imgPath) ?>" alt="<?= htmlspecialchars($b['nome']) ?>" class="badge_image">
+                                </div>
+
+                                <div class="badge_content">
+                                    <div class="badge_info_title"><?= htmlspecialchars($b['nome']) ?></div>
+                                    <div class="badge_info_desc"><?= htmlspecialchars($b['descrizione']) ?></div>
+                                </div>
+
+                                <?php if ($showProgress): ?>
+                                    <div class="badge_next_level">
+                                        <div class="badge_next_header">
+                                            <span class="next_label">Prossimo:</span>
+                                            <span class="next_name"><?= htmlspecialchars($nextBadge['nome']) ?></span>
+                                        </div>
+
+                                        <div class="badge_progress_track">
+                                            <div class="badge_progress_fill" style="width: <?= $progressPercent ?>%;"></div>
+                                        </div>
+
+                                        <div class="badge_progress_numbers">
+                                            <?= $currentVal ?> / <?= $nextTarget ?>
+                                        </div>
+                                    </div>
+                                <?php endif; ?>
+
+                            </div>
+                        <?php endforeach; ?>
                 </div>
             </div>
 
