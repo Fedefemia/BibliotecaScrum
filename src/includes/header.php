@@ -17,6 +17,10 @@
 
         <link rel="icon" href="<?= $path ?>public/assets/icon.png">
 
+        <?php if(!isset($isGame) && $isGame) : ?>
+            <link rel="icon" href="<?= $path ?>public/assets/icon_joycon.png">
+        <?php endif; ?>
+
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400..700&family=Young+Serif&display=swap" rel="stylesheet">

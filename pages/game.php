@@ -53,9 +53,10 @@ if (isset($pdo)) {
 
 <?php
 // ---------------- HTML HEADER ----------------
-$title = 'Contatti - Biblioteca Scrum';
+$title = 'Gioco Trova Libro';
 $path = './';
 $page_css = './public/css/style_game.css';
+$isGame = true;
 require './src/includes/header.php';
 require './src/includes/navbar.php';
 ?>

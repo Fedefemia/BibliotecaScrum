@@ -7,6 +7,7 @@ require_once 'db_config.php';
 // ---------------- HTML HEADER ----------------
 $title = "Classifica";
 $path = "./";
+$isGame = true;
 $page_css = "./public/css/style_game.css";
 require './src/includes/header.php';
 require './src/includes/navbar.php';
