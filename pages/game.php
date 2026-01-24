@@ -121,8 +121,9 @@ require './src/includes/navbar.php';
             <div class="choise" draggable="true" id='gen4'><?= $randomarr[3][3] ?></div>
         </div>
     </div>
-</div>
 
+
+</div>
 
 <script src="./public/scripts/game_logic.js"></script>
 

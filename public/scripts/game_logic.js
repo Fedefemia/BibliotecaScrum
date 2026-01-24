@@ -16,8 +16,8 @@ window.onload = function () {
         });
     })
 
-    const targets = document.querySelectorAll(".tile");
-    targets.forEach(target => {
+    const tiles = document.querySelectorAll(".tile");
+    tiles.forEach(target => {
         target.addEventListener("dragover", (event) => {
             event.preventDefault();
         });
@@ -42,8 +42,14 @@ window.onload = function () {
             }
         });
     });
-
-    document.getElementById("verify").addEventListener("click",() => {
-
-    })
+    const verifyData = async (dati) => {
+        const formData = new FormData();
+        formData.append('data', {corretti : dati,});
+        try {
+            let resp = await fetch(window.location.href, {method:'POST', body:formData});
+            let data = await resp.json();
+            showNotification(data.message);
+            if(data.status==='success') { inpUser.dataset.original = val; rowUser.classList.remove('changed'); }
+        } catch(e) { showNotification("Errore connessione"); }
+    }
 }
