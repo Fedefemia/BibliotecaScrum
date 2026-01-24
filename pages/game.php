@@ -55,7 +55,7 @@ if (isset($pdo)) {
 // ---------------- HTML HEADER ----------------
 $title = 'Contatti - Biblioteca Scrum';
 $path = './';
-$page_css = './public/css/style_index.css';
+$page_css = './public/css/style_game.css';
 require './src/includes/header.php';
 require './src/includes/navbar.php';
 ?>
@@ -68,58 +68,61 @@ require './src/includes/navbar.php';
     }
 </style>
 
-<div>
-    <div id='bookscover'>
-        <div id='book1'><?= $randomarr[0][0] ?></div>
-        <div id='book2'><?= $randomarr[0][1] ?></div>
-        <div id='book3'><?= $randomarr[0][2] ?></div>
-        <div id='book4'><?= $randomarr[0][3] ?></div>
-    </div>
-    
-    <br>
-    
-    <div id='playcontainer'>
-        <div class="tile" id='cont1'>
-            <img class="tile_img" alt="place" src="./public/assets/copertina_misteriosa.png">
+<div class="game_con instrument-sans">
+    <div>
+        <div id='bookscover'>
+            <div id='book1'><?= $randomarr[0][0] ?></div>
+            <div id='book2'><?= $randomarr[0][1] ?></div>
+            <div id='book3'><?= $randomarr[0][2] ?></div>
+            <div id='book4'><?= $randomarr[0][3] ?></div>
         </div>
-        <div class="tile" id='cont2'>
-            <img class="tile_img" alt="place" src="./public/assets/copertina_misteriosa.png">
+
+        <br>
+
+        <div id='playcontainer'>
+            <div class="tile" id='cont1'>
+                <img class="tile_img" alt="place" src="./public/assets/copertina_misteriosa.png">
+            </div>
+            <div class="tile" id='cont2'>
+                <img class="tile_img" alt="place" src="./public/assets/copertina_misteriosa.png">
+            </div>
+            <div class="tile" id='cont3'>
+                <img class="tile_img" alt="place" src="./public/assets/copertina_misteriosa.png">
+            </div>
+            <div class="tile" id='cont4'>
+                <img class="tile_img" alt="place" src="./public/assets/copertina_misteriosa.png">
+            </div>
         </div>
-        <div class="tile" id='cont3'>
-            <img class="tile_img" alt="place" src="./public/assets/copertina_misteriosa.png">
+
+        <br>
+
+        <div id='titoli'>
+            <div class="choise" draggable="true" id='title1'><?= $randomarr[1][0] ?></div>
+            <div class="choise" draggable="true" id='title2'><?= $randomarr[1][1] ?></div>
+            <div class="choise" draggable="true"  id='title3'><?= $randomarr[1][2] ?></div>
+            <div class="choise" draggable="true" id='title4'><?= $randomarr[1][3] ?></div>
         </div>
-        <div class="tile" id='cont4'>
-            <img class="tile_img" alt="place" src="./public/assets/copertina_misteriosa.png">
+
+        <br>
+
+        <div id='autori'>
+            <div class="choise" draggable="true" id='auth1'><?= $randomarr[2][0] ?></div>
+            <div class="choise" draggable="true" id='auth2'><?= $randomarr[2][1] ?></div>
+            <div class="choise" draggable="true" id='auth3'><?= $randomarr[2][2] ?></div>
+            <div class="choise" draggable="true" id='auth4'><?= $randomarr[2][3] ?></div>
         </div>
-    </div>
 
-    <br>
+        <br>
 
-    <div id='titoli'>
-        <div class="choise" draggable="true" id='title1'><?= $randomarr[1][0] ?></div>
-        <div class="choise" draggable="true" id='title2'><?= $randomarr[1][1] ?></div>
-        <div class="choise" draggable="true"  id='title3'><?= $randomarr[1][2] ?></div>
-        <div class="choise" draggable="true" id='title4'><?= $randomarr[1][3] ?></div>
-    </div>
-
-    <br>
-    
-    <div id='autori'>
-        <div class="choise" draggable="true" id='auth1'><?= $randomarr[2][0] ?></div>
-        <div class="choise" draggable="true" id='auth2'><?= $randomarr[2][1] ?></div>
-        <div class="choise" draggable="true" id='auth3'><?= $randomarr[2][2] ?></div>
-        <div class="choise" draggable="true" id='auth4'><?= $randomarr[2][3] ?></div>
-    </div>
-
-    <br>
-    
-    <div id='generi'>
-        <div class="choise" draggable="true" id='gen1'><?= $randomarr[3][0] ?></div>
-        <div class="choise" draggable="true" id='gen2'><?= $randomarr[3][1] ?></div>
-        <div class="choise" draggable="true" id='gen3'><?= $randomarr[3][2] ?></div>
-        <div class="choise" draggable="true" id='gen4'><?= $randomarr[3][3] ?></div>
+        <div id='generi'>
+            <div class="choise" draggable="true" id='gen1'><?= $randomarr[3][0] ?></div>
+            <div class="choise" draggable="true" id='gen2'><?= $randomarr[3][1] ?></div>
+            <div class="choise" draggable="true" id='gen3'><?= $randomarr[3][2] ?></div>
+            <div class="choise" draggable="true" id='gen4'><?= $randomarr[3][3] ?></div>
+        </div>
     </div>
 </div>
+
 
 <script src="./public/scripts/game_logic.js"></script>
 
