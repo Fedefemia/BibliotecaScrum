@@ -119,8 +119,21 @@ require './src/includes/navbar.php';
         <div class="choise" draggable="true" id='gen3'><?= $randomarr[3][2] ?></div>
         <div class="choise" draggable="true" id='gen4'><?= $randomarr[3][3] ?></div>
     </div>
+
+
 </div>
 
+<script>
+    let dati = [];
+    <?php
+    $php_array = array('abc','def','ghi');
+    $js_array = json_encode($php_array);
+    echo "dati = ". $js_array . ";\n";
+    ?>
+    document.getElementById("verify").addEventListener("click", () => {
+        verifyData(dati);
+    })
+</script>
 <script src="./public/scripts/game_logic.js"></script>
 
 <?php require_once './src/includes/footer.php'; ?>
