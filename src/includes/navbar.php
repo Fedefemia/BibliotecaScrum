@@ -88,15 +88,9 @@ if(isset($_POST["logout"])){
     <div class="navbar_rigth">
         <div class="navbar_rigth_left" style="display: flex; align-items: center;">
 
-<<<<<<< HEAD
-        <a href="<?= $path ?>" class="navbar_link_img instrument-sans-semibold" id="navbar_logo">
-            <img src="<?= $path ?>public/assets/game.png" class="navbar_logo" alt="Gioca">
-        </a>
-=======
             <a href="<?= $path ?>game" class="navbar_link_img" style="margin-right: 15px;">
                 <img src="<?= $path ?>public/assets/icon_joycon.png" alt="notifica" class="navbar_icon">
             </a>
->>>>>>> 9795d5eab72cdb8057c6f1119ed351e8ab0c300e
 
             <?php if (isset($_SESSION['logged']) && $_SESSION['logged'] === true) { ?>
                 <div class="dropdown">

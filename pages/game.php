@@ -17,10 +17,15 @@ if (isset($pdo)) {
         // Se l'utente è loggato, usiamo il suo nome nel DB, altrimenti "Utente Web"
         $nome_visitatore = isset($_SESSION['username']) ? $_SESSION['username'] . ' (Logged)' : 'Utente Web';
 
-        $stmt = $pdo->prepare('');
-        $stmt->execute(['nome' => $nome_visitatore]);
-        $messaggio_db = 'Nuovo accesso registrato nel DB!';
-        $class_messaggio = 'success';
+        $stmt = $pdo->prepare('select l.titolo, a.nome, a.cognome, ct.categoria  from copie as c
+                                join libri as l on c.isbn = l.isbn
+                                join autore_libro as al on al.isbn = l.isbn 
+                                join autori as a on a.id_autore = al.id_autore 
+                                join libro_categoria as cl on cl.isbn = l.isbn
+                                join categorie as ct on ct.id_categoria = cl.id_categoria
+                                order by rand() limit 4;'
+                            );
+        $stmt->execute();
     } catch (PDOException $e) {
         $messaggio_db = 'Errore Scrittura: ' . $e->getMessage();
         $class_messaggio = 'error';
