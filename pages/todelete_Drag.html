@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+  /* Prevent the user selecting text in the example */
+  user-select: none;
+}
+
+.choise {
+  text-align: center;
+  background: white;
+}
+
+.tile {
+  width: 200px;
+  height: 20px;
+  background: blueviolet;
+  margin: 10px;
+  padding: 10px;
+}
+
+.tile.dragover {
+  background-color: purple;
+}
+
+.dragging {
+  opacity: 0.5;
+}
+
+    </style>
+</head>
+<body>
+    <div class="tiles">
+        <div class="tile">
+            <img id="mm">
+        </div>
+        <div class="tile">
+            <img id="aa">
+        </div>
+        <div class="tile">
+            <img id="cc">
+        </div>
+    </div>
+
+    <div class="choises">
+        <h5 class="choise" draggable="true" id="value">Scelta 1</h5>
+        <h5 class="choise" draggable="true" id="value">Scelta 2</h5>
+        <h5 class="choise" draggable="true" id="value">Scelta 3</h5>
+        <h5 class="choise" draggable="true" id="value">Scelta 4</h5>
+    </div>
+
+
+    <button onclick="resetPage()">Reset</button>
+
+    <script>
+        let dragged;
+/* events fired on the draggable target */
+        const sources = document.querySelectorAll(".choise");
+        sources.forEach(source => {
+            source.addEventListener("drag", (event) => {
+            console.log("dragging");
+            });
+
+            source.addEventListener("dragstart", (event) => {
+            // store a ref. on the dragged elem
+            dragged = event.target;
+            // make it half transparent
+            event.target.classList.add("dragging");
+            });
+
+            source.addEventListener("dragend", (event) => {
+            // reset the transparency
+            event.target.classList.remove("dragging");
+            });
+        })
+        
+        const targets = document.querySelectorAll(".tile");
+        targets.forEach(target => {
+            target.addEventListener("dragover", (event) => {
+            // prevent default to allow drop
+            event.preventDefault();
+            });
+
+            target.addEventListener("dragenter", (event) => {
+            // highlight potential drop target when the draggable element enters it
+            if (event.target.classList.contains("tile")) {
+                event.target.classList.add("dragover");
+            }
+            });
+
+            target.addEventListener("dragleave", (event) => {
+            // reset background of potential drop target when the draggable element leaves it
+            if (event.target.classList.contains("tile")) {
+                event.target.classList.remove("dragover");
+            }
+            });
+
+            target.addEventListener("drop", (event) => {
+            // prevent default action (open as link for some elements)
+            event.preventDefault();
+            // move dragged element to the selected drop target
+            if (event.target.classList.contains("tile")) {
+                event.target.classList.remove("dragover");
+                event.target.appendChild(dragged);
+            }
+            });
+        });
+        
+    </script>
+    <script>
+        const resetPage = () => {
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
