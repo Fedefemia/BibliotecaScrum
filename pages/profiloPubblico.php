@@ -47,87 +47,133 @@ if ($user_exists && $livello > 0) {
         $libri_letti = $stm->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // --- CALCOLO STATISTICHE E BADGE (Livello 1 e 2) ---
+    /* -----------------------------------------------------------
+   LOGICA BADGE
+----------------------------------------------------------- */
+    $badges_to_display = [];
+    $unlocked_badges_ids = [];
+    $user_stats = [];
+
+    $uid = $uid_target;
     try {
-        // 1. Calcolo Statistiche dell'utente target
-        $user_stats = [];
+        // 1. Recupero statistiche utente per calcolo progressi
+        $user_stats['libri_letti'] = $totale_libri_letti;
 
-        // Libri Letti (Totale)
-        $stm = $pdo->prepare("SELECT COUNT(*) FROM prestiti WHERE codice_alfanumerico = ? AND data_restituzione IS NOT NULL");
-        $stm->execute([$uid_target]);
-        $user_stats['libri_letti'] = $stm->fetchColumn();
-
-        // Restituzioni Puntuali
         $stm = $pdo->prepare("SELECT COUNT(*) FROM prestiti WHERE codice_alfanumerico = ? AND data_restituzione IS NOT NULL AND data_restituzione <= data_scadenza");
-        $stm->execute([$uid_target]);
+        $stm->execute([$uid]);
         $user_stats['restituzioni_puntuali'] = $stm->fetchColumn();
 
-        // Numero Multe (connesse ai prestiti dell'utente)
         $stm = $pdo->prepare("SELECT COUNT(*) FROM multe m JOIN prestiti p ON m.id_prestito = p.id_prestito WHERE p.codice_alfanumerico = ?");
-        $stm->execute([$uid_target]);
+        $stm->execute([$uid]);
         $user_stats['numero_multe'] = $stm->fetchColumn();
 
-        // Recensioni Scritte
         $stm = $pdo->prepare("SELECT COUNT(*) FROM recensioni WHERE codice_alfanumerico = ?");
-        $stm->execute([$uid_target]);
+        $stm->execute([$uid]);
         $user_stats['recensioni_scritte'] = $stm->fetchColumn();
 
-        // Prestiti Effettuati
         $stm = $pdo->prepare("SELECT COUNT(*) FROM prestiti WHERE codice_alfanumerico = ?");
-        $stm->execute([$uid_target]);
+        $stm->execute([$uid]);
         $user_stats['prestiti_effettuati'] = $stm->fetchColumn();
 
-        // Recupero ID Badge già assegnati DB
+        // 2. Recupero ID dei badge già sbloccati dall'utente (dal DB)
         $stm = $pdo->prepare("SELECT id_badge FROM utente_badge WHERE codice_alfanumerico = ?");
-        $stm->execute([$uid_target]);
+        $stm->execute([$uid]);
         $unlocked_badges_ids = $stm->fetchAll(PDO::FETCH_COLUMN, 0);
 
-        // Recupero badge
+        // 3. Recupero di TUTTI i badge disponibili
         $stm = $pdo->query("SELECT * FROM badge ORDER BY id_badge ASC");
         $all_badges = $stm->fetchAll(PDO::FETCH_ASSOC);
 
+        // 4. Raggruppamento per tipo e selezione del badge da mostrare
         $badges_by_type = [];
         foreach ($all_badges as $b) {
-            $badges_by_type[$b['tipo']][] = $b;
+            $type = $b['tipo'];
+            if (!isset($badges_by_type[$type])) {
+                $badges_by_type[$type] = [];
+            }
+            $badges_by_type[$type][] = $b;
         }
 
-        // Elaborazione Logic Badge
         foreach ($badges_by_type as $type => $badges_list) {
-            usort($badges_list, function ($a, $b) use ($type) {
+            // ORDINAMENTO
+            // Per 'numero_multe' il migliore è quello con target più BASSO (0 è meglio di 5).
+            // Per gli altri, il migliore è quello con target più ALTO (100 è meglio di 1).
+
+            usort($badges_list, function($a, $b) use ($type) {
                 if ($type === 'numero_multe') {
+                    // Decrescente per multe (es. 5, 3, 1, 0)
+                    // Così iterando troviamo prima i "facili" (5) e poi i "difficili" (0)
+                    // E sovrascriviamo $highest_unlocked man mano che troviamo quelli soddisfatti.
                     return $b['target_numerico'] - $a['target_numerico'];
                 } else {
+                    // Crescente per altri (es. 1, 10, 50, 100)
+                    // Check 1: OK. Highest = Bronzo.
+                    // Check 100: OK. Highest = Platino.
                     return $a['target_numerico'] - $b['target_numerico'];
                 }
             });
 
             $highest_unlocked = null;
+            $next_badge = null;
 
             foreach ($badges_list as $b) {
-                $is_unlocked = in_array($b['id_badge'], $unlocked_badges_ids);
+                $is_unlocked_db = in_array($b['id_badge'], $unlocked_badges_ids);
+                $is_unlocked_dynamic = false;
 
-                if (!$is_unlocked && isset($user_stats[$type])) {
+                // Calcolo dinamico
+                if (isset($user_stats[$type])) {
                     $currentVal = $user_stats[$type];
                     $target = intval($b['target_numerico']);
+
                     if ($type === 'numero_multe') {
-                        if ($currentVal <= $target) $is_unlocked = true;
+                        // Sbloccato se ho MENO o UGUALI multe del target
+                        if ($currentVal <= $target) {
+                            $is_unlocked_dynamic = true;
+                        }
                     } else {
-                        if ($currentVal >= $target) $is_unlocked = true;
+                        // Sbloccato se ho PIÙ o UGUALI azioni del target
+                        if ($currentVal >= $target) {
+                            $is_unlocked_dynamic = true;
+                        }
                     }
                 }
 
-                if ($is_unlocked) {
+                if ($is_unlocked_db || $is_unlocked_dynamic) {
                     $highest_unlocked = $b;
+                    $highest_unlocked['is_unlocked'] = true;
+                } else {
+                    // Il primo che trovo NON sbloccato è il mio prossimo obiettivo
+                    if ($next_badge === null) {
+                        $next_badge = $b;
+                    }
                 }
             }
 
+            // Costruiamo l'oggetto da visualizzare
+            $display_item = [];
+
             if ($highest_unlocked) {
-                $badges_to_display[] = $highest_unlocked;
+                $display_item = $highest_unlocked;
+                if ($next_badge) {
+                    $display_item['next_badge'] = $next_badge;
+                }
+            } else {
+                // Nessuno sbloccato. Mostriamo il primo della lista (il più facile)
+                if (!empty($badges_list)) {
+                    $first_badge = $badges_list[0];
+                    $first_badge['is_unlocked'] = false;
+                    $display_item = $first_badge;
+                    $display_item['next_badge'] = $first_badge;
+                }
+            }
+
+            if (!empty($display_item)) {
+                $badges_to_display[] = $display_item;
             }
         }
 
     } catch (PDOException $e) {
-        error_log("Errore badge profilo pubblico: " . $e->getMessage());
+        $messaggio_alert = "Errore caricamento badge: " . $e->getMessage();
     }
 }
 
