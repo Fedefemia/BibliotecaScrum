@@ -54,7 +54,7 @@ if ($user_exists && $livello > 0) {
     $uid = $uid_target;
     try {
         // 1. Recupero statistiche utente per calcolo progressi
-        $user_stats['libri_letti'] = $totale_libri_letti;
+        $user_stats['libri_letti'] = $totale_libri_letti ?? 0;
 
         $stm = $pdo->prepare("SELECT COUNT(*) FROM prestiti WHERE codice_alfanumerico = ? AND data_restituzione IS NOT NULL AND data_restituzione <= data_scadenza");
         $stm->execute([$uid]);
