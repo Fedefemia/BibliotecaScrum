@@ -1,0 +1,130 @@
+/* Reset di base per il contenitore */
+.classifica-wrapper {
+    padding: 40px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+    font-family: 'Instrument Sans', sans-serif; /* Assicurati che il font sia caricato */
+    background-color: #fcfcfc; /* Sfondo pagina chiaro */
+}
+
+/* Stile Tabella */
+.classifica-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: transparent;
+}
+
+/* Header della Tabella (POSIZIONE, UTENTE...) */
+.classifica-table th {
+    background-color: #f4f4f4; /* Grigio chiaro header */
+    color: #666;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    padding: 18px 15px;
+    border-bottom: 1px solid #ddd;
+    letter-spacing: 0.5px;
+}
+
+/* Celle Generiche */
+.classifica-table td {
+    padding: 15px;
+    vertical-align: middle;
+    border-bottom: 1px solid #eee;
+    color: #333;
+    font-size: 1rem;
+}
+
+/* --- RIGHE ALTERNATE (ZEBRA STRIPING BEIGE) --- */
+/* Righe dispari (1, 3, 5...) -> BEIGE */
+.classifica-table tr:nth-child(odd) td {
+    background-color: #f4f1ea; 
+}
+/* Righe pari (2, 4, 6...) -> BIANCO */
+.classifica-table tr:nth-child(even) td {
+    background-color: #ffffff;
+}
+
+/* Hover effect */
+.classifica-table tr:hover td {
+    background-color: #e8e4db; /* Beige leggermente più scuro all'hover */
+    transition: background 0.2s ease;
+}
+
+/* --- STILI SPECIFICI COLONNE --- */
+
+/* 1. Posizione e Icone */
+.rank-cell {
+    text-align: center;
+    width: 100px;
+}
+
+.rank-icon-top {
+    width: 48px;  /* Icone 1-5 belle grandi */
+    height: 48px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+}
+
+.rank-base-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.rank-icon-base {
+    width: 32px;  /* Icona verde piccola */
+    height: 32px;
+    object-fit: contain;
+}
+
+.rank-number {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #444;
+    min-width: 25px;
+    text-align: left;
+}
+
+/* 2. Utente */
+.user-cell {
+    font-weight: 500;
+    color: #222;
+}
+
+/* 3. Tempo (Allineato a destra come i numeri) */
+.time-cell {
+    text-align: right;
+    font-family: monospace, sans-serif; /* Per allineare meglio i numeri */
+    font-size: 1.1rem;
+    color: #333;
+}
+
+/* 4. Data */
+.date-cell {
+    text-align: right;
+    padding-right: 40px !important; /* Un po' di margine destro */
+    color: #555;
+}
+
+/* Bottone Gioca Ancora */
+.play-again-btn {
+    display: inline-block;
+    margin-top: 40px;
+    padding: 12px 30px;
+    background-color: #333;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 30px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.play-again-btn:hover {
+    background-color: #000;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}

@@ -1,64 +1,122 @@
 <?php
+// ---------------- LOGICA PHP ----------------
+error_reporting(E_ALL);
+ini_set('display_errors', 0);
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Includiamo la configurazione
-require_once 'db_config.php';
+// Inclusione DB intelligente
+if (file_exists('db_config.php')) {
+    require_once 'db_config.php';
+} else {
+    require_once '../db_config.php';
+}
 
-// Inizializziamo il messaggio per evitare errori "Undefined variable"
-$messaggio_db = '';
+$messaggio_db = "";
+$classifica = [];
 
-// --- 1. TEST SCRITTURA (INSERT) ---
-// Eseguiamo l'INSERT solo se la connessione ($pdo) esiste
 if (isset($pdo)) {
     try {
-        $nome_visitatore = isset($_SESSION['username']) ? $_SESSION['username'] . ' (Logged)' : 'Utente Web';
+        $query = "
+            SELECT c.tempo, c.data, u.username 
+            FROM classifica as c
+            JOIN utenti as u ON u.codice_alfanumerico = c.codice_alfanumerico
+            ORDER BY c.tempo ASC, c.data ASC
+            LIMIT 50
+        ";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute();
+        $classifica = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $query = 'select *, u.username from classifica as c
-        join utenti as u on u.codice_alfanumerico = c.codice_alfanumerico
-                    order by tempo asc, data asc
-                    limit 50;';
-        $stmtCons = $pdo->prepare($query);
-
-        $stmtCons->execute();
-        $output = $stmtCons->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        $messaggio_db = 'Errore Scrittura: ' . $e->getMessage();
-        $class_messaggio = 'error';
+        $messaggio_db = "Errore Database: " . $e->getMessage();
     }
-} else {
-    $messaggio_db = 'Connessione al Database non riuscita (controlla db_config.php).';
-    $class_messaggio = 'error';
 }
 ?>
 
 <?php
-// ---------------- HTML HEADER ----------------
-$title = 'Classifica - Biblioteca Scrum';
-$path = './';
-$page_css = './public/css/style_classifica.css';
-require './src/includes/header.php';
-require './src/includes/navbar.php';
+// ---------------- HTML OUTPUT ----------------
+$title = "Classifica - Biblioteca Scrum";
+$path = "./";
+
+// --- FIX CACHE ---
+// Aggiungiamo ?v=time() per costringere il browser a caricare il nuovo CSS
+$page_css = "./public/css/style_classifica.css?v=" . time(); 
+
+if(file_exists('./src/includes/header.php')) {
+    require './src/includes/header.php';
+    require './src/includes/navbar.php';
+} else {
+    require '../src/includes/header.php';
+    require '../src/includes/navbar.php';
+}
 ?>
 
- <table>
-    <tr>
-    <th>Posizione</th>
-    <th>Nome</th>
-    <th>Tempo</th>
-  </tr>
-    <?php for($i = 0; $i < count($output); $i++): ?>
-  <tr>
-    <td><?= $i<5? "" : $i + 1 ?></td>
-    <img src= <?= $i<5? "" : './public/assets/icone_classifica/classificaBase.png' ?> >
-    <td><?= $output[$i]["username"] ?></td>
-    
-    <td><?= floatval($output[$i]["tempo"]) * 0.001 ?></td>
-  </tr>
+<div class="classifica-wrapper">
+    <?php if($messaggio_db): ?>
+        <p style="color: red; font-weight: bold; text-align: center;"><?= htmlspecialchars($messaggio_db) ?></p>
+    <?php endif; ?>
 
-    <?php endfor; ?>
-</table> 
+    <table class="classifica-table">
+        <thead>
+            <tr>
+                <th style="width: 100px; text-align: center;">POSIZIONE</th>
+                <th>UTENTE</th>
+                <th style="text-align: right;">TEMPO</th>
+                <th style="text-align: right; padding-right: 40px;">DATA</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php if (!empty($classifica)): ?>
+                <?php foreach ($classifica as $index => $row): ?>
+                    <?php 
+                        $pos = $index + 1;
+                        $iconBasePath = "./public/assets/icone_classifica/";
+                    ?>
+                    <tr>
+                        <td class="rank-cell">
+                            <?php if ($pos <= 5): ?>
+                                <img src="<?= $iconBasePath . 'classifica' . $pos . '.png' ?>" alt="<?= $pos ?>" class="rank-icon-top">
+                            <?php else: ?>
+                                <div class="rank-base-wrapper">
+                                    <img src="<?= $iconBasePath . 'classifcaBase.png' ?>" alt="" class="rank-icon-base">
+                                    <span class="rank-number"><?= $pos ?></span>
+                                </div>
+                            <?php endif; ?>
+                        </td>
 
-<?php require_once './src/includes/footer.php'; ?>
+                        <td class="user-cell"><?= htmlspecialchars($row['username']) ?></td>
+                        
+                        <td class="time-cell">
+                            <?= number_format($row['tempo'] / 1000, 3) ?> s
+                        </td>
+                        
+                        <td class="date-cell">
+                            <?= date('d/m/Y', strtotime($row['data'])) ?>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="4" style="text-align:center; padding: 30px;">
+                        Nessun record presente in classifica. Gioca per essere il primo!
+                    </td>
+                </tr>
+            <?php endif; ?>
+        </tbody>
+    </table>
+
+    <div style="text-align: center;">
+        <a href="./game" class="play-again-btn">Gioca</a>
+    </div>
+</div>
+
+<?php 
+if(file_exists('./src/includes/footer.php')) {
+    require './src/includes/footer.php';
+} else {
+    require '../src/includes/footer.php';
+}
+?>
