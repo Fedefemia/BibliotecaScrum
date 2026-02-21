@@ -1,9 +1,6 @@
 <?php
-/**
- * D_libri.php - FIX BARCODE ORIGINALE + FIX NGROK
- */
 
-// --- 1. LOGICA BARCODE ORIGINALE (ROBUSTA) ---
+// --- 1. LOGICA BARCODE ---
 if (isset($_GET['generate_barcode'])) {
     while (ob_get_level()) ob_end_clean();
     require_once __DIR__ . '/../../vendor/autoload.php';
