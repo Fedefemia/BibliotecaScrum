@@ -13,7 +13,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once 'db_config.php';
-require_once '../src/includes/badgesFunctions.php';
+require_once './src/includes/badgesFunctions.php';
 require_once './phpmailer.php';
 
 $uid = $_SESSION['codice_utente'] ?? null;
