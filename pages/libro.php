@@ -201,7 +201,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 2. RECENSIONI
     if (isset($_POST['submit_review'])) {
         $voto = filter_input(INPUT_POST,'voto',FILTER_VALIDATE_INT);
-        $commento = trim(filter_var($_POST['commento'] ?? '', FILTER_SANITIZE_STRING));
+        $commento = trim($_POST['commento'] ?? '');
+        $commento = strip_tags($commento); 
         $mode = $_POST['mode'] ?? 'insert';
 
         if (strlen($commento)>$MAX_CHARS) { header("Location: ./libro?isbn=$isbn&status=toolong"); exit; }
@@ -618,8 +619,9 @@ require './src/includes/navbar.php';
             timeoutId = setTimeout(() => { hideNotification(); }, 5000);
         }
         function hideNotification() { document.getElementById('notification-banner').classList.remove('show'); }
-        const serverMessage = "<?= addslashes($server_message) ?>";
-        if (serverMessage.length > 0) { setTimeout(() => { showNotification(serverMessage); }, 500); }
+        
+        const serverMessage = <?= json_encode($server_message) ?>;
+        if (serverMessage && serverMessage.length > 0) { setTimeout(() => { showNotification(serverMessage); }, 500); }
 
         const allCopies = <?php echo json_encode($elenco_copie_dettagliato, JSON_UNESCAPED_UNICODE); ?>;
         const coverUrl = "<?= getCoverPath($libro['isbn']) ?>";
