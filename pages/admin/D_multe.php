@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("Utente $codice non trovato nel sistema.");
             }
 
-            // Inserimento Multa (id_prestito ora è NULL grazie all'ALTER TABLE)
+            // Inserimento Multa 
             $stmt = $pdo->prepare("INSERT INTO multe (id_prestito, importo, causale, data_creata, pagata) VALUES (NULL, ?, ?, CURDATE(), 0)");
             $stmt->execute([$importo, "[$codice] " . $causale]);
 

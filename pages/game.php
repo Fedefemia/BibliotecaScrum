@@ -1,4 +1,7 @@
 <?php
+
+$mostra_pulsante_soluzioni = true;
+
 // ---------------- 1. LOGICA PHP (Server Side) ----------------
 error_reporting(E_ALL);
 ini_set('display_errors', 0);
@@ -36,7 +39,6 @@ function getGameCoverPath($isbn) {
 if (isset($pdo)) {
     try {
         // 1. PRENDIAMO 20 LIBRI CASUALI
-        // DISTINCT assicura unicità DB, ma il controllo PHP sotto è la sicurezza finale
         $query = 'SELECT DISTINCT l.isbn, l.titolo, a.nome, a.cognome, ct.categoria 
                   FROM copie AS c
                   JOIN libri AS l ON c.isbn = l.isbn
@@ -52,39 +54,33 @@ if (isset($pdo)) {
 
         // 2. FILTRO PHP CON CONTROLLO RIDONDANZA
         $valid_books = [];
-        $used_isbns = []; // Array per tracciare gli ISBN già inseriti
+        $used_isbns = []; 
         
         // PASSAGGIO 1: Cerchiamo libri con copertina fisica
         foreach ($candidates as $book) {
-            // Se abbiamo già 4 libri, fermati
             if (count($valid_books) >= 4) break;
 
-            // CONTROLLO RIDONDANZA: Se l'abbiamo già preso, saltalo
             if (in_array($book['isbn'], $used_isbns)) {
                 continue;
             }
 
-            // Verifica percorso (Logica corretta: public/bookCover/ISBN.png)
             $checkPath = "public/bookCover/" . $book['isbn'] . ".png";
             
             if (file_exists($checkPath)) {
                 $valid_books[] = $book;
-                $used_isbns[] = $book['isbn']; // Segniamo l'ISBN come usato
+                $used_isbns[] = $book['isbn']; 
             }
         }
 
-        // PASSAGGIO 2 (FALLBACK): Se non ne abbiamo trovati 4 con copertina, riempiamo i buchi
+        // PASSAGGIO 2 (FALLBACK)
         if (count($valid_books) < 4) {
             foreach ($candidates as $book) {
-                // Se abbiamo raggiunto 4, fermati
                 if (count($valid_books) >= 4) break;
 
-                // CONTROLLO RIDONDANZA: Fondamentale anche qui
                 if (in_array($book['isbn'], $used_isbns)) {
                     continue; 
                 }
 
-                // Aggiungiamo il libro (avrà il placeholder)
                 $valid_books[] = $book;
                 $used_isbns[] = $book['isbn'];
             }
@@ -133,18 +129,42 @@ if(file_exists('./src/includes/header.php')) {
     
     /* Titoli e Pulsanti */
     .game_title { font-family: 'Young Serif', serif; margin-bottom: 10px; color: #333; }
-    .btn-classifica {
+    
+    .btn-container { margin-bottom: 30px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+    
+    .btn-classifica, .btn-soluzioni {
         display: inline-block;
         padding: 8px 16px;
-        background-color: #333;
         color: #fff;
         text-decoration: none;
         border-radius: 20px;
         font-size: 0.9em;
-        margin-bottom: 30px;
         transition: background 0.3s;
+        border: none;
+        cursor: pointer;
     }
+    .btn-classifica { background-color: #333; }
     .btn-classifica:hover { background-color: #555; }
+    
+    .btn-soluzioni { background-color: #007bff; }
+    .btn-soluzioni:hover { background-color: #0056b3; }
+
+    /* Pannello Soluzioni */
+    #solutions-panel {
+        display: none;
+        background-color: #f1f3f5;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 30px;
+        text-align: left;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    #solutions-panel h3 { margin-top: 0; color: #333; font-size: 1.1em; }
+    .solution-item { margin-bottom: 8px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+    .solution-item:last-child { border-bottom: none; }
 
     /* Layout Libri (Target) */
     .books-container { display: flex; justify-content: space-around; gap: 15px; margin-bottom: 40px; }
@@ -178,7 +198,26 @@ if(file_exists('./src/includes/header.php')) {
     
     <h1 class="game_title">Indovina il Libro</h1>
     
-    <a href="./classifica" class="btn-classifica">🏆 Vedi Classifica</a>
+    <div class="btn-container">
+        <a href="./classifica" class="btn-classifica">🏆 Vedi Classifica</a>
+        
+        <?php if ($mostra_pulsante_soluzioni): ?>
+            <button id="toggle-solutions-btn" class="btn-soluzioni">Mostra Soluzioni</button>
+        <?php endif; ?>
+    </div>
+
+    <?php if ($mostra_pulsante_soluzioni): ?>
+    <div id="solutions-panel">
+        <h3>Soluzioni corrette:</h3>
+        <?php foreach ($final_data as $s_book): ?>
+            <div class="solution-item">
+                <strong><?= htmlspecialchars($s_book['titolo']) ?></strong> 
+                — <em><?= htmlspecialchars($s_book['nome'] . ' ' . $s_book['cognome']) ?></em> 
+                — <span style="color: #666;"><?= htmlspecialchars($s_book['categoria']) ?></span>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <?php endif; ?>
 
     <div class="books-container">
         <?php foreach ($final_data as $book): ?>
@@ -224,15 +263,30 @@ if(file_exists('./src/includes/header.php')) {
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // LOGICA PULSANTE SOLUZIONI
+    const solBtn = document.getElementById('toggle-solutions-btn');
+    const solPanel = document.getElementById('solutions-panel');
+
+    if (solBtn && solPanel) {
+        solBtn.addEventListener('click', () => {
+            if (solPanel.style.display === 'none' || solPanel.style.display === '') {
+                solPanel.style.display = 'block';
+                solBtn.textContent = 'Nascondi Soluzioni';
+            } else {
+                solPanel.style.display = 'none';
+                solBtn.textContent = 'Mostra Soluzioni';
+            }
+        });
+    }
+
+    // LOGICA DI GIOCO ESISTENTE
     const startTime = Date.now();
-    
     const draggables = document.querySelectorAll('.draggable-item');
     const dropzones = document.querySelectorAll('.book-dropzone');
     const sources = document.querySelectorAll('.recycling-bin');
 
     let draggedItem = null;
 
-    // 1. GESTIONE DRAG START / END
     draggables.forEach(item => {
         item.addEventListener('dragstart', function() {
             draggedItem = this;
@@ -247,7 +301,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function handleDragOver(e) { e.preventDefault(); }
 
-    // 2. DROP NELLE COLONNE DEI LIBRI
     dropzones.forEach(zone => {
         zone.addEventListener('dragover', handleDragOver);
         
@@ -260,7 +313,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 3. DROP BACK NEI CESTINI
     sources.forEach(source => {
         source.addEventListener('dragover', handleDragOver);
         source.addEventListener('drop', function(e) {
@@ -272,7 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 4. FUNZIONE DI VERIFICA
     function checkZoneStatus(zone) {
         const items = zone.querySelectorAll('.draggable-item');
         const count = items.length;
@@ -301,7 +352,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // 5. VITTORIA TOTALE
     function checkGlobalWin() {
         if (document.querySelectorAll('.ready-check-correct').length === 4) {
             const timeTaken = Date.now() - startTime;
