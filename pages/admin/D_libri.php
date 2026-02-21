@@ -26,7 +26,6 @@ if (isset($_GET['generate_barcode'])) {
             echo $generator->getBarcode($isbn, $generator::TYPE_CODE_128);
         }
     } catch (Exception $e) {
-        // --- BLOCCO ERRORE CHE VOLEVI MANTENERE ---
         $img = imagecreate(150, 30);
         imagecolorallocate($img, 255, 255, 255); // Sfondo bianco
         imagestring($img, 2, 5, 5, "ERR", imagecolorallocate($img, 255, 0, 0)); // Scritta rossa
@@ -42,7 +41,6 @@ require_once 'security.php';
 if (session_status() === PHP_SESSION_NONE) session_start();
 if (!checkAccess('amministratore')) header('Location: ./');
 
-// FIX CONNESSIONE NGROK / TIMEOUT
 try {
     $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, true);
     $pdo->setAttribute(PDO::ATTR_TIMEOUT, 120);
@@ -84,6 +82,55 @@ try {
 
 // --- 3. GESTIONE POST (Create, Update, Delete) ---
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // --- AGGIUNTA AJAX AUTORE ---
+if (isset($_POST['ajax_action']) && $_POST['ajax_action'] === 'create_author_vanilla') {
+    // Pulisci il buffer per evitare output indesiderato nel JSON
+    while (ob_get_level()) ob_end_clean(); 
+    header('Content-Type: application/json');
+
+    $fullName = trim($_POST['name'] ?? '');
+    
+    if (empty($fullName)) {
+        echo json_encode(['status' => 'error', 'message' => 'Nome vuoto']);
+        exit;
+    }
+
+    // Tenta di separare Nome e Cognome
+    $parts = explode(' ', $fullName, 2);
+    $nome = $parts[0];
+    $cognome = $parts[1] ?? ''; // Se manca il cognome, lascia vuoto o gestisci come vuoi
+
+    try {
+        // Controlla se esiste già
+        $chk = $pdo->prepare("SELECT id_autore FROM autori WHERE nome = ? AND cognome = ?");
+        $chk->execute([$nome, $cognome]);
+        $existing = $chk->fetch(PDO::FETCH_ASSOC);
+
+        if ($existing) {
+            echo json_encode([
+                'status' => 'exists', 
+                'id' => $existing['id_autore'], 
+                'name' => "$nome $cognome"
+            ]);
+        } else {
+            // Inserisci nuovo
+            $stmt = $pdo->prepare("INSERT INTO autori (nome, cognome) VALUES (?, ?)");
+            $stmt->execute([$nome, $cognome]);
+            $newId = $pdo->lastInsertId();
+
+            echo json_encode([
+                'status' => 'success', 
+                'id' => $newId, 
+                'name' => "$nome $cognome"
+            ]);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
+    }
+    exit; // Importante: ferma l'esecuzione qui per non stampare l'HTML della pagina
+}
+
     
     // CREATE
     if (isset($_POST['action']) && $_POST['action'] === 'create') {
@@ -173,7 +220,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // 1. Aggiorna Tabella Libri
             if ($old_isbn != $new_isbn) {
                 $pdo->exec("SET FOREIGN_KEY_CHECKS=0");
-                // Controlla se il campo si chiama 'descrizione' o 'description' nel tuo DB. Qui uso 'descrizione'.
                 $pdo->prepare("UPDATE libri SET isbn = ?, titolo = ?, descrizione = ?, anno_pubblicazione = ? WHERE isbn = ?")
                     ->execute([$new_isbn, $titolo, $descrizione, $anno, $old_isbn]);
                 
@@ -230,6 +276,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+
 // --- 4. LETTURA DATI ---
 try {
     $per_page = 10;
@@ -251,6 +298,7 @@ try {
 } catch (Exception $e) { die("Errore DB: " . $e->getMessage()); }
 
 $edit_isbn = $_GET['edit'] ?? null;
+
 
 // ---------------- HTML HEADER ----------------
 $path = "../";
@@ -582,7 +630,7 @@ require_once './src/includes/navbar.php';
             formData.append('ajax_action', 'create_author_vanilla');
             formData.append('name', nameToAdd);
 
-            fetch('D_libri.php', {
+            fetch(window.location.href, {
                 method: 'POST',
                 body: formData
             })
@@ -596,7 +644,7 @@ require_once './src/includes/navbar.php';
                     newDiv.innerHTML = `
                         <label style="display:flex; align-items:center; cursor:pointer; font-size:0.9rem; background-color: #e6fffa;">
                             <input type="checkbox" name="autori[]" value="${data.id}" checked style="margin-right:8px;">
-                            <span class="auth_name">${data.name}</span> <b style="margin-left:5px; color:green;">(Nuovo)</b>
+                            <span class="auth_name">${data.name}</span> <b style="margin-left:5px; color:green;"></b>
                         </label>
                     `;
                     container.insertBefore(newDiv, container.firstChild);
